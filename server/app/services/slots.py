@@ -25,12 +25,23 @@ def _overlaps(start: datetime, end: datetime, other_start: datetime, other_end: 
 
 def get_working_window(db: Session, provider_id: int, day: date) -> tuple[datetime, datetime] | None:
     weekday = (day.weekday())  # 0=Mon
+    
+    # Проверяем, настраивал ли вообще провайдер рабочее время
+    total_wh_count = db.query(WorkingHours).filter(WorkingHours.user_id == provider_id).count()
+    if total_wh_count == 0:
+        # Дефолтный график для новых мастеров: Пн-Пт с 09:00 до 18:00, Сб-Вс — выходные
+        if weekday < 5:
+            from datetime import time
+            return _combine(day, time(9, 0)), _combine(day, time(18, 0))
+        return None
+
     wh = (
         db.query(WorkingHours)
         .filter(WorkingHours.user_id == provider_id, WorkingHours.weekday == weekday)
         .first()
     )
     if wh is None:
+        # Если график настроен, но на этот день недели записи нет — значит выходной
         return None
     return _combine(day, wh.start_time), _combine(day, wh.end_time)
 

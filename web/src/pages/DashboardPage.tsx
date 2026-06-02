@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiFetch } from "@/api/client";
 import { useAuth } from "@/context/AuthContext";
+import { WelcomeWizardModal } from "@/components/WelcomeWizardModal";
 import type { AppointmentOut, ClientOut } from "@/types";
 
 function startOfWeek(d: Date): Date {
@@ -75,27 +76,34 @@ export function DashboardPage() {
   const [appts, setAppts] = useState<AppointmentOut[]>([]);
   const [err, setErr] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [workingHours, setWorkingHours] = useState<unknown[]>([]);
+
+  const reloadAll = useCallback(async (alive = true) => {
+    try {
+      const [c, a, wh] = await Promise.all([
+        apiFetch<ClientOut[]>("/clients"),
+        apiFetch<AppointmentOut[]>("/appointments"),
+        apiFetch<unknown[]>("/users/me/working-hours").catch(() => []),
+      ]);
+      if (!alive) return;
+      setClients(c);
+      setAppts(a);
+      setWorkingHours(wh);
+    } catch (e) {
+      if (!alive) return;
+      setErr(e instanceof Error ? e.message : "Ошибка загрузки");
+    } finally {
+      if (alive) setLoaded(true);
+    }
+  }, []);
 
   useEffect(() => {
     let alive = true;
-    (async () => {
-      try {
-        const [c, a] = await Promise.all([
-          apiFetch<ClientOut[]>("/clients"),
-          apiFetch<AppointmentOut[]>("/appointments"),
-        ]);
-        if (!alive) return;
-        setClients(c);
-        setAppts(a);
-      } catch (e) {
-        if (!alive) return;
-        setErr(e instanceof Error ? e.message : "Ошибка загрузки");
-      } finally {
-        setLoaded(true);
-      }
-    })();
-    return () => { alive = false; };
-  }, []);
+    void reloadAll(alive);
+    return () => {
+      alive = false;
+    };
+  }, [reloadAll]);
 
   const now = new Date();
   const stats = useMemo(() => {
@@ -298,6 +306,10 @@ export function DashboardPage() {
           </div>
         )}
       </section>
+
+      {loaded && user?.role === "private_person" && workingHours.length === 0 && (
+        <WelcomeWizardModal onCompleted={() => void reloadAll()} />
+      )}
     </div>
   );
 }
