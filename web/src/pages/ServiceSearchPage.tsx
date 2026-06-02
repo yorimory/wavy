@@ -7,13 +7,13 @@ import type { CatalogServiceOut, DaySlotsOut, ProviderOut, ServiceOut } from "@/
 /* ─────────────────────────── constants ─────────────────────────── */
 
 const CATEGORY_ICONS: Record<string, string> = {
-  "Парикмахерские услуги": "💇‍♀️",
-  "Маникюр и педикюр": "💅",
-  "Массаж и СПА": "💆‍♂️",
-  "Косметология": "✨",
-  "Макияж и брови": "💄",
-  "Обучение и консультации": "🎓",
-  "Другое": "🛠️",
+  "Парикмахерские услуги": "content_cut",
+  "Маникюр и педикюр": "back_hand",
+  "Массаж и СПА": "spa",
+  "Косметология": "face_5",
+  "Макияж и брови": "brush",
+  "Обучение и консультации": "school",
+  "Другое": "miscellaneous_services",
 };
 
 /* ─────────────────────────── BookingModal ─────────────────────────── */
@@ -110,8 +110,11 @@ function BookingModal({ service, days, loading, booking, err, ok, onBook, onClos
                 </span>
               )}
               {service.category && (
-                <span className="inline-flex items-center text-xs font-bold text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-full">
-                  {CATEGORY_ICONS[service.category] ?? "🛠️"} {service.category}
+                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-full">
+                  <span className="material-symbols-outlined text-[13px]">
+                    {CATEGORY_ICONS[service.category] ?? "miscellaneous_services"}
+                  </span>
+                  {service.category}
                 </span>
               )}
             </div>
@@ -531,7 +534,7 @@ export function ServiceSearchPage() {
                         : "bg-white border-outline-variant/30 text-on-surface-variant hover:border-primary/30"
                     }`}
                   >
-                    <span>{CATEGORY_ICONS[cat]}</span>
+                    <span className="material-symbols-outlined text-[16px]">{CATEGORY_ICONS[cat]}</span>
                     <span>{cat}</span>
                   </button>
                 ))}
@@ -575,8 +578,11 @@ export function ServiceSearchPage() {
                         <div className="font-bold text-base text-on-surface leading-tight">{s.title}</div>
                         <p className="text-xs text-primary font-semibold mt-0.5">{s.provider_name}</p>
                         {s.category && (
-                          <span className="inline-block text-[9px] font-bold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-md mt-1.5">
-                            {CATEGORY_ICONS[s.category] ?? ""} {s.category}
+                          <span className="inline-flex items-center gap-1 text-[9px] font-bold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-md mt-1.5">
+                            <span className="material-symbols-outlined text-[11px]">
+                              {CATEGORY_ICONS[s.category] ?? "miscellaneous_services"}
+                            </span>
+                            {s.category}
                           </span>
                         )}
                       </div>

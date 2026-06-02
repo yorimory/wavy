@@ -79,7 +79,7 @@ export function ClientHomePage() {
         <div aria-hidden className="absolute bottom-[-30px] left-[30%] w-[150px] h-[150px] rounded-full bg-white/5 blur-xl pointer-events-none" />
 
         <div className="relative z-10">
-          <p className="text-white/60 text-sm font-semibold mb-1">{greeting} 👋</p>
+          <p className="text-white/60 text-sm font-semibold mb-1">{greeting}</p>
           <h2 className="text-3xl font-black text-white tracking-tight">
             {firstName ? `Привет, ${firstName}!` : "Добро пожаловать!"}
           </h2>

@@ -58,7 +58,7 @@ def compute_slots_for_day(
 
     day_start, day_end = window
     duration = timedelta(minutes=service.duration_minutes)
-    step = timedelta(minutes=SLOT_STEP_MINUTES)
+    step = duration
 
     day_from = datetime.combine(day, time.min)
     day_to = datetime.combine(day, time.max)

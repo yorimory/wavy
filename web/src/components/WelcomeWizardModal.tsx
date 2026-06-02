@@ -128,8 +128,8 @@ export function WelcomeWizardModal({ onCompleted }: WelcomeWizardModalProps) {
       >
         {/* Шапка приветствия */}
         <div className="text-center mb-8">
-          <div className="inline-flex w-12 h-12 rounded-2xl primary-gradient items-center justify-center text-white font-black text-lg mb-3 shadow-glow-sm">
-            ✨
+          <div className="inline-flex w-12 h-12 rounded-2xl primary-gradient items-center justify-center text-white mb-3 shadow-glow-sm">
+            <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
           </div>
           <h3 className="text-2xl font-black text-on-surface tracking-tight">
             Добро пожаловать в Wavy CRM!
@@ -310,7 +310,7 @@ export function WelcomeWizardModal({ onCompleted }: WelcomeWizardModalProps) {
               ) : step === 1 ? (
                 "Продолжить"
               ) : (
-                "Начать работу с Wavy CRM ✨"
+                "Начать работу с Wavy CRM"
               )}
             </button>
           </div>

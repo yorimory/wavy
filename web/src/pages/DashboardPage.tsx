@@ -132,21 +132,15 @@ export function DashboardPage() {
   const displayName = user?.full_name?.trim().split(" ")[0] || user?.email?.split("@")[0] || "мастер";
   const greetingHour = now.getHours();
   const greeting =
-    greetingHour < 12 ? "Доброе утро" : greetingHour < 18 ? "Добрый день" : "Добрый вечер";
-
-  const quickActions = [
-    { label: "Новая запись", icon: "add_circle", to: "/calendar?new=1", color: "text-primary" },
-    { label: "Новый клиент", icon: "person_add", to: "/clients?create=1", color: "text-secondary" },
-    { label: "Календарь",    icon: "calendar_month", to: "/calendar",   color: "text-tertiary" },
-    { label: "Retention",   icon: "auto_awesome",  to: "/retention",   color: "text-accent-violet" },
-  ];
+    greetingHour < 12 ? "Доброе утро" : greetingHour < 18 ? "Добрый день" : "Добрый evening" === "Добрый evening" ? "Добрый вечер" : "";
 
   return (
-    <div className="space-y-10 animate-fade-up">
-      {/* ── Header ── */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <p className="section-label mb-1">{greeting} 👋</p>
+    <>
+      <div className="space-y-10 animate-fade-up">
+        {/* ── Header ── */}
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <p className="section-label mb-1">{greeting}</p>
           <div className="flex items-center gap-3 flex-wrap">
             <h2 className="text-3xl md:text-4xl font-black text-on-surface tracking-tight">
               {displayName}
@@ -212,31 +206,6 @@ export function DashboardPage() {
             </div>
           );
         })}
-      </section>
-
-      {/* ── Quick actions ── */}
-      <section>
-        <p className="section-label mb-3">Быстрые действия</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {quickActions.map((a) => (
-            <button
-              key={a.to}
-              type="button"
-              onClick={() => navigate(a.to)}
-              className="card-hover p-5 flex flex-col items-start gap-3 text-left group"
-            >
-              <div className="w-10 h-10 rounded-2xl bg-surface-container flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                <span
-                  className={`material-symbols-outlined text-[20px] ${a.color}`}
-                  style={{ fontVariationSettings: "'FILL' 0, 'wght' 400" }}
-                >
-                  {a.icon}
-                </span>
-              </div>
-              <span className="font-bold text-sm text-on-surface leading-tight">{a.label}</span>
-            </button>
-          ))}
-        </div>
       </section>
 
       {/* ── Upcoming appointments ── */}
@@ -307,9 +276,11 @@ export function DashboardPage() {
         )}
       </section>
 
-      {loaded && user?.role === "private_person" && workingHours.length === 0 && (
-        <WelcomeWizardModal onCompleted={() => void reloadAll()} />
-      )}
     </div>
+
+    {loaded && user?.role === "private_person" && workingHours.length === 0 && (
+      <WelcomeWizardModal onCompleted={() => void reloadAll()} />
+    )}
+  </>
   );
 }
