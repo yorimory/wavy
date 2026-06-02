@@ -72,8 +72,8 @@ export function WorkingHoursModal({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-[28px] bg-surface-container-lowest shadow-2xl border border-outline-variant/30 p-5 sm:p-8 max-h-[85dvh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-t-[28px] sm:rounded-[28px] bg-surface-container-lowest shadow-2xl border border-outline-variant/30 p-5 sm:p-8 max-h-[90dvh] sm:max-h-[85dvh] overflow-y-auto">
         <div className="flex justify-between items-start gap-4 mb-4">
           <div>
             <h3 className="text-xl font-black text-on-surface">Моё рабочее время</h3>

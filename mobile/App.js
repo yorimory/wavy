@@ -1,10 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, SafeAreaView, Platform, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, SafeAreaView, Platform, ActivityIndicator, Text, TouchableOpacity, LogBox } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
+LogBox.ignoreLogs([
+  'expo-notifications: Android Push notifications',
+  'Error getting Expo Push Token',
+]);
 
 // Конфигурация всплытия локальных уведомлений
 Notifications.setNotificationHandler({
@@ -51,13 +55,18 @@ export default function App() {
       }
       
       try {
+        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+        if (!projectId) {
+          console.log('No EAS projectId found in app.json. Skipping push token registration.');
+          return;
+        }
         const tokenData = await Notifications.getExpoPushTokenAsync({
-          projectId: Constants.expoConfig?.extra?.eas?.projectId,
+          projectId,
         });
         setToken(tokenData.data);
         console.log('Expo Push Token received:', tokenData.data);
       } catch (error) {
-        console.error('Error getting Expo Push Token:', error);
+        console.log('Error getting Expo Push Token:', error.message);
       }
     }
 
@@ -150,6 +159,12 @@ export default function App() {
               <ActivityIndicator size="large" color="#4f378a" />
             </View>
           )}
+          androidLayerType="hardware"
+          decelerationRate="normal"
+          overScrollMode="never"
+          allowsBackForwardNavigationGestures={true}
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </SafeAreaView>

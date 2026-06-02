@@ -178,7 +178,7 @@ export function PrivatePersonCalendar() {
   const monthLabel = weekStart.toLocaleDateString("ru-RU", { month: "long" }).toUpperCase();
 
   return (
-    <div className="flex flex-col min-h-full bg-surface -m-6 md:-m-10 lg:-m-10">
+    <div className="flex flex-col min-h-full bg-surface">
       <header className="hidden md:flex justify-between items-center w-full px-8 lg:px-12 py-6 bg-surface sticky top-0 z-10 shrink-0">
         <div className="flex items-center gap-6">
           <h2 className="text-2xl font-extrabold text-on-surface tracking-tight">Календарь</h2>
@@ -296,7 +296,7 @@ export function PrivatePersonCalendar() {
 
       {err && <p className="text-error font-medium px-8">{err}</p>}
 
-      <section className="flex-1 px-4 md:px-8 lg:px-12 pb-12 min-h-0 flex flex-col">
+      <section className="flex-1 px-4 md:px-8 lg:px-12 pb-24 md:pb-12 min-h-0 flex flex-col">
         <div className="bg-surface-container-lowest rounded-[32px] shadow-[0px_4px_20px_rgba(0,0,0,0.04)] overflow-hidden border border-outline-variant/10 flex flex-col flex-1 min-h-[480px]">
           <div className="overflow-x-auto no-scrollbar flex-1 flex flex-col">
             <div className={`${view === "week" ? "min-w-[700px] md:min-w-0" : "w-full"} flex flex-col flex-1`}>
@@ -457,7 +457,7 @@ export function PrivatePersonCalendar() {
 
       <button
         type="button"
-        className="fixed bottom-8 right-8 w-16 h-16 bg-primary text-white rounded-[24px] shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-30"
+        className="fixed bottom-24 md:bottom-8 right-4 md:right-8 w-16 h-16 bg-primary text-white rounded-[24px] shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-30"
         onClick={() => {
           setModal({ mode: "create" });
           setSearchParams({ new: "1" });

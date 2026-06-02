@@ -133,9 +133,9 @@ export function WelcomeWizardModal({ onCompleted }: WelcomeWizardModalProps) {
     "w-full rounded-2xl border border-outline-variant/60 bg-surface-container-low px-4 py-3.5 outline-none focus:ring-2 focus:ring-primary/30 text-on-surface transition-all placeholder:text-on-surface-variant/40";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-md">
       <div
-        className="w-full max-w-xl rounded-[32px] bg-surface-container-lowest shadow-2xl border border-outline-variant/20 p-6 md:p-10 max-h-[90dvh] overflow-y-auto"
+        className="w-full max-w-xl rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest shadow-2xl border border-outline-variant/20 p-6 md:p-10 max-h-[90dvh] sm:max-h-[85dvh] overflow-y-auto"
         style={{ animation: "scaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both" }}
       >
         {/* Шапка приветствия */}
