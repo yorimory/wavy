@@ -103,80 +103,82 @@ export function ServicesPage() {
   }, []);
 
   return (
-    <div className="space-y-6 animate-fade-up">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-black text-on-surface tracking-tight">Услуги</h2>
-          <p className="text-on-surface-variant mt-1 text-sm">
-            {loading ? "Загрузка…" : `${items.length} услуг в вашем каталоге`}
-          </p>
-        </div>
-        <button
-          type="button"
-          className="btn-primary self-start"
-          onClick={() => setModal({ mode: "create" })}
-        >
-          <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>add_circle</span>
-          Новая услуга
-        </button>
-      </div>
-
-      {loading ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          {[1, 2, 3, 4].map((n) => <div key={n} className="h-36 skeleton rounded-3xl" />)}
-        </div>
-      ) : items.length === 0 ? (
-        <div className="card p-12 text-center space-y-3">
-          <span className="material-symbols-outlined text-[52px] text-on-surface-variant/20 block">spa</span>
-          <p className="font-bold text-on-surface-variant">Нет услуг</p>
-          <p className="text-sm text-on-surface-variant/60">Добавьте первую услугу — клиенты увидят её в поиске</p>
-        </div>
-      ) : null}
-
-      <div className="grid gap-4 md:grid-cols-2">
-        {items.map((s) => (
-          <article
-            key={s.id}
-            className={`rounded-[24px] border p-5 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover:scale-[1.015] hover:shadow-[0px_12px_30px_rgba(0,0,0,0.08)] transition-all duration-300 flex gap-4 ${s.is_active ? "bg-white border-outline-variant/20" : "bg-surface-container/50 border-dashed opacity-75"}`}
+    <>
+      <div className="space-y-6 animate-fade-up">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-black text-on-surface tracking-tight">Услуги</h2>
+            <p className="text-on-surface-variant mt-1 text-sm">
+              {loading ? "Загрузка…" : `${items.length} услуг в вашем каталоге`}
+            </p>
+          </div>
+          <button
+            type="button"
+            className="btn-primary self-start"
+            onClick={() => setModal({ mode: "create" })}
           >
-            {s.image_url ? (
-              <img
-                src={s.image_url}
-                alt={s.title}
-                className="w-24 h-24 rounded-2xl object-cover shrink-0 bg-surface-container shadow-sm border border-outline-variant/10"
-              />
-            ) : (
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center shrink-0 border border-outline-variant/10">
-                <span className="material-symbols-outlined text-primary/50 text-[32px]">spa</span>
-              </div>
-            )}
-            <div className="flex-1 min-w-0 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start gap-2 mb-1">
-                  <h3 className="text-lg font-bold text-on-surface truncate">{s.title}</h3>
-                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shrink-0 ${s.is_active ? "bg-primary-container/20 text-primary" : "bg-surface-container text-on-surface-variant"}`}>
-                    {s.is_active ? "Активна" : "Скрыта"}
-                  </span>
+            <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>add_circle</span>
+            Новая услуга
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="grid gap-4 md:grid-cols-2">
+            {[1, 2, 3, 4].map((n) => <div key={n} className="h-36 skeleton rounded-3xl" />)}
+          </div>
+        ) : items.length === 0 ? (
+          <div className="card p-12 text-center space-y-3">
+            <span className="material-symbols-outlined text-[52px] text-on-surface-variant/20 block">spa</span>
+            <p className="font-bold text-on-surface-variant">Нет услуг</p>
+            <p className="text-sm text-on-surface-variant/60">Добавьте первую услугу — клиенты увидят её в поиске</p>
+          </div>
+        ) : null}
+
+        <div className="grid gap-4 md:grid-cols-2">
+          {items.map((s) => (
+            <article
+              key={s.id}
+              className={`rounded-[24px] border p-5 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover:scale-[1.015] hover:shadow-[0px_12px_30px_rgba(0,0,0,0.08)] transition-all duration-300 flex gap-4 ${s.is_active ? "bg-white border-outline-variant/20" : "bg-surface-container/50 border-dashed opacity-75"}`}
+            >
+              {s.image_url ? (
+                <img
+                  src={s.image_url}
+                  alt={s.title}
+                  className="w-24 h-24 rounded-2xl object-cover shrink-0 bg-surface-container shadow-sm border border-outline-variant/10"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center shrink-0 border border-outline-variant/10">
+                  <span className="material-symbols-outlined text-primary/50 text-[32px]">spa</span>
                 </div>
-                {s.category && (
-                  <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/5 px-2 py-0.5 rounded-md mb-2">
-                    {s.category}
+              )}
+              <div className="flex-1 min-w-0 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-start gap-2 mb-1">
+                    <h3 className="text-lg font-bold text-on-surface truncate">{s.title}</h3>
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shrink-0 ${s.is_active ? "bg-primary-container/20 text-primary" : "bg-surface-container text-on-surface-variant"}`}>
+                      {s.is_active ? "Активна" : "Скрыта"}
+                    </span>
+                  </div>
+                  {s.category && (
+                    <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/5 px-2 py-0.5 rounded-md mb-2">
+                      {s.category}
+                    </span>
+                  )}
+                  {s.description && <p className="text-sm text-on-surface-variant line-clamp-2 mb-2 leading-relaxed">{s.description}</p>}
+                </div>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-outline-variant/10">
+                  <span className="text-sm font-bold text-on-surface">
+                    {s.duration_minutes} мин
+                    {s.price != null ? ` · ${s.price} BYN` : ""}
                   </span>
-                )}
-                {s.description && <p className="text-sm text-on-surface-variant line-clamp-2 mb-2 leading-relaxed">{s.description}</p>}
+                  <button type="button" className="text-sm font-bold text-primary hover:underline" onClick={() => setModal({ mode: "edit", item: s })}>
+                    Изменить
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center justify-between mt-2 pt-2 border-t border-outline-variant/10">
-                <span className="text-sm font-bold text-on-surface">
-                  {s.duration_minutes} мин
-                  {s.price != null ? ` · ${s.price} BYN` : ""}
-                </span>
-                <button type="button" className="text-sm font-bold text-primary hover:underline" onClick={() => setModal({ mode: "edit", item: s })}>
-                  Изменить
-                </button>
-              </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          ))}
+        </div>
       </div>
 
       {modal && (
@@ -191,7 +193,7 @@ export function ServicesPage() {
           }}
         />
       )}
-    </div>
+    </>
   );
 }
 
