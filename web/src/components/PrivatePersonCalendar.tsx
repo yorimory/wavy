@@ -230,13 +230,6 @@ export function PrivatePersonCalendar() {
             Моё рабочее время
           </button>
           <div className="flex items-center gap-3 ml-2">
-            <button type="button" className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
-              <span className="material-symbols-outlined text-on-surface-variant">search</span>
-            </button>
-            <button type="button" className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors relative">
-              <span className="material-symbols-outlined text-on-surface-variant">notifications</span>
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-error rounded-full border-2 border-surface" />
-            </button>
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-sm">
               {(user?.full_name || user?.email || "?").charAt(0).toUpperCase()}
             </div>

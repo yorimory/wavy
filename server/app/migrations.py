@@ -73,6 +73,10 @@ def run_schema_migrations() -> None:
     Base.metadata.create_all(bind=engine)
     
     with engine.begin() as conn:
+        if not _column_exists(conn, "users", "phone"):
+            logger.info("Migration: add users.phone")
+            conn.execute(text("ALTER TABLE users ADD COLUMN phone VARCHAR(64) NULL AFTER full_name"))
+
         if not _column_exists(conn, "users", "role"):
             logger.info("Migration: add users.role")
             conn.execute(

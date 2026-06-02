@@ -131,12 +131,19 @@ export function ShellLayout() {
           <span className="font-black text-primary text-lg tracking-tight">WAVY</span>
         </div>
 
-        {/* Right side: user avatar + role */}
+        {/* Right side: user avatar + role + logout */}
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-on-surface-variant/60 font-semibold hidden xs:block">
             {user ? ROLE_LABELS[user.role] : ""}
           </span>
           <Avatar name={user?.full_name} email={user?.email} />
+          <button
+            type="button"
+            className="w-9 h-9 flex items-center justify-center rounded-xl text-on-surface-variant/70 hover:text-error hover:bg-error/10 active:scale-95 transition-all"
+            onClick={() => { logout(); navigate("/login"); }}
+          >
+            <span className="material-symbols-outlined text-[20px]">logout</span>
+          </button>
         </div>
       </header>
 

@@ -36,6 +36,7 @@ class UserOut(BaseModel):
     id: int
     email: EmailStr
     full_name: str
+    phone: str | None = None
     avatar_url: str | None
     role: UserRole
     subscription_tier: SubscriptionTier
@@ -49,6 +50,7 @@ class UserOut(BaseModel):
 
 class UserPatchIn(BaseModel):
     full_name: str | None = None
+    phone: str | None = None
     avatar_url: str | None = None
     moderation_enabled: bool | None = None
     moderation_strictness: ModerationStrictness | None = None

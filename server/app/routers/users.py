@@ -19,6 +19,8 @@ def get_me(user: User = Depends(get_current_user)):
 def patch_me(data: UserPatchIn, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if data.full_name is not None:
         user.full_name = data.full_name
+    if data.phone is not None:
+        user.phone = data.phone
     if data.avatar_url is not None:
         user.avatar_url = data.avatar_url
     if data.moderation_enabled is not None:

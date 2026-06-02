@@ -32,8 +32,7 @@ export function SettingsPage() {
 
   const [me, setMe] = useState<UserOut | null>(null);
   const [fullName, setFullName] = useState("");
-  const [modOn, setModOn] = useState(true);
-  const [strict, setStrict] = useState<"low" | "medium" | "high">("medium");
+  const [phone, setPhone] = useState("");
   const [hours, setHours] = useState<{ weekday: number; start: string; end: string }[]>(() =>
     [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({
       weekday,
@@ -41,10 +40,45 @@ export function SettingsPage() {
       end: weekday < 5 ? "18:00" : "",
     })),
   );
-  const [modText, setModText] = useState("");
-  const [modResult, setModResult] = useState<ModerationCheckOut | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+
+  function formatPhone(raw: string): string {
+    const digits = raw.replace(/\D/g, "");
+    if (digits.startsWith("375")) {
+      const code = digits.slice(3, 5);
+      const part1 = digits.slice(5, 8);
+      const part2 = digits.slice(8, 10);
+      const part3 = digits.slice(10, 12);
+      let formatted = "+375";
+      if (code) formatted += ` (${code}`;
+      if (digits.length > 5) formatted += `) ${part1}`;
+      if (digits.length > 8) formatted += `-${part2}`;
+      if (digits.length > 10) formatted += `-${part3}`;
+      return formatted;
+    }
+    if (digits.startsWith("7") || digits.startsWith("8")) {
+      const cleanDigits = digits.startsWith("8") ? "7" + digits.slice(1) : digits;
+      const code = cleanDigits.slice(1, 4);
+      const part1 = cleanDigits.slice(4, 7);
+      const part2 = cleanDigits.slice(7, 9);
+      const part3 = cleanDigits.slice(9, 11);
+      let formatted = "+7";
+      if (code) formatted += ` (${code}`;
+      if (cleanDigits.length > 4) formatted += `) ${part1}`;
+      if (cleanDigits.length > 7) formatted += `-${part2}`;
+      if (cleanDigits.length > 9) formatted += `-${part3}`;
+      return formatted;
+    }
+    if (digits.length > 0) {
+      return "+" + digits.slice(0, 15);
+    }
+    return raw;
+  }
+
+  const handlePhoneChange = (val: string) => {
+    setPhone(formatPhone(val));
+  };
 
   async function load() {
     setPageLoading(true);
@@ -55,8 +89,7 @@ export function SettingsPage() {
       ]);
       setMe(u);
       setFullName(u.full_name ?? "");
-      setModOn(u.moderation_enabled);
-      setStrict(u.moderation_strictness);
+      setPhone(u.phone ?? "");
       if (wh.length) {
         const map = new Map(wh.map((r) => [r.weekday, r]));
         setHours(
@@ -87,8 +120,7 @@ export function SettingsPage() {
         method: "PATCH",
         body: JSON.stringify({
           full_name: fullName.trim(),
-          moderation_enabled: modOn,
-          moderation_strictness: strict,
+          phone: phone.trim() || null,
         }),
       });
       setMe(u);
@@ -124,36 +156,7 @@ export function SettingsPage() {
     }
   }
 
-  async function onDevTier(tier: "free" | "premium") {
-    setBusy(true);
-    try {
-      const u = await apiFetch<UserOut>(`/users/me/dev-set-tier?tier=${tier}`, { method: "POST" });
-      setMe(u);
-      await refreshUser();
-      toast.success(`Тариф переключён: ${tier}`);
-    } catch (ex) {
-      toast.error(ex instanceof Error ? ex.message : "Ошибка");
-    } finally {
-      setBusy(false);
-    }
-  }
 
-  async function onModerationCheck(e: FormEvent) {
-    e.preventDefault();
-    setModResult(null);
-    setBusy(true);
-    try {
-      const out = await apiFetch<ModerationCheckOut>("/moderation/check", {
-        method: "POST",
-        body: JSON.stringify({ text: modText, source: "note" }),
-      });
-      setModResult(out);
-    } catch (ex) {
-      toast.error(ex instanceof Error ? ex.message : "Ошибка модерации");
-    } finally {
-      setBusy(false);
-    }
-  }
 
   /* ── Skeleton loading state ── */
   if (pageLoading) {
@@ -196,7 +199,7 @@ export function SettingsPage() {
 
       {/* ── Profile card ── */}
       <SectionCard
-        title={privatePerson ? "Профиль и модерация" : "Профиль"}
+        title="Профиль"
         subtitle="Публичная информация о вас"
       >
         <form onSubmit={onSaveProfile} className="space-y-4">
@@ -208,33 +211,18 @@ export function SettingsPage() {
             </div>
           </div>
 
-          {privatePerson && (
-            <div className="space-y-3 pt-2 border-t border-outline-variant/10">
-              <p className="section-label">Модерация текста</p>
-              <label className="flex items-center justify-between gap-3 cursor-pointer p-4 rounded-2xl bg-surface-container-low border border-outline-variant/10 hover:border-primary/20 transition-all">
-                <div>
-                  <p className="font-bold text-on-surface text-sm">Модерация включена</p>
-                  <p className="text-xs text-on-surface-variant mt-0.5">Проверять отзывы и заметки на спам</p>
-                </div>
-                {/* Toggle switch */}
-                <div
-                  onClick={() => setModOn((v) => !v)}
-                  className={`relative w-11 h-6 rounded-full transition-all cursor-pointer shrink-0 ${modOn ? "bg-primary" : "bg-outline-variant/40"}`}
-                >
-                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${modOn ? "left-6" : "left-1"}`} />
-                </div>
-              </label>
-
-              <div className="space-y-1.5">
-                <label className="section-label">Строгость проверки</label>
-                <select className={ic} value={strict} onChange={(e) => setStrict(e.target.value as typeof strict)}>
-                  <option value="low">Низкая — только очевидный спам</option>
-                  <option value="medium">Средняя — баланс точности</option>
-                  <option value="high">Высокая — максимальная фильтрация</option>
-                </select>
-              </div>
+          <div className="space-y-1.5">
+            <label className="section-label">Номер телефона</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-[18px]">phone</span>
+              <input
+                className={`${ic} pl-11`}
+                value={phone}
+                onChange={(e) => handlePhoneChange(e.target.value)}
+                placeholder="+375 (29) 123-45-67"
+              />
             </div>
-          )}
+          </div>
 
           <button type="submit" disabled={busy} className="btn-primary">
             {busy ? (
@@ -321,65 +309,6 @@ export function SettingsPage() {
         </SectionCard>
       )}
 
-      {/* ── Moderation check ── */}
-      {privatePerson && (
-        <SectionCard title="Проверка модерации" subtitle="Проверьте любой текст через Premium-фильтр">
-          <form onSubmit={onModerationCheck} className="space-y-4">
-            <textarea
-              className={`${ic} min-h-[100px] resize-none`}
-              value={modText}
-              onChange={(e) => setModText(e.target.value)}
-              placeholder="Вставьте текст отзыва или заметки…"
-            />
-            {modResult && (
-              <div className="space-y-2 p-4 rounded-2xl bg-surface-container-low border border-outline-variant/15 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-on-surface">Вердикт:</span>
-                  <span className={`font-black px-2 py-0.5 rounded-full text-xs ${modResult.verdict === "clean" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
-                    {modResult.verdict}
-                  </span>
-                </div>
-                <p><span className="font-bold">Флаги:</span> <span className="text-on-surface-variant">{modResult.flags.join(", ") || "—"}</span></p>
-                {modResult.sanitized_suggestion && (
-                  <p><span className="font-bold">Подсказка:</span> <span className="text-on-surface-variant">{modResult.sanitized_suggestion}</span></p>
-                )}
-              </div>
-            )}
-            <button type="submit" disabled={busy || !modText.trim()} className="btn-secondary">
-              <span className="material-symbols-outlined text-[16px]">policy</span>
-              Проверить текст
-            </button>
-          </form>
-        </SectionCard>
-      )}
-
-      {/* ── Dev mode ── */}
-      {privatePerson && (
-        <div className="p-6 rounded-3xl bg-tertiary-fixed/20 border border-outline-variant/15 space-y-4">
-          <div>
-            <h3 className="text-lg font-black text-on-surface">Режим разработки</h3>
-            <p className="text-sm text-on-surface-variant mt-0.5">Переключение тарифа без оплаты (DEV_MODE).</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              disabled={busy}
-              className="px-5 py-3 rounded-2xl bg-white border border-outline-variant/30 font-bold text-sm text-on-surface hover:border-primary/30 hover:shadow-sm transition-all disabled:opacity-50"
-              onClick={() => void onDevTier("free")}
-            >
-              Установить Free
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              className="px-5 py-3 rounded-2xl primary-gradient text-white font-bold text-sm shadow-glow-sm hover:shadow-glow transition-all disabled:opacity-50"
-              onClick={() => void onDevTier("premium")}
-            >
-              ✦ Установить Premium
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

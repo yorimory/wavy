@@ -166,26 +166,7 @@ export function AppointmentModal({
         </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
-          {/* Клиент */}
-          {clients.length > 0 && (
-            <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1">
-                Клиент
-              </label>
-              <select
-                className={ic}
-                value={clientId}
-                onChange={(e) => setClientId(e.target.value)}
-              >
-                <option value="">— не выбран —</option>
-                {clients.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.full_name} {c.phone ? `(${c.phone})` : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+
 
           {/* Услуга */}
           {activeServices.length > 0 && (
@@ -224,13 +205,13 @@ export function AppointmentModal({
           </div>
 
           {/* Время */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1">
                 Начало
               </label>
               <input
-                className={ic}
+                className={`${ic} px-3 text-xs sm:text-sm`}
                 type="datetime-local"
                 value={starts}
                 onChange={(e) => handleStartChange(e.target.value)}
@@ -242,7 +223,7 @@ export function AppointmentModal({
                 Конец
               </label>
               <input
-                className={ic}
+                className={`${ic} px-3 text-xs sm:text-sm`}
                 type="datetime-local"
                 value={ends}
                 onChange={(e) => setEnds(e.target.value)}
