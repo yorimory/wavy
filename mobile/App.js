@@ -160,7 +160,7 @@ export default function App() {
             </View>
           )}
           androidLayerType="hardware"
-          decelerationRate="normal"
+          decelerationRate={Platform.OS === 'ios' ? 'normal' : 0.998}
           overScrollMode="never"
           allowsBackForwardNavigationGestures={true}
           showsHorizontalScrollIndicator={false}
