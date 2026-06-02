@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, SafeAreaView, Platform, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, SafeAreaView, Platform, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import { WebView } from 'react-native-webview';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
@@ -25,6 +25,7 @@ function getWebUrl() {
 export default function App() {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorDetails, setErrorDetails] = useState(null);
   const webViewRef = useRef(null);
   const responseListener = useRef();
 
@@ -92,22 +93,65 @@ export default function App() {
     }
   };
 
+  const targetUrl = getWebUrl();
+
+  const handleWebViewError = (syntheticEvent) => {
+    const { nativeEvent } = syntheticEvent;
+    console.warn('WebView error: ', nativeEvent);
+    setErrorDetails(`Ошибка загрузки страницы: ${nativeEvent.description || 'Неизвестная ошибка'} (${nativeEvent.code || ''})`);
+  };
+
+  const handleWebViewHttpError = (syntheticEvent) => {
+    const { nativeEvent } = syntheticEvent;
+    console.warn('WebView HTTP error: ', nativeEvent);
+    if (nativeEvent.statusCode >= 400) {
+      setErrorDetails(`HTTP ошибка сервера: Код ${nativeEvent.statusCode}`);
+    }
+  };
+
+  const reloadWebView = () => {
+    setErrorDetails(null);
+    if (webViewRef.current) {
+      webViewRef.current.reload();
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-      <WebView
-        ref={webViewRef}
-        source={{ uri: getWebUrl() }}
-        onLoadEnd={sendTokenToWebView}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        startInLoadingState={true}
-        renderLoading={() => (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#4f378a" />
+      {errorDetails ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorTitle}>Ошибка подключения</Text>
+          <Text style={styles.errorSubtitle}>
+            Не удалось загрузить веб-интерфейс CRM. Проверьте подключение к интернету или настройки адреса сервера.
+          </Text>
+          <View style={styles.errorCard}>
+            <Text style={styles.errorLabel}>Адрес сервера:</Text>
+            <Text style={styles.errorValue}>{targetUrl}</Text>
+            <Text style={styles.errorLabel}>Детали:</Text>
+            <Text style={styles.errorValue}>{errorDetails}</Text>
           </View>
-        )}
-      />
+          <TouchableOpacity style={styles.retryButton} onPress={reloadWebView}>
+            <Text style={styles.retryButtonText}>Повторить попытку</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <WebView
+          ref={webViewRef}
+          source={{ uri: targetUrl }}
+          onLoadEnd={sendTokenToWebView}
+          onError={handleWebViewError}
+          onHttpError={handleWebViewHttpError}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          startInLoadingState={true}
+          renderLoading={() => (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#4f378a" />
+            </View>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -123,5 +167,64 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#faf7ff',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+    backgroundColor: '#faf7ff',
+  },
+  errorTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1c1b1f',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  errorSubtitle: {
+    fontSize: 14,
+    color: '#49454f',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  errorCard: {
+    width: '100%',
+    backgroundColor: '#f3edf7',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#e8def8',
+  },
+  errorLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4f378a',
+    marginTop: 8,
+    marginBottom: 2,
+    textTransform: 'uppercase',
+  },
+  errorValue: {
+    fontSize: 14,
+    color: '#1c1b1f',
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+  retryButton: {
+    backgroundColor: '#4f378a',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 24,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+  },
+  retryButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
