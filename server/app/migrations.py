@@ -6,7 +6,8 @@ import logging
 
 from sqlalchemy import text
 
-from app.database import engine
+import app.models
+from app.database import Base, engine
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,9 @@ def _fk_exists(conn, table: str, constraint: str) -> bool:
 
 def run_schema_migrations() -> None:
     """Применить недостающие колонки/таблицы (безопасно повторять)."""
+    logger.info("Creating tables from metadata if they do not exist")
+    Base.metadata.create_all(bind=engine)
+    
     with engine.begin() as conn:
         if not _column_exists(conn, "users", "role"):
             logger.info("Migration: add users.role")
