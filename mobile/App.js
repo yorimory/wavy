@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, SafeAreaView, Platform, ActivityIndicator, Text, TouchableOpacity, LogBox } from 'react-native';
+import { StyleSheet, View, Platform, ActivityIndicator, Text, TouchableOpacity, LogBox } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
@@ -88,7 +89,7 @@ export default function App() {
 
     return () => {
       if (responseListener.current) {
-        Notifications.removeNotificationSubscription(responseListener.current);
+        responseListener.current.remove();
       }
     };
   }, []);
