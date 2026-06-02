@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "WAVY CRM",
+    "slug": "wavy-crm",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "wavycrm",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "by.wavycrm.app"
+    },
+    "android": {
+      "package": "by.wavycrm.app"
+    },
+    "plugins": ["expo-notifications"],
+    "extra": {
+      "apiUrl": "http://10.0.2.2:8000"
+    }
+  }
+}

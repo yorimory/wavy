@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WAVY - Профиль и настройки</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdf93",
+                        "on-tertiary-fixed-variant": "#594400",
+                        "tertiary": "#765b00",
+                        "surface-tint": "#6750a4",
+                        "surface-container-high": "#ece6ee",
+                        "on-tertiary-fixed": "#241a00",
+                        "primary-container": "#6750a4",
+                        "on-primary-container": "#e0d2ff",
+                        "on-secondary-fixed": "#1f1635",
+                        "outline": "#7a7582",
+                        "secondary-fixed": "#e9ddff",
+                        "inverse-surface": "#322f35",
+                        "surface-dim": "#ded8e0",
+                        "primary-fixed-dim": "#cfbcff",
+                        "on-tertiary-container": "#503d00",
+                        "on-surface-variant": "#494551",
+                        "on-primary-fixed": "#22005d",
+                        "on-background": "#1d1b20",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#f2ecf4",
+                        "surface-container-low": "#f8f2fa",
+                        "on-secondary-container": "#645a7d",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e6e0e9",
+                        "on-secondary-fixed-variant": "#4b4263",
+                        "secondary-fixed-dim": "#cdc0e9",
+                        "primary": "#4f378a",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#63597c",
+                        "inverse-primary": "#cfbcff",
+                        "surface-container-highest": "#e6e0e9",
+                        "on-primary-fixed-variant": "#4f378a",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "background": "#fdf7ff",
+                        "outline-variant": "#cbc4d2",
+                        "on-surface": "#1d1b20",
+                        "primary-fixed": "#e9ddff",
+                        "surface": "#fdf7ff",
+                        "inverse-on-surface": "#f5eff7",
+                        "secondary-container": "#e1d4fd",
+                        "tertiary-fixed-dim": "#e7c365",
+                        "tertiary-container": "#c9a74d",
+                        "surface-bright": "#fdf7ff",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "display": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #4f378a 0%, #6750a4 100%);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen flex overflow-hidden">
+<!-- SideNavBar Component -->
+<aside class="hidden lg:flex flex-col h-full w-64 bg-surface p-6 space-y-8 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] z-10">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl primary-gradient flex items-center justify-center text-white">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">waves</span>
+</div>
+<div>
+<h1 class="text-2xl font-headline font-black text-primary leading-tight">WAVY</h1>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">УМНАЯ CRM</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center space-x-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium text-label-md">Главная</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-medium text-label-md">Клиенты</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-medium text-label-md">Календарь</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">notifications_active</span>
+<span class="font-medium text-label-md">Напоминания</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-primary font-bold bg-surface-container rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-medium text-label-md">Профиль</span>
+</a>
+</nav>
+<div class="pt-6 border-t border-outline-variant space-y-2">
+<button class="w-full primary-gradient text-white py-3 rounded-full font-bold shadow-lg hover:opacity-90 transition-opacity mb-4">
+            + Новая запись
+        </button>
+<a class="flex items-center space-x-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-medium text-label-md">Настройки</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-error hover:bg-error-container rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-medium text-label-md">Выйти</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto p-12 relative">
+<!-- Header Section -->
+<header class="mb-12">
+<h2 class="text-4xl font-headline font-black text-on-surface tracking-tight">Профиль и настройки</h2>
+<p class="text-on-surface-variant mt-2 text-lg">Управление вашим профилем и автоматизацией.</p>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-8">
+<!-- User Info Card -->
+<div class="col-span-12 md:col-span-4 bg-surface shadow-[0px_4px_20px_rgba(0,0,0,0.04)] rounded-[20px] p-8 flex flex-col items-center text-center hover:scale-[1.02] transition-transform duration-200">
+<div class="relative mb-6">
+<img class="w-32 h-32 rounded-full object-cover border-4 border-primary-container p-1 shadow-md" data-alt="A professional studio portrait of a modern independent professional with a confident, warm expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-QD65M2Wwvr-oQ72QeCPPRRomSlTlbM25GrMxwx1dh9SYk4QTDQtqVxWq4GnEFaJMxIzfY2GCir3nJV5VL94TIXa-Kc0sWLlzSsPnvgjK3cGUKmD4laaPJD0_QxTkdFb9QFHoYqEG9Sl0pAiT52AYCD2F1_OJ4rELLo4ZoPz0wv2FdNHtQdJGd3K8a0huA14waIrFtnu_AW1hqd9qxw0XYoTTmqVvv0avifL4z3sU1CSKTDuFFja1EOKP0-EZ1YUJVhkrkpmJK-yN"/>
+<button class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-sm">edit</span>
+</button>
+</div>
+<h3 class="text-2xl font-bold text-on-surface">Алекс Томпсон</h3>
+<p class="text-on-surface-variant">+1 (555) 0123 4567</p>
+<div class="mt-8 w-full">
+<div class="bg-primary-container/10 p-4 rounded-2xl flex items-center justify-between">
+<div class="text-left">
+<p class="text-xs font-bold text-primary uppercase tracking-wider">Текущий тариф</p>
+<p class="text-lg font-bold text-on-primary-container">Pro Intelligence</p>
+</div>
+<span class="material-symbols-outlined text-primary text-3xl">auto_awesome</span>
+</div>
+</div>
+<button class="mt-8 w-full border border-outline-variant text-on-surface font-semibold py-3 rounded-full hover:bg-surface-container transition-colors">
+                Редактировать профиль
+            </button>
+</div>
+<!-- Configuration Toggles -->
+<div class="col-span-12 md:col-span-8 bg-surface shadow-[0px_4px_20px_rgba(0,0,0,0.04)] rounded-[20px] p-8">
+<h4 class="text-xl font-bold text-on-surface mb-8">Автоматизация и контроль</h4>
+<div class="space-y-6">
+<!-- Telegram Toggle -->
+<div class="flex items-center justify-between p-4 rounded-2xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">smart_toy</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Включить Telegram-бота</p>
+<p class="text-sm text-on-surface-variant">Автоматизация подтверждений записей через Telegram</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Auto-mod Toggle -->
+<div class="flex items-center justify-between p-4 rounded-2xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 rounded-xl bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">security</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Авто-модерация отзывов</p>
+<p class="text-sm text-on-surface-variant">Фильтр спама и нецензурной лексики</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Push Toggle -->
+<div class="flex items-center justify-between p-4 rounded-2xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 rounded-xl bg-error-container/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined">notifications_active</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Push-уведомления</p>
+<p class="text-sm text-on-surface-variant">Мгновенные оповещения о новых записях</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+<!-- Bot Demo Section -->
+<div class="col-span-12 md:col-span-6 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(0,0,0,0.04)] rounded-[20px] p-8 border border-outline-variant/30">
+<div class="flex items-center space-x-2 mb-6">
+<span class="material-symbols-outlined text-primary">chat_bubble</span>
+<h4 class="text-lg font-bold text-on-surface">Предпросмотр бота</h4>
+</div>
+<div class="bg-white rounded-2xl p-6 shadow-inner border border-outline-variant/20 relative overflow-hidden">
+<div class="flex items-start space-x-3">
+<div class="w-10 h-10 rounded-full primary-gradient flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-sm">robot_2</span>
+</div>
+<div class="bg-surface-container p-4 rounded-2xl rounded-tl-none max-w-[80%]">
+<p class="text-sm font-medium text-on-surface mb-3">Напоминание: завтра в 15:00. Подтвердите? ✅ / ❌</p>
+<div class="flex space-x-2">
+<div class="px-4 py-1 bg-white rounded-full text-xs font-bold border border-outline-variant">✅ Да</div>
+<div class="px-4 py-1 bg-white rounded-full text-xs font-bold border border-outline-variant">❌ Нет</div>
+</div>
+</div>
+</div>
+<div class="mt-4 flex justify-end">
+<div class="bg-primary text-white p-3 rounded-2xl rounded-tr-none text-sm">
+                        Подтверждаю!
+                    </div>
+</div>
+<!-- Telegram Watermark -->
+<div class="absolute top-2 right-4 flex items-center space-x-1 opacity-20">
+<span class="material-symbols-outlined text-sm">send</span>
+<span class="text-[10px] font-bold uppercase">Telegram</span>
+</div>
+</div>
+</div>
+<!-- Push Mockup Section -->
+<div class="col-span-12 md:col-span-6 bg-surface-container-lowest shadow-[0px_4px_20px_rgba(0,0,0,0.04)] rounded-[20px] p-8 border border-outline-variant/30">
+<div class="flex items-center space-x-2 mb-6">
+<span class="material-symbols-outlined text-primary">phonelink_ring</span>
+<h4 class="text-lg font-bold text-on-surface">Стиль уведомлений</h4>
+</div>
+<div class="relative h-48 flex items-center justify-center">
+<!-- Mock Smartphone Screen Fragment -->
+<div class="w-full max-w-sm glass-panel p-4 rounded-3xl shadow-xl flex items-center space-x-4 border border-white/50">
+<div class="w-12 h-12 rounded-2xl primary-gradient flex items-center justify-center text-white shadow-lg shrink-0">
+<span class="material-symbols-outlined">waves</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center mb-1">
+<span class="text-xs font-black text-primary tracking-widest">WAVY</span>
+<span class="text-[10px] text-on-surface-variant">2 мин. назад</span>
+</div>
+<p class="text-sm font-bold text-on-surface">Запрос от нового клиента</p>
+<p class="text-xs text-on-surface-variant truncate">Марина К. хочет забронировать 'Стратегический консалтинг' на понедельник...</p>
+</div>
+</div>
+<!-- Decorative Background for Context -->
+<div class="absolute inset-0 -z-10 opacity-10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[160px]">smartphone</span>
+</div>
+</div>
+</div>
+<!-- Footer CTA -->
+<div class="col-span-12 mt-4 flex justify-center">
+<button class="flex items-center space-x-2 text-error font-black px-8 py-4 rounded-full border-2 border-error/20 hover:bg-error-container/50 transition-all">
+<span class="material-symbols-outlined">power_settings_new</span>
+<span>ВЫЙТИ ИЗ СИСТЕМЫ</span>
+</button>
+</div>
+</div>
+<!-- Decorative Gradient Blob -->
+<div class="fixed -bottom-24 -right-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10"></div>
+<div class="fixed top-24 -left-24 w-64 h-64 bg-secondary/5 rounded-full blur-3xl -z-10"></div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 md:hidden bg-surface shadow-[0px_-4px_20px_rgba(0,0,0,0.04)] rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label text-[10px]">Главная</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label text-[10px]">Клиенты</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label text-[10px]">Календарь</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">auto_awesome</span>
+<span class="font-label text-[10px]">Напоминания</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label text-[10px]">Профиль</span>
+</a>
+</nav>
+</body></html>

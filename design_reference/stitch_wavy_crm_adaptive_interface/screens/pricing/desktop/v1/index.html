@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WAVY | Pricing Plans</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #4f378a 0%, #6750a4 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#ffdf93",
+                      "on-tertiary-fixed-variant": "#594400",
+                      "tertiary": "#765b00",
+                      "surface-tint": "#6750a4",
+                      "surface-container-high": "#ece6ee",
+                      "on-tertiary-fixed": "#241a00",
+                      "primary-container": "#6750a4",
+                      "on-primary-container": "#e0d2ff",
+                      "on-secondary-fixed": "#1f1635",
+                      "outline": "#7a7582",
+                      "secondary-fixed": "#e9ddff",
+                      "inverse-surface": "#322f35",
+                      "surface-dim": "#ded8e0",
+                      "primary-fixed-dim": "#cfbcff",
+                      "on-tertiary-container": "#503d00",
+                      "on-surface-variant": "#494551",
+                      "on-primary-fixed": "#22005d",
+                      "on-background": "#1d1b20",
+                      "on-error": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "surface-container": "#f2ecf4",
+                      "surface-container-low": "#f8f2fa",
+                      "on-secondary-container": "#645a7d",
+                      "on-secondary": "#ffffff",
+                      "surface-variant": "#e6e0e9",
+                      "on-secondary-fixed-variant": "#4b4263",
+                      "secondary-fixed-dim": "#cdc0e9",
+                      "primary": "#4f378a",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary": "#63597c",
+                      "inverse-primary": "#cfbcff",
+                      "surface-container-highest": "#e6e0e9",
+                      "on-primary-fixed-variant": "#4f378a",
+                      "on-primary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "background": "#fdf7ff",
+                      "outline-variant": "#cbc4d2",
+                      "on-surface": "#1d1b20",
+                      "primary-fixed": "#e9ddff",
+                      "surface": "#fdf7ff",
+                      "inverse-on-surface": "#f5eff7",
+                      "secondary-container": "#e1d4fd",
+                      "tertiary-fixed-dim": "#e7c365",
+                      "tertiary-container": "#c9a74d",
+                      "surface-bright": "#fdf7ff",
+                      "on-tertiary": "#ffffff",
+                      "error": "#ba1a1a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Inter"],
+                      "display": ["Inter"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body antialiased min-h-screen">
+<header class="hidden md:flex justify-between items-center w-full px-12 py-4 bg-surface dark:bg-on-background shadow-[0px_4px_20px_rgba(0,0,0,0.04)] fixed top-0 z-50">
+<div class="flex items-center gap-8">
+<span class="text-xl font-headline font-black text-primary dark:text-primary-fixed-dim">WAVY</span>
+<nav class="flex gap-6">
+<a class="text-on-surface-variant dark:text-outline-variant font-body text-label-sm hover:opacity-80 transition-opacity" href="#">Home</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body text-label-sm hover:opacity-80 transition-opacity" href="#">Clients</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body text-label-sm hover:opacity-80 transition-opacity" href="#">Calendar</a>
+<a class="text-primary dark:text-primary-fixed-dim border-b-2 border-primary font-body text-label-sm" href="#">Pricing</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:opacity-80 transition-opacity">search</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:opacity-80 transition-opacity">notifications</span>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="User profile avatar" data-alt="A professional headshot of a smiling modern creative professional in a bright, airy studio environment. The lighting is soft and natural, emphasizing a light-mode aesthetic. The background is a clean, minimalist workspace with subtle hints of high-end design tools, maintaining a serene and intelligent partner vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAc7txwW-QegE4emti5MBNkQwoH-Wf7S5VLUSCjiGx5e0VpjEVyzH7P2K9KhTtNwodjCadMJzxgcDjp9OhokV-nuz2TGsOQN2RT18zVmrkJtG9U6NNmi_RNNsPtIogfkunG7hs06rbc6P4strUTbZPsxrUCqY2wORGGdYHyMdzEwSxKNmhQR0di8pk_oEoJwGtYlkECWc8KkjgCMIwRRb9QcjWeCcuaXtGoLE663HgaOzbL6tOXqu6Kj_n3Pdex919dfOsavEdnshoK"/>
+</div>
+</div>
+</header>
+<aside class="hidden lg:flex flex-col h-full w-64 p-6 space-y-8 fixed left-0 top-0 pt-24 bg-surface dark:bg-on-background shadow-[0px_4px_20px_rgba(0,0,0,0.04)]">
+<div class="space-y-1">
+<button class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-container-high rounded-xl transition-all font-body text-label-md">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Home</span>
+</button>
+<button class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-container-high rounded-xl transition-all font-body text-label-md">
+<span class="material-symbols-outlined">group</span>
+<span>Clients</span>
+</button>
+<button class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-container-high rounded-xl transition-all font-body text-label-md">
+<span class="material-symbols-outlined">calendar_month</span>
+<span>Calendar</span>
+</button>
+<button class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-container-high rounded-xl transition-all font-body text-label-md">
+<span class="material-symbols-outlined">notifications_active</span>
+<span>Reminders</span>
+</button>
+<button class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-container-high rounded-xl transition-all font-body text-label-md">
+<span class="material-symbols-outlined">person</span>
+<span>Profile</span>
+</button>
+</div>
+<div class="mt-auto space-y-1">
+<button class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-container-high rounded-xl transition-all font-body text-label-md">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</button>
+<button class="w-full flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-surface-container-high rounded-xl transition-all font-body text-label-md">
+<span class="material-symbols-outlined">logout</span>
+<span>Logout</span>
+</button>
+</div>
+</aside>
+<main class="pt-24 pb-20 lg:pl-72 lg:pr-12 px-6 min-h-screen max-w-7xl mx-auto">
+<section class="py-20 text-center space-y-4">
+<h1 class="text-4xl md:text-5xl font-black text-on-surface tracking-tight font-headline">Simple Pricing for Growth</h1>
+<p class="text-on-surface-variant text-lg max-w-2xl mx-auto">Choose the plan that fits your professional journey. From independent beginnings to thriving businesses.</p>
+</section>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-20">
+<!-- FREE PLAN -->
+<div class="bg-white rounded-[20px] p-10 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0px_12px_30px_rgba(0,0,0,0.08)] hover:scale-[1.02] transition-all duration-300 flex flex-col border border-outline-variant/20">
+<div class="space-y-2 mb-8">
+<span class="text-primary font-bold tracking-widest text-xs uppercase">STARTER</span>
+<h2 class="text-3xl font-black text-on-surface font-headline">FREE</h2>
+<div class="flex items-baseline gap-1">
+<span class="text-4xl font-bold text-on-surface">0</span>
+<span class="text-on-surface-variant font-medium">BYN</span>
+</div>
+</div>
+<div class="space-y-5 mb-10 flex-grow">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-on-surface-variant text-sm font-medium">Up to 15 clients</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-on-surface-variant text-sm font-medium">Shared Calendar</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-on-surface-variant text-sm font-medium">Client Search</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-on-surface-variant text-sm font-medium">Basic stats</span>
+</div>
+</div>
+<button class="w-full h-[40px] flex items-center justify-center border-2 border-primary text-primary font-bold rounded-full hover:bg-primary-container/10 transition-all">
+                    Current Plan
+                </button>
+</div>
+<!-- PREMIUM PLAN -->
+<div class="relative bg-white rounded-[20px] p-10 shadow-[0px_4px_30px_rgba(79,55,138,0.1)] hover:shadow-[0px_12px_40px_rgba(79,55,138,0.15)] hover:scale-[1.02] transition-all duration-300 flex flex-col border-2 border-primary/10">
+<div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-tertiary-fixed text-on-tertiary-fixed-variant px-4 py-1.5 rounded-full text-[10px] font-bold tracking-wider flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                    RECOMMENDED
+                </div>
+<div class="space-y-2 mb-8">
+<span class="text-primary font-bold tracking-widest text-xs uppercase">PRO ADVANTAGE</span>
+<h2 class="text-3xl font-black text-on-surface font-headline">PREMIUM</h2>
+<div class="flex items-baseline gap-1">
+<span class="text-4xl font-bold text-on-surface">9.99</span>
+<span class="text-on-surface-variant font-medium">BYN/мес</span>
+</div>
+</div>
+<div class="space-y-5 mb-10 flex-grow">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface font-semibold text-sm">Unlimited clients</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface font-semibold text-sm">Telegram bot integration</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface font-semibold text-sm">Smart Retention engine</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-on-surface font-semibold text-sm">Review moderation</span>
+</div>
+</div>
+<button class="w-full h-[40px] primary-gradient text-white font-bold rounded-full shadow-lg hover:shadow-primary/40 hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                    Pay Now
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<section class="max-w-4xl mx-auto bg-surface-container-low rounded-[20px] p-12 flex flex-col md:flex-row items-center gap-12">
+<div class="md:w-1/2 space-y-4 text-left">
+<h3 class="text-2xl font-black text-on-surface font-headline leading-tight">Elevate your client management experience</h3>
+<p class="text-on-surface-variant">Our premium features are designed to save you over 10 hours a week in administrative tasks and manual client follow-ups.</p>
+<div class="flex gap-4 pt-4">
+<div class="flex flex-col">
+<span class="text-2xl font-bold text-primary">2.5k+</span>
+<span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wide">Professionals</span>
+</div>
+<div class="w-px h-10 bg-outline-variant/30"></div>
+<div class="flex flex-col">
+<span class="text-2xl font-bold text-primary">99%</span>
+<span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wide">Satisfaction</span>
+</div>
+</div>
+</div>
+<div class="md:w-1/2 relative h-64 w-full rounded-xl overflow-hidden shadow-xl">
+<img alt="CRM Dashboard Analytics" class="w-full h-full object-cover" data-alt="A clean, high-resolution close-up of a modern CRM dashboard interface displaying intelligent data visualizations. The UI features soft purple and white gradients, minimalist typography, and ambient shadows. The scene is bright and airy, reflecting a premium digital workspace that feels calm and authoritative. Professional lighting emphasizes the sleek glassmorphism effects of the interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8Ms93oe2wFQEUWvgSZGkQ1SQ7O5Q9Sh9NkkDknG9mXYxExVAd3bUl-KpwRRxeDPGcjjckOpPQSjL6-Vq2LU6fNH5utvZzBOBCNp2DSDMxrrmi_h5FB6Mc0Gb_H1BX28RSdWlGnxTKsBO-_bt_cTgqNGGagQz_okQTT6IsNkozZ_BiGRKg5R46iIYOzAMiagAeza80k8NgktO5B1EulJh1jQhAXth07-7NaZzkgN4dli_ZYakV_xQ3Y5qwEx_kxlfU_P-GDp-VWbkL"/>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 md:hidden bg-surface dark:bg-inverse-surface shadow-[0px_-4px_20px_rgba(0,0,0,0.04)] rounded-t-xl">
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant active:bg-surface-container-high transition-colors scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label text-[10px]">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant active:bg-surface-container-high transition-colors scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label text-[10px]">Clients</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant active:bg-surface-container-high transition-colors scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-label text-[10px]">Calendar</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim active:bg-surface-container-high transition-colors scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-label text-[10px]">Pricing</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant active:bg-surface-container-high transition-colors scale-95 active:scale-90 transition-transform">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label text-[10px]">Profile</span>
+</div>
+</nav>
+</body></html>

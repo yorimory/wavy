@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="ru"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WAVY - Intelligent CRM Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdf93",
+                        "on-tertiary-fixed-variant": "#594400",
+                        "tertiary": "#765b00",
+                        "surface-tint": "#6750a4",
+                        "surface-container-high": "#ece6ee",
+                        "on-tertiary-fixed": "#241a00",
+                        "primary-container": "#6750a4",
+                        "on-primary-container": "#e0d2ff",
+                        "on-secondary-fixed": "#1f1635",
+                        "outline": "#7a7582",
+                        "secondary-fixed": "#e9ddff",
+                        "inverse-surface": "#322f35",
+                        "surface-dim": "#ded8e0",
+                        "primary-fixed-dim": "#cfbcff",
+                        "on-tertiary-container": "#503d00",
+                        "on-surface-variant": "#494551",
+                        "on-primary-fixed": "#22005d",
+                        "on-background": "#1d1b20",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#f2ecf4",
+                        "surface-container-low": "#f8f2fa",
+                        "on-secondary-container": "#645a7d",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#e6e0e9",
+                        "on-secondary-fixed-variant": "#4b4263",
+                        "secondary-fixed-dim": "#cdc0e9",
+                        "primary": "#4f378a",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#63597c",
+                        "inverse-primary": "#cfbcff",
+                        "surface-container-highest": "#e6e0e9",
+                        "on-primary-fixed-variant": "#4f378a",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "background": "#fdf7ff",
+                        "outline-variant": "#cbc4d2",
+                        "on-surface": "#1d1b20",
+                        "primary-fixed": "#e9ddff",
+                        "surface": "#fdf7ff",
+                        "inverse-on-surface": "#f5eff7",
+                        "secondary-container": "#e1d4fd",
+                        "tertiary-fixed-dim": "#e7c365",
+                        "tertiary-container": "#c9a74d",
+                        "surface-bright": "#fdf7ff",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #4f378a 0%, #764ba2 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 32px;
+        }
+        .hover-lift {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden">
+<!-- The Shell Visibility & Relevance: No BottomNavBar or SideNav for Onboarding/Login -->
+<main class="min-h-screen flex flex-col items-center justify-center px-4 md:px-12 py-20 relative overflow-hidden">
+<!-- Background Accents -->
+<div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]"></div>
+<div class="absolute -bottom-[10%] -right-[10%] w-[30%] h-[30%] bg-secondary/5 rounded-full blur-[100px]"></div>
+<!-- Header / Logo Area -->
+<div class="mb-16 z-10 text-center">
+<img alt="WAVY Logo" class="h-10 mx-auto mb-6" src="data:image/png;base64,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"/>
+<h1 class="text-on-surface font-headline font-black text-3xl md:text-5xl tracking-tight leading-tight">
+                Управляй клиентами.<br/>
+                Легко. Быстро. Красиво.
+            </h1>
+</div>
+<!-- Bento Layout Carousel Alternative (Asymmetric Layout) -->
+<div class="w-full max-w-6xl z-10">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-20 items-stretch">
+<!-- Slide 1: Main Focus -->
+<div class="md:col-span-7 bg-surface-container-lowest rounded-[32px] p-8 md:p-12 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover-lift flex flex-col justify-between overflow-hidden relative border border-white">
+<div class="z-10">
+<span class="material-symbols-outlined text-primary text-4xl mb-6">group</span>
+<h2 class="text-3xl font-headline font-bold text-on-surface mb-4">Все клиенты в одной базе</h2>
+<p class="text-on-surface-variant text-lg max-w-sm">Автоматическая синхронизация и мгновенный доступ к истории взаимодействий в пару кликов.</p>
+</div>
+<div class="mt-8 relative h-48 md:h-64">
+<img class="absolute bottom-0 right-0 w-full h-full object-cover rounded-2xl shadow-lg border border-outline-variant/30" data-alt="A sophisticated CRM dashboard interface showing a clean list of customer profiles with circular avatars and elegant typography. The layout is minimalist with high-key lighting and a soft violet and white color palette, creating a professional yet airy atmosphere that emphasizes clarity and organization." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3fXW8W_Uq_4BrDX7Ay_xVcYT8kEAqbFKMpC7R6QCiJX0OQm5epgsLw60v97lYqHXE4M0VSmsnwChM1ziHabHhozcWsYT6gU4jMapeo0mjzhf5CY0kM8KZdkfsV5qgfgO-13YxXud0nPddCpFx-UyAIoIi1bEJIU_U2OIGNV2GUZYT2oldLM1mC78ydmsH7V-h_TIUoISu_Llh8-jlH9GTxivlEREkI6-PtAZlFdZM6fojHct5Px23kcppnGmd-xc7z_1d3jfeF4ie"/>
+</div>
+</div>
+<!-- Slide 2: Smart Alerts -->
+<div class="md:col-span-5 flex flex-col gap-8">
+<div class="bg-surface-container-lowest rounded-[32px] p-8 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover-lift flex-1 border border-white">
+<span class="material-symbols-outlined text-primary text-4xl mb-6">auto_awesome</span>
+<h3 class="text-2xl font-headline font-bold text-on-surface mb-2">Умные напоминания через Telegram</h3>
+<p class="text-on-surface-variant leading-relaxed">Система сама уведомит вас о важных звонках и встречах прямо в мессенджере.</p>
+<div class="mt-6 flex items-center gap-4 bg-surface-container p-4 rounded-2xl">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-xl">notifications</span>
+</div>
+<div class="flex-1 h-2 bg-outline-variant/30 rounded-full overflow-hidden">
+<div class="w-3/4 h-full primary-gradient"></div>
+</div>
+</div>
+</div>
+<!-- Slide 3: Analytics -->
+<div class="bg-surface-container-lowest rounded-[32px] p-8 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover-lift flex-1 border border-white">
+<span class="material-symbols-outlined text-primary text-4xl mb-6">trending_up</span>
+<h3 class="text-2xl font-headline font-bold text-on-surface mb-2">Аналитика и рост</h3>
+<p class="text-on-surface-variant leading-relaxed">Наглядные графики выручки и активности клиентов для принятия верных решений.</p>
+</div>
+</div>
+</div>
+<!-- Carousel Pagination / Status (Visual Only) -->
+<div class="flex justify-center gap-3 mb-12">
+<div class="w-8 h-2 rounded-full primary-gradient"></div>
+<div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+<div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+</div>
+</div>
+<!-- CTA & Footer -->
+<div class="flex flex-col items-center gap-6 z-10">
+<button class="primary-gradient text-on-primary px-10 py-5 rounded-full font-headline font-bold text-lg hover:opacity-90 transition-all shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95">
+                Начать бесплатно
+            </button>
+<p class="text-on-surface-variant font-label text-sm md:text-base opacity-70">
+                Безлимит 14 дней, далее Free до 15 клиентов
+            </p>
+</div>
+<!-- Login Link -->
+<div class="mt-16 z-10">
+<p class="text-on-surface-variant text-sm">
+                Уже есть аккаунт? <a class="text-primary font-bold hover:underline" href="#">Войти</a>
+</p>
+</div>
+</main>
+<!-- Background Decorative Elements -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+<svg class="absolute top-[20%] right-[-5%] opacity-20" fill="none" height="400" viewbox="0 0 400 400" width="400" xmlns="http://www.w3.org/2000/svg">
+<circle cx="200" cy="200" r="199.5" stroke="#4f378a" stroke-dasharray="8 8"></circle>
+</svg>
+<svg class="absolute bottom-[10%] left-[-10%] opacity-20" fill="none" height="300" viewbox="0 0 300 300" width="300" xmlns="http://www.w3.org/2000/svg">
+<rect height="299" rx="149.5" stroke="#4f378a" stroke-dasharray="4 4" width="299" x="0.5" y="0.5"></rect>
+</svg>
+</div>
+</body></html>

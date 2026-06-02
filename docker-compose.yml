@@ -1,0 +1,61 @@
+services:
+  # ── База данных MySQL ────────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: wavy_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wavy_crm
+      MYSQL_USER: wavy
+      MYSQL_PASSWORD: wavy_secret
+    ports:
+      - "13306:3306"   # доступ с хоста через порт 13306 (DBeaver и т.д.)
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./server/sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uwavy", "-pwavy_secret"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── FastAPI бэкенд ───────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: wavy_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: mysql+pymysql://wavy:wavy_secret@mysql:3306/wavy_crm?charset=utf8mb4
+      JWT_SECRET: change-me-in-production-use-long-random-string
+      CORS_ORIGINS: "*"
+      DEV_MODE: "true"
+    depends_on:
+      mysql:
+        condition: service_healthy   # ждём пока MySQL реально готов
+
+  # ── React фронтенд (Nginx) ───────────────────────────────────────────────
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        # Браузер клиента обращается к localhost:8000 (API проброшен на хост)
+        VITE_API_URL: http://localhost:8000
+    container_name: wavy_web
+    restart: unless-stopped
+    ports:
+      - "3080:80"
+    depends_on:
+      - api
+
+volumes:
+  mysql_data:

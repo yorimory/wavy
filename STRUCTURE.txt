@@ -1,0 +1,43 @@
+WAVY CRM — полный стек (дипломный прототип)
+==========================================
+
+Корень: wavy_crm_fullstack/
+
+design_reference/
+  stitch_wavy_crm_adaptive_interface/  — верстка Stitch: index.html (хаб), SCREENS.txt, design-system/, brand/, screens/
+
+server/                    — FastAPI, REST API
+  app/
+    main.py                — точка входа, CORS, роутеры
+    config.py              — DATABASE_URL, JWT, лимит Free (15 клиентов), DEV_MODE
+    models.py              — SQLAlchemy-сущности (Users, Clients, Appointments, …)
+    routers/               — auth, users, clients, appointments, intelligence, integrations
+    services/              — Smart Retention, модерация (regex + эвристики «NLP»)
+  sql/init.sql             — схема MySQL 8.0 (подключается в Docker при первом старте)
+  Dockerfile
+  requirements.txt
+
+mobile/                    — React Native (JavaScript) + Expo SDK 50
+  App.js
+  src/
+    api/client.js          — fetch + JWT (AsyncStorage)
+    context/AuthContext.js
+    navigation/            — вкладки + стек клиентов
+    screens/               — дашборд, клиенты, календарь, Smart Retention, настройки
+    theme.js               — палитра Wavy из DESIGN.md
+
+docker-compose.yml         — MySQL 8.0 + API (переменная DEV_MODE=true для эндпоинта смены тарифа)
+
+Запуск
+------
+1) Docker: из папки wavy_crm_fullstack выполнить: docker compose up --build
+2) API: http://localhost:8000/docs
+3) Мобильное: cd mobile && npm install && npx expo start
+   В app.json → extra.apiUrl указать URL API (для Android-эмулятора: http://10.0.2.2:8000, для устройства в сети — IP ПК).
+
+Freemium
+--------
+Free: до 15 клиентов (проверка при POST /clients).
+Premium: эндпоинты /recommendations/retention и /moderation/check (плюс заглушка Telegram в /integrations/telegram/appointment-status).
+
+Для демо Premium без оплаты: на сервере DEV_MODE=true, в приложении «Переключить на Premium (DEV)».
