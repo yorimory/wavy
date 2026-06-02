@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -6,11 +7,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.migrations import run_schema_migrations
 from app.routers import appointments, auth, catalog, clients, integrations, intelligence, services, users
+from app.services.notifications import reminder_scheduler_loop
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     run_schema_migrations()
+    asyncio.create_task(reminder_scheduler_loop())
     yield
 
 

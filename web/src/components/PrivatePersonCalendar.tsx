@@ -13,7 +13,7 @@ import {
 } from "@/utils/calendarUtils";
 import type { AppointmentOut, ClientOut, ServiceOut, WorkingHourOut } from "@/types";
 
-const WEEKDAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const WEEKDAY_SHORT = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
 const EVENT_PALETTE = [
   { bg: "bg-secondary-container/50", border: "border-secondary", label: "text-secondary", accent: false },
@@ -43,7 +43,9 @@ export function PrivatePersonCalendar() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [anchor, setAnchor] = useState(() => new Date());
-  const [view, setView] = useState<"week" | "day">("week");
+  const [view, setView] = useState<"week" | "day">(() => {
+    return window.innerWidth < 768 ? "day" : "week";
+  });
   const [appts, setAppts] = useState<AppointmentOut[]>([]);
   const [clients, setClients] = useState<ClientOut[]>([]);
   const [services, setServices] = useState<ServiceOut[]>([]);
@@ -237,29 +239,56 @@ export function PrivatePersonCalendar() {
         </div>
       </header>
 
-      <header className="md:hidden flex flex-col gap-3 px-4 py-4 bg-surface border-b border-outline-variant/20 sticky top-0 z-10">
+      <header className="md:hidden flex flex-col gap-2.5 px-4 py-3 bg-surface border-b border-outline-variant/20">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-extrabold">Календарь</h2>
-          <div className="flex bg-surface-container rounded-full p-1 border border-outline-variant/20">
-            <button type="button" onClick={() => setView("day")} className={`px-4 py-1 text-xs rounded-full ${view === "day" ? "bg-white text-primary font-bold shadow-sm" : ""}`}>
+          <h2 className="text-xl font-extrabold text-on-surface tracking-tight">Календарь</h2>
+          <div className="flex bg-surface-container rounded-full p-0.5 border border-outline-variant/20">
+            <button
+              type="button"
+              onClick={() => setView("day")}
+              className={`px-3 py-1 text-xs rounded-full transition-colors ${view === "day" ? "bg-white text-primary font-bold shadow-sm" : "text-on-surface-variant font-medium"}`}
+            >
               День
             </button>
-            <button type="button" onClick={() => setView("week")} className={`px-4 py-1 text-xs rounded-full ${view === "week" ? "bg-white text-primary font-bold shadow-sm" : ""}`}>
+            <button
+              type="button"
+              onClick={() => setView("week")}
+              className={`px-3 py-1 text-xs rounded-full transition-colors ${view === "week" ? "bg-white text-primary font-bold shadow-sm" : "text-on-surface-variant font-medium"}`}
+            >
               Неделя
             </button>
           </div>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <button type="button" className="text-sm font-bold px-3 py-1.5 border rounded-lg" onClick={() => setAnchor(addDays(anchor, view === "week" ? -7 : -1))}>
-            ←
-          </button>
-          <button type="button" className="text-sm font-bold px-3 py-1.5 border rounded-lg" onClick={() => setAnchor(new Date())}>
-            Сегодня
-          </button>
-          <button type="button" className="text-sm font-bold px-3 py-1.5 border rounded-lg" onClick={() => setAnchor(addDays(anchor, view === "week" ? 7 : 1))}>
-            →
-          </button>
-          <button type="button" className="text-sm font-semibold px-3 py-1.5 border rounded-full ml-auto" onClick={() => setWhOpen(true)}>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex bg-surface-container rounded-full p-0.5 border border-outline-variant/20 items-center">
+            <button
+              type="button"
+              onClick={() => setAnchor(addDays(anchor, view === "week" ? -7 : -1))}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setAnchor(new Date())}
+              className="px-2.5 py-1 text-xs font-bold rounded-full hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface transition-colors"
+            >
+              Сегодня
+            </button>
+            <button
+              type="button"
+              onClick={() => setAnchor(addDays(anchor, view === "week" ? 7 : 1))}
+              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container-lowest text-on-surface-variant hover:text-on-surface transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          </div>
+          <button
+            type="button"
+            className="text-xs font-bold px-3 py-2 border border-outline-variant rounded-full text-on-surface-variant bg-white hover:bg-surface-container transition-all flex items-center gap-1.5"
+            onClick={() => setWhOpen(true)}
+          >
+            <span className="material-symbols-outlined text-[14px]">schedule</span>
             Рабочее время
           </button>
         </div>
@@ -269,116 +298,158 @@ export function PrivatePersonCalendar() {
 
       <section className="flex-1 px-4 md:px-8 lg:px-12 pb-12 min-h-0 flex flex-col">
         <div className="bg-surface-container-lowest rounded-[32px] shadow-[0px_4px_20px_rgba(0,0,0,0.04)] overflow-hidden border border-outline-variant/10 flex flex-col flex-1 min-h-[480px]">
-          <div
-            className="calendar-grid border-b border-outline-variant/30"
-            style={colCount !== 7 ? { gridTemplateColumns: `80px repeat(${colCount}, minmax(0, 1fr))` } : undefined}
-          >
-            <div className="p-4 flex flex-col items-center justify-center border-r border-outline-variant/30">
-              <span className="text-xs font-bold text-on-surface-variant">{monthLabel}</span>
-              <span className="text-xl font-black text-primary">{weekStart.getFullYear()}</span>
-            </div>
-            {displayDays.map((day, i) => {
-              const isToday = isSameDay(day, today);
-              const weekend = isWeekend(day);
-              const wdLabel = view === "week" ? WEEKDAY_SHORT[i] : day.toLocaleDateString("ru-RU", { weekday: "short" });
-              return (
-                <div
-                  key={day.toISOString()}
-                  className={[
-                    "p-4 flex flex-col items-center justify-center border-r border-outline-variant/20 last:border-r-0",
-                    isToday ? "bg-primary-container/10" : weekend ? "bg-surface-container" : i === 0 && view === "week" ? "bg-surface-container-low/30" : "",
-                  ].join(" ")}
-                >
-                  <span className={`text-xs font-medium ${isToday ? "text-primary font-bold" : weekend ? "text-error/60" : "text-on-surface-variant"}`}>
-                    {wdLabel}
-                  </span>
-                  <span className={`text-lg font-bold ${isToday ? "text-primary font-extrabold" : weekend ? "text-error/60" : ""}`}>
-                    {day.getDate()}
-                  </span>
-                  {isToday && <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1" />}
+          <div className="overflow-x-auto no-scrollbar flex-1 flex flex-col">
+            <div className={`${view === "week" ? "min-w-[700px] md:min-w-0" : "w-full"} flex flex-col flex-1`}>
+              
+              {/* Header Grid */}
+              <div
+                className="calendar-grid border-b border-outline-variant/30"
+                style={colCount !== 7 ? { gridTemplateColumns: `80px repeat(${colCount}, minmax(0, 1fr))` } : undefined}
+              >
+                <div className="p-4 flex flex-col items-center justify-center border-r border-outline-variant/30 sticky left-0 z-20 bg-surface-container-lowest">
+                  <span className="text-xs font-bold text-on-surface-variant">{monthLabel}</span>
+                  <span className="text-xl font-black text-primary">{weekStart.getFullYear()}</span>
                 </div>
-              );
-            })}
-          </div>
-
-          <div className="flex-1 overflow-y-auto min-h-0">
-            <div
-              className="calendar-grid"
-              style={colCount !== 7 ? { gridTemplateColumns: `80px repeat(${colCount}, minmax(0, 1fr))` } : undefined}
-            >
-              {hours.flatMap((hour) => [
-                <div
-                  key={`time-${hour}`}
-                  className="h-14 flex items-start justify-center pt-2 text-[11px] font-bold text-on-surface-variant/50 border-r border-outline-variant/30"
-                >
-                  {formatHourLabel(hour)}
-                </div>,
-                ...displayDays.map((day) => {
+                {displayDays.map((day, i) => {
                   const isToday = isSameDay(day, today);
                   const weekend = isWeekend(day);
-                  const working = isWorkingCell(day, hour);
-                  const cellAppt = getCellAppt(day, hour);
-                  const apptIdx = cellAppt ? visibleAppts.indexOf(cellAppt) : -1;
-                  const pal = cellAppt ? paletteFor(cellAppt, apptIdx) : null;
-                  const name = cellAppt ? clientName(clients, cellAppt.client_id) : "";
-
+                  const wdLabel = view === "week" ? WEEKDAY_SHORT[i] : day.toLocaleDateString("ru-RU", { weekday: "short" });
                   return (
                     <div
-                      key={`${day.toISOString()}-${hour}`}
-                      role="button"
-                      tabIndex={0}
+                      key={day.toISOString()}
                       className={[
-                        "h-14 border-b border-outline-variant/20 border-r last:border-r-0 transition-colors",
-                        cellAppt ? "bg-surface-variant/40 flex flex-col p-2" : "group flex items-center justify-center cursor-pointer",
-                        !cellAppt && working && "hover:bg-primary-container/5",
-                        !cellAppt && !working && (weekend ? "bg-surface-container/50" : ""),
-                        !cellAppt && isToday && working && "bg-primary-container/5",
+                        "p-4 flex flex-col items-center justify-center border-r border-outline-variant/20 last:border-r-0",
+                        isToday ? "bg-primary-container/10" : weekend ? "bg-surface-container" : i === 0 && view === "week" ? "bg-surface-container-low/30" : "",
                       ].join(" ")}
-                      onClick={() => {
-                        if (cellAppt) {
-                          setModal({ mode: "edit", appt: cellAppt });
-                          setSearchParams({ edit: String(cellAppt.id) });
-                        } else {
-                          const start = new Date(day);
-                          start.setHours(hour, 0, 0, 0);
-                          setModal({ mode: "create", start });
-                        }
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          const start = new Date(day);
-                          start.setHours(hour, 0, 0, 0);
-                          if (cellAppt) {
-                            setModal({ mode: "edit", appt: cellAppt });
-                          } else {
-                            setModal({ mode: "create", start });
-                          }
-                        }
-                      }}
                     >
-                      {cellAppt && pal ? (
-                        <div
-                          className={`h-full ${pal.bg} border-l-4 ${pal.border} rounded-lg p-2 flex flex-col justify-center ${pal.accent ? "shadow-lg" : ""}`}
-                        >
-                          <span className={`text-[10px] font-bold uppercase tracking-tight truncate ${pal.label}`}>
-                            {cellAppt.title}
-                          </span>
-                          {name ? (
-                            <span className={`text-xs font-bold truncate ${pal.accent ? "text-white" : "text-on-surface"}`}>
-                              {name}
-                            </span>
-                          ) : null}
-                        </div>
-                      ) : (
-                        <span className="opacity-0 group-hover:opacity-100 material-symbols-outlined text-primary/40">
-                          add_circle
-                        </span>
-                      )}
+                      <span className={`text-xs font-medium ${isToday ? "text-primary font-bold" : weekend ? "text-error/60" : "text-on-surface-variant"}`}>
+                        {wdLabel}
+                      </span>
+                      <span className={`text-lg font-bold ${isToday ? "text-primary font-extrabold" : weekend ? "text-error/60" : ""}`}>
+                        {day.getDate()}
+                      </span>
+                      {isToday && <div className="w-1.5 h-1.5 bg-primary rounded-full mt-1" />}
                     </div>
                   );
-                }),
-              ])}
+                })}
+              </div>
+
+              {/* Body Scrollable Grid */}
+              <div className="flex-1 overflow-y-auto min-h-0">
+                <div
+                  className="calendar-grid"
+                  style={colCount !== 7 ? { gridTemplateColumns: `80px repeat(${colCount}, minmax(0, 1fr))` } : undefined}
+                >
+                  {hours.flatMap((hour) => [
+                    <div
+                      key={`time-${hour}`}
+                      className="h-14 flex items-start justify-center pt-2 text-[11px] font-bold text-on-surface-variant/50 border-r border-outline-variant/30 sticky left-0 z-10 bg-surface-container-lowest"
+                    >
+                      {formatHourLabel(hour)}
+                    </div>,
+                    ...displayDays.map((day) => {
+                      const isToday = isSameDay(day, today);
+                      const weekend = isWeekend(day);
+                      const working = isWorkingCell(day, hour);
+                      const cellAppt = getCellAppt(day, hour);
+                      const apptIdx = cellAppt ? visibleAppts.indexOf(cellAppt) : -1;
+                      const pal = cellAppt ? paletteFor(cellAppt, apptIdx) : null;
+                      const name = cellAppt ? clientName(clients, cellAppt.client_id) : "";
+
+                      let cellPadding = "p-2";
+                      let roundedClass = "rounded-lg";
+                      let isStart = true;
+                      
+                      if (cellAppt) {
+                        const s = parseNaive(cellAppt.starts_at);
+                        const e = parseNaive(cellAppt.ends_at);
+                        const cellStart = new Date(day);
+                        cellStart.setHours(hour, 0, 0, 0);
+                        const cellEnd = new Date(day);
+                        cellEnd.setHours(hour + 1, 0, 0, 0);
+                        
+                        isStart = s >= cellStart && s < cellEnd;
+                        const isEnd = e > cellStart && e <= cellEnd;
+                        
+                        if (isStart && isEnd) {
+                          cellPadding = "px-2 py-1";
+                          roundedClass = "rounded-lg";
+                        } else if (isStart) {
+                          cellPadding = "px-2 pt-1 pb-0";
+                          roundedClass = "rounded-t-lg border-b-0";
+                        } else if (isEnd) {
+                          cellPadding = "px-2 pt-0 pb-1";
+                          roundedClass = "rounded-b-lg border-t-0";
+                        } else {
+                          cellPadding = "px-2 py-0";
+                          roundedClass = "rounded-none border-y-0";
+                        }
+                      }
+
+                      return (
+                        <div
+                          key={`${day.toISOString()}-${hour}`}
+                          role="button"
+                          tabIndex={0}
+                          className={[
+                            "h-14 border-b border-outline-variant/20 border-r last:border-r-0 transition-colors",
+                            cellAppt ? `bg-surface-variant/40 flex flex-col ${cellPadding}` : "group flex items-center justify-center cursor-pointer",
+                            !cellAppt && working && "hover:bg-primary-container/5",
+                            !cellAppt && !working && (weekend ? "bg-surface-container/50" : ""),
+                            !cellAppt && isToday && working && "bg-primary-container/5",
+                          ].join(" ")}
+                          onClick={() => {
+                            if (cellAppt) {
+                              setModal({ mode: "edit", appt: cellAppt });
+                              setSearchParams({ edit: String(cellAppt.id) });
+                            } else {
+                              const start = new Date(day);
+                              start.setHours(hour, 0, 0, 0);
+                              setModal({ mode: "create", start });
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              const start = new Date(day);
+                              start.setHours(hour, 0, 0, 0);
+                              if (cellAppt) {
+                                setModal({ mode: "edit", appt: cellAppt });
+                              } else {
+                                setModal({ mode: "create", start });
+                              }
+                            }
+                          }}
+                        >
+                          {cellAppt && pal ? (
+                            <div
+                              className={`h-full ${pal.bg} border-l-4 ${pal.border} ${roundedClass} p-2 flex flex-col justify-center ${pal.accent ? "shadow-lg" : ""}`}
+                            >
+                              {isStart ? (
+                                <>
+                                  <span className={`text-[10px] font-bold uppercase tracking-tight truncate ${pal.label}`}>
+                                    {cellAppt.title}
+                                  </span>
+                                  {name ? (
+                                    <span className={`text-xs font-bold truncate ${pal.accent ? "text-white" : "text-on-surface"}`}>
+                                      {name}
+                                    </span>
+                                  ) : null}
+                                </>
+                              ) : null}
+                            </div>
+                          ) : (
+                            <span className="opacity-0 group-hover:opacity-100 material-symbols-outlined text-primary/40">
+                              add_circle
+                            </span>
+                          )}
+                        </div>
+                      );
+                    }),
+                  ])}
+                </div>
+              </div>
+
             </div>
           </div>
         </div>

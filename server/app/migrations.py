@@ -77,6 +77,10 @@ def run_schema_migrations() -> None:
             logger.info("Migration: add users.phone")
             conn.execute(text("ALTER TABLE users ADD COLUMN phone VARCHAR(64) NULL AFTER full_name"))
 
+        if not _column_exists(conn, "users", "address"):
+            logger.info("Migration: add users.address")
+            conn.execute(text("ALTER TABLE users ADD COLUMN address VARCHAR(512) NULL AFTER phone"))
+
         if not _column_exists(conn, "users", "role"):
             logger.info("Migration: add users.role")
             conn.execute(

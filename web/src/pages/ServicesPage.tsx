@@ -138,24 +138,24 @@ export function ServicesPage() {
           {items.map((s) => (
             <article
               key={s.id}
-              className={`rounded-[24px] border p-5 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover:scale-[1.015] hover:shadow-[0px_12px_30px_rgba(0,0,0,0.08)] transition-all duration-300 flex gap-4 ${s.is_active ? "bg-white border-outline-variant/20" : "bg-surface-container/50 border-dashed opacity-75"}`}
+              className={`rounded-[24px] border p-4 sm:p-5 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] hover:scale-[1.015] hover:shadow-[0px_12px_30px_rgba(0,0,0,0.08)] transition-all duration-300 flex gap-3.5 sm:gap-4 ${s.is_active ? "bg-white border-outline-variant/20" : "bg-surface-container/50 border-dashed opacity-75"}`}
             >
               {s.image_url ? (
                 <img
                   src={s.image_url}
                   alt={s.title}
-                  className="w-24 h-24 rounded-2xl object-cover shrink-0 bg-surface-container shadow-sm border border-outline-variant/10"
+                  className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shrink-0 bg-surface-container shadow-sm border border-outline-variant/10"
                 />
               ) : (
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center shrink-0 border border-outline-variant/10">
-                  <span className="material-symbols-outlined text-primary/50 text-[32px]">spa</span>
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center shrink-0 border border-outline-variant/10">
+                  <span className="material-symbols-outlined text-primary/50 text-[26px] sm:text-[32px]">spa</span>
                 </div>
               )}
               <div className="flex-1 min-w-0 flex flex-col justify-between">
                 <div>
                   <div className="flex justify-between items-start gap-2 mb-1">
-                    <h3 className="text-lg font-bold text-on-surface truncate">{s.title}</h3>
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shrink-0 ${s.is_active ? "bg-primary-container/20 text-primary" : "bg-surface-container text-on-surface-variant"}`}>
+                    <h3 className="text-base sm:text-lg font-bold text-on-surface truncate">{s.title}</h3>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${s.is_active ? "bg-primary-container/20 text-primary" : "bg-surface-container text-on-surface-variant"}`}>
                       {s.is_active ? "Активна" : "Скрыта"}
                     </span>
                   </div>
@@ -164,14 +164,14 @@ export function ServicesPage() {
                       {s.category}
                     </span>
                   )}
-                  {s.description && <p className="text-sm text-on-surface-variant line-clamp-2 mb-2 leading-relaxed">{s.description}</p>}
+                  {s.description && <p className="text-xs sm:text-sm text-on-surface-variant line-clamp-2 mb-2 leading-relaxed">{s.description}</p>}
                 </div>
-                <div className="flex items-center justify-between mt-2 pt-2 border-t border-outline-variant/10">
-                  <span className="text-sm font-bold text-on-surface">
+                <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-1.5 xs:gap-0 mt-2 pt-2 border-t border-outline-variant/10">
+                  <span className="text-xs sm:text-sm font-bold text-on-surface">
                     {s.duration_minutes} мин
                     {s.price != null ? ` · ${s.price} BYN` : ""}
                   </span>
-                  <button type="button" className="text-sm font-bold text-primary hover:underline" onClick={() => setModal({ mode: "edit", item: s })}>
+                  <button type="button" className="text-xs sm:text-sm font-bold text-primary hover:underline self-start xs:self-auto" onClick={() => setModal({ mode: "edit", item: s })}>
                     Изменить
                   </button>
                 </div>

@@ -50,6 +50,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void refreshUser();
   }, [refreshUser]);
 
+  // Listen for Expo Push Token messages from React Native WebView
+  useEffect(() => {
+    const handleMessage = (event: any) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "expo_push_token" && data.token) {
+          localStorage.setItem("expo_push_token", data.token);
+          if (token && user) {
+            apiFetch("/users/me/push-token", {
+              method: "POST",
+              body: JSON.stringify({ expo_push_token: data.token }),
+            }).catch((err) => console.error("Error sending push token", err));
+          }
+        }
+      } catch (e) {
+        // Not a JSON message
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    document.addEventListener("message", handleMessage as any);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      document.removeEventListener("message", handleMessage as any);
+    };
+  }, [token, user]);
+
+  // Auto upload push token from localStorage if user is authenticated
+  useEffect(() => {
+    const storedToken = localStorage.getItem("expo_push_token");
+    if (token && user && storedToken) {
+      // Avoid infinite upload loop
+      if (user.expo_push_token !== storedToken) {
+        apiFetch<UserOut>("/users/me/push-token", {
+          method: "POST",
+          body: JSON.stringify({ expo_push_token: storedToken }),
+        })
+          .then((updatedUser) => {
+            setUser(updatedUser);
+          })
+          .catch((err) => console.error("Error uploading stored push token", err));
+      }
+    }
+  }, [token, user]);
+
   const login = useCallback(async (email: string, password: string) => {
     const out = await apiFetch<TokenOut>("/auth/login", {
       method: "POST",

@@ -33,6 +33,8 @@ export function SettingsPage() {
   const [me, setMe] = useState<UserOut | null>(null);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [notificationTime, setNotificationTime] = useState("");
   const [hours, setHours] = useState<{ weekday: number; start: string; end: string }[]>(() =>
     [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({
       weekday,
@@ -90,6 +92,8 @@ export function SettingsPage() {
       setMe(u);
       setFullName(u.full_name ?? "");
       setPhone(u.phone ?? "");
+      setAddress(u.address ?? "");
+      setNotificationTime(u.settings_json?.notification_time ?? "");
       if (wh.length) {
         const map = new Map(wh.map((r) => [r.weekday, r]));
         setHours(
@@ -116,11 +120,17 @@ export function SettingsPage() {
     e.preventDefault();
     setBusy(true);
     try {
+      const updatedSettings = {
+        ...(me?.settings_json ?? {}),
+        notification_time: notificationTime || null,
+      };
       const u = await apiFetch<UserOut>("/users/me", {
         method: "PATCH",
         body: JSON.stringify({
           full_name: fullName.trim(),
           phone: phone.trim() || null,
+          address: address.trim() || null,
+          settings_json: updatedSettings,
         }),
       });
       setMe(u);
@@ -224,6 +234,45 @@ export function SettingsPage() {
             </div>
           </div>
 
+          <div className="space-y-1.5">
+            <label className="section-label">Адрес места работы</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-[18px]">location_on</span>
+              <input
+                className={`${ic} pl-11`}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Например: ул. Ленина, 5, оф. 10"
+              />
+            </div>
+          </div>
+
+          {privatePerson && (
+            <div className="space-y-1.5">
+              <label className="section-label">Ежедневное напоминание о записях на сегодня</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-[18px]">notifications_active</span>
+                <select
+                  className={`${ic} pl-11`}
+                  value={notificationTime}
+                  onChange={(e) => setNotificationTime(e.target.value)}
+                >
+                  <option value="">— Отключено —</option>
+                  {Array.from({ length: 30 }, (_, i) => {
+                    const h = Math.floor(i / 2) + 8;
+                    const m = (i % 2) * 30;
+                    const val = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+                    return (
+                      <option key={val} value={val}>
+                        {val}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            </div>
+          )}
+
           <button type="submit" disabled={busy} className="btn-primary">
             {busy ? (
               <span className="flex items-center gap-2"><span className="material-symbols-outlined animate-spin text-[16px]">progress_activity</span>Сохранение…</span>
@@ -247,35 +296,33 @@ export function SettingsPage() {
                 return (
                   <div
                     key={h.weekday}
-                    className={`flex flex-wrap items-center gap-3 p-3 rounded-2xl transition-all ${isWorkday ? "bg-primary/4 border border-primary/15" : "bg-surface-container/50 border border-outline-variant/10"}`}
+                    className={`flex flex-col sm:flex-row sm:items-center gap-3 p-3.5 rounded-2xl transition-all ${isWorkday ? "bg-primary/4 border border-primary/15" : "bg-surface-container/50 border border-outline-variant/10"}`}
                   >
-                    {/* Day label */}
-                    <div className="w-24 flex items-center gap-2">
-                      <span className={`text-sm font-bold ${isWorkday ? "text-primary" : "text-on-surface-variant"}`}>
+                    {/* Day row header: holds Day Name and Status Toggle */}
+                    <div className="flex items-center justify-between w-full sm:w-auto sm:gap-4">
+                      <span className={`text-sm font-bold sm:w-24 ${isWorkday ? "text-primary" : "text-on-surface-variant"}`}>
                         {FULL_WEEKDAYS[h.weekday]}
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = [...hours];
+                          if (isWorkday) {
+                            next[idx] = { ...h, start: "", end: "" };
+                          } else {
+                            next[idx] = { ...h, start: "09:00", end: "18:00" };
+                          }
+                          setHours(next);
+                        }}
+                        className={`text-[10px] font-black px-2.5 py-1 rounded-full transition-all ${isWorkday ? "bg-primary/10 text-primary hover:bg-primary/20" : "bg-outline-variant/20 text-on-surface-variant hover:bg-outline-variant/30"}`}
+                      >
+                        {isWorkday ? "Рабочий" : "Выходной"}
+                      </button>
                     </div>
-
-                    {/* Off toggle */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const next = [...hours];
-                        if (isWorkday) {
-                          next[idx] = { ...h, start: "", end: "" };
-                        } else {
-                          next[idx] = { ...h, start: "09:00", end: "18:00" };
-                        }
-                        setHours(next);
-                      }}
-                      className={`text-[10px] font-black px-2.5 py-1 rounded-full transition-all ${isWorkday ? "bg-primary/10 text-primary hover:bg-primary/20" : "bg-outline-variant/20 text-on-surface-variant hover:bg-outline-variant/30"}`}
-                    >
-                      {isWorkday ? "Рабочий" : "Выходной"}
-                    </button>
 
                     {/* Time selects */}
                     {isWorkday && (
-                      <>
+                      <div className="flex items-center gap-2.5 w-full sm:w-auto pt-2 sm:pt-0 border-t border-outline-variant/5 sm:border-t-0">
                         <TimeSelect
                           value={h.start}
                           placeholder="с"
@@ -295,7 +342,7 @@ export function SettingsPage() {
                             setHours(next);
                           }}
                         />
-                      </>
+                      </div>
                     )}
                   </div>
                 );

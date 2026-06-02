@@ -71,11 +71,11 @@ export default {
         full: "9999px",
       },
       fontFamily: {
-        sans: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
-        headline: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
-        display: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
-        body: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
-        label: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
+        sans: ["Inter", "Plus Jakarta Sans", "system-ui", "sans-serif"],
+        headline: ["Inter", "Plus Jakarta Sans", "system-ui", "sans-serif"],
+        display: ["Inter", "Plus Jakarta Sans", "system-ui", "sans-serif"],
+        body: ["Inter", "Plus Jakarta Sans", "system-ui", "sans-serif"],
+        label: ["Inter", "Plus Jakarta Sans", "system-ui", "sans-serif"],
       },
       boxShadow: {
         card: "0 2px 12px 0 rgba(79,55,138,0.06), 0 1px 3px 0 rgba(0,0,0,0.06)",

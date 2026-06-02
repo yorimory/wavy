@@ -17,6 +17,7 @@ export function WelcomeWizardModal({ onCompleted }: WelcomeWizardModalProps) {
   const [serviceTitle, setServiceTitle] = useState("");
   const [duration, setDuration] = useState("60");
   const [price, setPrice] = useState("");
+  const [address, setAddress] = useState("");
 
   // --- Шаг 2: Расписание ---
   const [scheduleType, setScheduleType] = useState<"standard" | "everyday" | "custom">("standard");
@@ -89,11 +90,22 @@ export function WelcomeWizardModal({ onCompleted }: WelcomeWizardModalProps) {
     }
 
     try {
-      // 1. Сохраняем рабочие часы
-      await apiFetch("/users/me/working-hours", {
-        method: "PUT",
-        body: JSON.stringify(whPayload),
-      });
+      // 1. Сохраняем рабочие часы и адрес (если введен)
+      const promises: Promise<any>[] = [
+        apiFetch("/users/me/working-hours", {
+          method: "PUT",
+          body: JSON.stringify(whPayload),
+        })
+      ];
+      if (address.trim()) {
+        promises.push(
+          apiFetch("/users/me", {
+            method: "PATCH",
+            body: JSON.stringify({ address: address.trim() }),
+          })
+        );
+      }
+      await Promise.all(promises);
 
       // 2. Создаем первую услугу
       await apiFetch("/services", {
@@ -198,6 +210,18 @@ export function WelcomeWizardModal({ onCompleted }: WelcomeWizardModalProps) {
                     placeholder="необязательно"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">
+                  Адрес места работы (салона / кабинета)
+                </label>
+                <input
+                  className={inputClass}
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Например: ул. Ленина, 5, оф. 10 (необязательно)"
+                />
               </div>
             </div>
           ) : (

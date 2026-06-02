@@ -21,6 +21,8 @@ def patch_me(data: UserPatchIn, user: User = Depends(get_current_user), db: Sess
         user.full_name = data.full_name
     if data.phone is not None:
         user.phone = data.phone
+    if data.address is not None:
+        user.address = data.address
     if data.avatar_url is not None:
         user.avatar_url = data.avatar_url
     if data.moderation_enabled is not None:

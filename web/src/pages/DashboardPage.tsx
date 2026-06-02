@@ -182,26 +182,26 @@ export function DashboardPage() {
           return (
             <div
               key={card.key}
-              className={`p-7 rounded-3xl border border-outline-variant/10 shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5 ${card.bg}`}
+              className={`p-5 sm:p-7 rounded-3xl border border-outline-variant/10 shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5 ${card.bg}`}
               style={isGradient ? { background: "linear-gradient(135deg,#3a2470 0%,#4f378a 45%,#7c5fc4 100%)" } : undefined}
             >
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 ${card.iconBg}`}>
+              <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-3.5 sm:mb-5 ${card.iconBg}`}>
                 <span
-                  className={`material-symbols-outlined text-[22px] ${card.iconColor}`}
+                  className={`material-symbols-outlined text-lg sm:text-[22px] ${card.iconColor}`}
                   style={{ fontVariationSettings: "'FILL' 1" }}
                 >
                   {card.icon}
                 </span>
               </div>
-              <p className={`font-bold text-xs mb-1.5 ${card.labelColor ?? "text-on-surface-variant"}`}>
+              <p className={`font-bold text-[11px] sm:text-xs mb-1.5 ${card.labelColor ?? "text-on-surface-variant"}`}>
                 {card.label}
               </p>
               {loaded ? (
-                <h3 className={`text-4xl font-black tracking-tight ${card.textColor}`}>
+                <h3 className={`text-3xl sm:text-4xl font-black tracking-tight ${card.textColor}`}>
                   {statValues[i]}
                 </h3>
               ) : (
-                <div className="h-10 w-16 rounded-xl skeleton" />
+                <div className="h-8 sm:h-10 w-12 sm:w-16 rounded-xl skeleton" />
               )}
             </div>
           );

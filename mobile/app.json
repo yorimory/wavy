@@ -16,7 +16,8 @@
     },
     "plugins": ["expo-notifications"],
     "extra": {
-      "apiUrl": "http://10.0.2.2:8000"
+      "apiUrl": "http://10.0.2.2:8000",
+      "webUrl": "https://wavy-virid.vercel.app"
     }
   }
 }

@@ -78,6 +78,7 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(255), default="")
     phone: Mapped[Optional[str]] = mapped_column(String(64))
+    address: Mapped[Optional[str]] = mapped_column(String(512))
     avatar_url: Mapped[Optional[str]] = mapped_column(String(512))
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.private_person)
     subscription_tier: Mapped[SubscriptionTier] = mapped_column(

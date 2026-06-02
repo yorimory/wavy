@@ -1,16 +1,127 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View, SafeAreaView, Platform, ActivityIndicator } from 'react-native';
+import { WebView } from 'react-native-webview';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
-import { AuthProvider } from './src/context/AuthContext';
-import { AppNavigator } from './src/navigation/AppNavigator';
+
+// Конфигурация всплытия локальных уведомлений
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
+function getWebUrl() {
+  const fromExtra = Constants.expoConfig?.extra?.webUrl;
+  if (fromExtra) return fromExtra;
+  // По умолчанию возвращаем локальный адрес Vite-сервера
+  return 'http://192.168.1.50:5173';
+}
 
 export default function App() {
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const webViewRef = useRef(null);
+  const responseListener = useRef();
+
+  useEffect(() => {
+    // 1. Запрашиваем права на уведомления и получаем Expo Push Token
+    async function registerForPushNotificationsAsync() {
+      if (Platform.OS === 'web') return;
+      
+      if (!Device.isDevice) {
+        console.log('Must use physical device for Push Notifications');
+        return;
+      }
+      
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        console.log('Failed to get push token for push notification!');
+        return;
+      }
+      
+      try {
+        const tokenData = await Notifications.getExpoPushTokenAsync({
+          projectId: Constants.expoConfig?.extra?.eas?.projectId,
+        });
+        setToken(tokenData.data);
+        console.log('Expo Push Token received:', tokenData.data);
+      } catch (error) {
+        console.error('Error getting Expo Push Token:', error);
+      }
+    }
+
+    registerForPushNotificationsAsync().finally(() => setLoading(false));
+
+    // 2. Настраиваем слушатель нажатий на уведомления
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      // При нажатии на пуш-уведомление перенаправляем в Календарь
+      if (webViewRef.current) {
+        const jsCode = `
+          if (window.location.pathname !== '/calendar') {
+            window.location.href = '/calendar';
+          }
+          true;
+        `;
+        webViewRef.current.injectJavaScript(jsCode);
+      }
+    });
+
+    return () => {
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    };
+  }, []);
+
+  // Передаем токен внутрь WebView после завершения загрузки страницы
+  const sendTokenToWebView = () => {
+    if (token && webViewRef.current) {
+      const message = JSON.stringify({ type: 'expo_push_token', token });
+      webViewRef.current.postMessage(message);
+      console.log('Push token sent to WebView:', token);
+    }
+  };
+
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <StatusBar style="dark" />
-        <AppNavigator />
-      </NavigationContainer>
-    </AuthProvider>
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="dark" />
+      <WebView
+        ref={webViewRef}
+        source={{ uri: getWebUrl() }}
+        onLoadEnd={sendTokenToWebView}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        startInLoadingState={true}
+        renderLoading={() => (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#4f378a" />
+          </View>
+        )}
+      />
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#faf7ff',
+    paddingTop: Platform.OS === 'android' ? 32 : 0,
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#faf7ff',
+  },
+});
