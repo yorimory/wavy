@@ -272,8 +272,8 @@ function ServiceModal({
         loading={deleting}
       />
     )}
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-background/40 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-[28px] bg-surface-container-lowest shadow-2xl border p-6 md:p-8 max-h-[92vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-[28px] bg-surface-container-lowest shadow-2xl border p-5 sm:p-8 max-h-[85dvh] overflow-y-auto">
         <h3 className="text-xl font-black mb-6">{mode === "create" ? "Новая услуга" : "Редактирование"}</h3>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>

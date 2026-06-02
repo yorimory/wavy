@@ -26,9 +26,17 @@ function clientName(clients: ClientOut[], clientId: number | null): string {
   return clients.find((c) => c.id === clientId)?.full_name ?? "";
 }
 
-function apptStartsInHour(appt: AppointmentOut, day: Date, hour: number): boolean {
+function apptOverlapsHour(appt: AppointmentOut, day: Date, hour: number): boolean {
   const s = parseNaive(appt.starts_at);
-  return isSameDay(s, day) && s.getHours() === hour;
+  const e = parseNaive(appt.ends_at);
+  
+  const hourStart = new Date(day);
+  hourStart.setHours(hour, 0, 0, 0);
+  
+  const hourEnd = new Date(day);
+  hourEnd.setHours(hour + 1, 0, 0, 0);
+  
+  return s < hourEnd && e > hourStart;
 }
 
 export function PrivatePersonCalendar() {
@@ -51,26 +59,48 @@ export function PrivatePersonCalendar() {
   const colCount = displayDays.length;
 
   const hours = useMemo(() => {
-    if (workingHours.length === 0) {
-      return Array.from({ length: 12 }, (_, i) => 8 + i);
+    let minStart = 8;
+    let maxEnd = 19;
+    
+    if (workingHours.length > 0) {
+      let whMin = 24;
+      let whMax = 0;
+      let hasWorkingDays = false;
+      for (const wh of workingHours) {
+        const startH = parseInt(wh.start_time.slice(0, 2), 10);
+        const endH = parseInt(wh.end_time.slice(0, 2), 10);
+        if (startH < whMin) whMin = startH;
+        if (endH > whMax) whMax = endH;
+        hasWorkingDays = true;
+      }
+      if (hasWorkingDays && whMin < whMax) {
+        minStart = Math.max(0, whMin - 1);
+        maxEnd = Math.min(24, whMax + 1);
+      }
     }
-    let minStart = 24;
-    let maxEnd = 0;
-    let hasWorkingDays = false;
-    for (const wh of workingHours) {
-      const startH = parseInt(wh.start_time.slice(0, 2), 10);
-      const endH = parseInt(wh.end_time.slice(0, 2), 10);
-      if (startH < minStart) minStart = startH;
-      if (endH > maxEnd) maxEnd = endH;
-      hasWorkingDays = true;
+    
+    // Проверяем, чтобы существующие записи (Appointments) не пропадали, если они вне рабочих часов
+    if (appts.length > 0) {
+      for (const appt of appts) {
+        const s = parseNaive(appt.starts_at);
+        const e = parseNaive(appt.ends_at);
+        
+        // Проверяем, пересекается ли запись с отображаемым диапазоном дней
+        const isVisible = displayDays.some(day => isSameDay(s, day));
+        if (isVisible) {
+          const startH = s.getHours();
+          const endH = Math.ceil(e.getHours() || 24);
+          if (startH < minStart) minStart = startH;
+          if (endH > maxEnd) maxEnd = endH;
+        }
+      }
     }
-    if (!hasWorkingDays || minStart >= maxEnd) {
-      return Array.from({ length: 12 }, (_, i) => 8 + i);
-    }
-    const startHour = Math.max(0, minStart - 1);
-    const endHour = Math.min(24, maxEnd + 1);
-    return Array.from({ length: endHour - startHour }, (_, i) => startHour + i);
-  }, [workingHours]);
+    
+    minStart = Math.max(0, minStart);
+    maxEnd = Math.min(24, maxEnd);
+    
+    return Array.from({ length: maxEnd - minStart }, (_, i) => minStart + i);
+  }, [workingHours, appts, displayDays]);
 
   async function reload() {
     setErr(null);
@@ -133,7 +163,7 @@ export function PrivatePersonCalendar() {
   }
 
   function getCellAppt(day: Date, hour: number): AppointmentOut | undefined {
-    return visibleAppts.find((a) => apptStartsInHour(a, day, hour));
+    return visibleAppts.find((a) => apptOverlapsHour(a, day, hour));
   }
 
   function paletteFor(appt: AppointmentOut, idx: number) {

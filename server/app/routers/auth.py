@@ -22,6 +22,18 @@ def register(data: RegisterIn, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    # Если зарегистрировался клиент, связываем с его аккаунтом все существующие записи
+    if user.role == UserRole.client:
+        from app.models import Client, Appointment
+        clients = db.query(Client).filter(Client.email == user.email).all()
+        if clients:
+            client_ids = [c.id for c in clients]
+            db.query(Appointment).filter(Appointment.client_id.in_(client_ids)).update(
+                {Appointment.client_user_id: user.id}, synchronize_session=False
+            )
+            db.commit()
+
     return TokenOut(access_token=create_access_token(user.email))
 
 

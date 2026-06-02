@@ -150,7 +150,7 @@ export function AppointmentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-[28px] bg-surface-container-lowest shadow-2xl border border-outline-variant/20 p-6 md:p-8 max-h-[92vh] overflow-y-auto">
+      <div className="w-full max-w-md rounded-[28px] bg-surface-container-lowest shadow-2xl border border-outline-variant/20 p-5 sm:p-8 max-h-[85dvh] overflow-y-auto">
         {/* Заголовок */}
         <div className="flex justify-between items-center gap-4 mb-6">
           <h3 className="text-xl font-black text-on-surface">

@@ -75,7 +75,7 @@ function BookingModal({ service, days, loading, booking, err, ok, onBook, onClos
       style={{ animation: "fadeIn 0.2s ease" }}
     >
       <div
-        className="w-full sm:max-w-2xl rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest border border-outline-variant/20 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
+        className="w-full sm:max-w-2xl rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest border border-outline-variant/20 shadow-2xl overflow-hidden flex flex-col max-h-[88dvh]"
         style={{ animation: "slideUp 0.3s cubic-bezier(.32,1.2,.42,1) both" }}
       >
         {/* ── Шапка ── */}
