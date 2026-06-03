@@ -363,7 +363,24 @@ export function PrivatePersonCalendar() {
                         return e > cellStart && e <= cellEnd;
                       });
 
+                      const hasContinuationFromPrev = cellAppts.some((appt) => {
+                        const s = parseNaive(appt.starts_at);
+                        const prevHourEnd = new Date(day);
+                        prevHourEnd.setHours(hour, 0, 0, 0);
+                        return s < prevHourEnd;
+                      });
+
+                      const hasContinuationToNext = cellAppts.some((appt) => {
+                        const e = parseNaive(appt.ends_at);
+                        const nextHourStart = new Date(day);
+                        nextHourStart.setHours(hour + 1, 0, 0, 0);
+                        return e > nextHourStart;
+                      });
+
                       const hasBottomBorder = cellAppts.length === 0 || hasEndingAppt;
+                      const paddingClass = cellAppts.length > 0
+                        ? `bg-surface-variant/40 px-1 ${hasContinuationFromPrev ? "pt-0" : "pt-1"} ${hasContinuationToNext ? "pb-0" : "pb-1"}`
+                        : "group flex items-center justify-center cursor-pointer";
 
                       return (
                         <div
@@ -371,7 +388,7 @@ export function PrivatePersonCalendar() {
                           className={[
                             "h-14 border-r last:border-r-0 transition-colors flex gap-1",
                             hasBottomBorder ? "border-b border-outline-variant/20" : "",
-                            cellAppts.length > 0 ? "bg-surface-variant/40 p-1" : "group flex items-center justify-center cursor-pointer",
+                            paddingClass,
                             cellAppts.length === 0 && working && "hover:bg-primary-container/5",
                             cellAppts.length === 0 && !working && (weekend ? "bg-surface-container/50" : ""),
                             cellAppts.length === 0 && isToday && working && "bg-primary-container/5",
@@ -445,11 +462,11 @@ export function PrivatePersonCalendar() {
                                 >
                                   {isStart ? (
                                     <div className="flex flex-col justify-center min-w-0 h-full overflow-hidden">
-                                      <span className={`text-[9px] font-bold uppercase tracking-tight truncate leading-none ${pal.label}`}>
+                                      <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-tight truncate leading-none ${pal.label}`}>
                                         {appt.title}
                                       </span>
                                       {name ? (
-                                        <span className={`text-[10px] font-extrabold truncate mt-0.5 leading-none ${pal.accent ? "text-white" : "text-on-surface"}`}>
+                                        <span className={`text-[11px] sm:text-xs font-extrabold truncate mt-0.5 leading-none ${pal.accent ? "text-white" : "text-on-surface"}`}>
                                           {name}
                                         </span>
                                       ) : null}

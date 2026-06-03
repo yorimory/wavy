@@ -186,4 +186,12 @@ def run_schema_migrations() -> None:
             except Exception as exc:
                 logger.warning("fk_appt_client_user skipped: %s", exc)
 
+        # Update image_url to MEDIUMTEXT to support Base64 images
+        if _table_exists(conn, "services"):
+            try:
+                conn.execute(text("ALTER TABLE services MODIFY COLUMN image_url MEDIUMTEXT NULL"))
+                logger.info("Migration: updated services.image_url to MEDIUMTEXT")
+            except Exception as exc:
+                logger.warning("Could not modify image_url to MEDIUMTEXT (possibly SQLite): %s", exc)
+
     logger.info("Schema migrations complete")

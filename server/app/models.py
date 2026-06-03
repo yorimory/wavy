@@ -56,18 +56,7 @@ class BotConfirmationStatus(str, enum.Enum):
     expired = "expired"
 
 
-class ModeratedVerdict(str, enum.Enum):
-    clean = "clean"
-    spam = "spam"
-    profanity = "profanity"
-    mixed = "mixed"
 
-
-class ModeratedSource(str, enum.Enum):
-    review = "review"
-    note = "note"
-    chat = "chat"
-    other = "other"
 
 
 class User(Base):
@@ -158,7 +147,7 @@ class Service(Base):
     duration_minutes: Mapped[int] = mapped_column(SmallInteger, default=60)
     price: Mapped[Optional[float]] = mapped_column(Numeric(10, 2))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    image_url: Mapped[Optional[str]] = mapped_column(String(1024))
+    image_url: Mapped[Optional[str]] = mapped_column(Text(16777215))
     category: Mapped[Optional[str]] = mapped_column(String(255))
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
@@ -205,14 +194,3 @@ class WorkingHours(Base):
     start_time: Mapped[time] = mapped_column(Time, nullable=False)
     end_time: Mapped[time] = mapped_column(Time, nullable=False)
 
-
-class ModeratedContent(Base):
-    __tablename__ = "moderated_content"
-
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    source: Mapped[ModeratedSource] = mapped_column(Enum(ModeratedSource), default=ModeratedSource.other)
-    original_text: Mapped[str] = mapped_column(Text, nullable=False)
-    verdict: Mapped[ModeratedVerdict] = mapped_column(Enum(ModeratedVerdict), nullable=False)
-    details_json: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON)
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())

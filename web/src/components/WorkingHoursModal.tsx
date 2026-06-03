@@ -27,6 +27,34 @@ export function WorkingHoursModal({ onClose }: { onClose: () => void }) {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // --- Сенсорные жесты для закрытия свайпом вниз ---
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartY = useRef<number>(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0]!.clientY;
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const currentY = e.touches[0]!.clientY;
+    const deltaY = currentY - touchStartY.current;
+    if (deltaY > 0) {
+      setDragY(deltaY);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    if (dragY > 100) {
+      onClose();
+    } else {
+      setDragY(0);
+    }
+  };
+
+
   useEffect(() => {
     void (async () => {
       try {
@@ -76,12 +104,22 @@ export function WorkingHoursModal({ onClose }: { onClose: () => void }) {
       {/* Background overlay to close */}
       <div className="absolute inset-0 -z-10" onClick={onClose} />
 
-      <div className="w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest shadow-2xl border-t sm:border border-outline-variant/30 p-4 pb-safe sm:p-8 max-h-[92dvh] sm:max-h-[85dvh] overflow-y-auto animate-[slide-up_0.3s_cubic-bezier(0.16,1,0.3,1)] sm:animate-scale-in">
-        {/* Swipe grab handle for mobile */}
+      <div
+        className="w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest shadow-2xl border-t sm:border border-outline-variant/30 p-5 pb-[calc(env(safe-area-inset-bottom)+36px)] sm:p-8 max-h-[92dvh] sm:max-h-[85dvh] overflow-y-auto animate-[slide-up_0.3s_cubic-bezier(0.16,1,0.3,1)] sm:animate-scale-in"
+        style={{
+          transform: dragY > 0 ? `translateY(${dragY}px)` : undefined,
+          transition: isDragging ? "none" : "transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+      >
+        {/* Swipe grab handle container for mobile with larger hit target */}
         <div
-          className="w-12 h-1.5 bg-outline-variant/30 rounded-full mx-auto mb-4 block sm:hidden cursor-pointer active:bg-outline-variant/50 transition-colors"
-          onClick={onClose}
-        />
+          className="w-full h-8 -mt-2 mb-2 flex items-center justify-center block sm:hidden cursor-grab touch-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
+        </div>
 
         <div className="flex justify-between items-start gap-4 mb-4">
           <div>
@@ -152,10 +190,10 @@ export function WorkingHoursModal({ onClose }: { onClose: () => void }) {
           ))}
           {err && <p className="text-error text-sm font-medium">{err}</p>}
           <div className="flex gap-3 pt-2">
-            <button type="button" className="flex-1 px-5 py-3 rounded-xl border border-outline-variant font-bold hover:bg-surface-container transition-colors text-sm" onClick={onClose}>
+            <button type="button" className="flex-1 px-5 py-4 rounded-2xl border border-outline-variant font-bold hover:bg-surface-container transition-colors text-sm active:scale-[0.98]" onClick={onClose}>
               Отмена
             </button>
-            <button type="submit" disabled={busy} className="flex-1 px-6 py-3 rounded-xl primary-gradient text-white font-bold disabled:opacity-60 hover:opacity-95 transition-all text-sm">
+            <button type="submit" disabled={busy} className="flex-1 px-6 py-4 rounded-2xl primary-gradient text-white font-bold disabled:opacity-60 hover:opacity-95 transition-all text-sm active:scale-[0.98]">
               {busy ? "Сохранение…" : "Сохранить"}
             </button>
           </div>

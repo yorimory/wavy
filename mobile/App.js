@@ -179,7 +179,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#faf7ff',
-    paddingTop: Platform.OS === 'android' ? 32 : 0,
   },
   loadingContainer: {
     ...StyleSheet.absoluteFillObject,

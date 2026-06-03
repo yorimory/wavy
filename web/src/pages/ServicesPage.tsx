@@ -74,13 +74,6 @@ const CATEGORY_OPTIONS = [
   "Другое",
 ];
 
-const IMAGE_PRESETS = [
-  { label: "Стрижка/Волосы", url: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=500&auto=format&fit=crop&q=80" },
-  { label: "Ногти/Маникюр", url: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=500&auto=format&fit=crop&q=80" },
-  { label: "Массаж/СПА", url: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=500&auto=format&fit=crop&q=80" },
-  { label: "Кожа/Лицо", url: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=500&auto=format&fit=crop&q=80" },
-  { label: "Макияж", url: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=500&auto=format&fit=crop&q=80" },
-];
 
 export function ServicesPage() {
   const toast = useToast();
@@ -211,6 +204,33 @@ function ServiceModal({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [title, setTitle] = useState(item?.title ?? "");
+
+  // --- Сенсорные жесты для закрытия свайпом вниз ---
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartY = useRef<number>(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0]!.clientY;
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const currentY = e.touches[0]!.clientY;
+    const deltaY = currentY - touchStartY.current;
+    if (deltaY > 0) {
+      setDragY(deltaY);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+    if (dragY > 100) {
+      onClose();
+    } else {
+      setDragY(0);
+    }
+  };
   const [description, setDescription] = useState(item?.description ?? "");
   const [duration, setDuration] = useState(String(item?.duration_minutes ?? 60));
   const [price, setPrice] = useState(item?.price != null ? String(item.price) : "");
@@ -219,6 +239,24 @@ function ServiceModal({
   const [imageUrl, setImageUrl] = useState(item?.image_url ?? "");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setErr("Изображение должно быть не более 2 МБ");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === "string") {
+        setImageUrl(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -262,7 +300,7 @@ function ServiceModal({
     }
   }
 
-  const ic = "w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 outline-none focus:ring-2 focus:ring-primary/30 text-on-surface";
+  const ic = "input-field";
 
   return (
     <>
@@ -278,12 +316,22 @@ function ServiceModal({
       {/* Background overlay to close */}
       <div className="absolute inset-0 -z-10" onClick={onClose} />
 
-      <div className="w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest shadow-2xl border-t sm:border border-outline-variant/20 p-4 pb-safe sm:p-8 max-h-[92dvh] sm:max-h-[85dvh] overflow-y-auto animate-[slide-up_0.3s_cubic-bezier(0.16,1,0.3,1)] sm:animate-scale-in">
-        {/* Swipe grab handle for mobile */}
+      <div
+        className="w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest shadow-2xl border-t sm:border border-outline-variant/20 p-5 pb-[calc(env(safe-area-inset-bottom)+36px)] sm:p-8 max-h-[92dvh] sm:max-h-[85dvh] overflow-y-auto animate-[slide-up_0.3s_cubic-bezier(0.16,1,0.3,1)] sm:animate-scale-in"
+        style={{
+          transform: dragY > 0 ? `translateY(${dragY}px)` : undefined,
+          transition: isDragging ? "none" : "transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+      >
+        {/* Swipe grab handle container for mobile with larger hit target */}
         <div
-          className="w-12 h-1.5 bg-outline-variant/30 rounded-full mx-auto mb-4 block sm:hidden cursor-pointer active:bg-outline-variant/50 transition-colors"
-          onClick={onClose}
-        />
+          className="w-full h-8 -mt-2 mb-2 flex items-center justify-center block sm:hidden cursor-grab touch-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full" />
+        </div>
 
         <h3 className="text-xl font-black mb-5">{mode === "create" ? "Новая услуга" : "Редактирование"}</h3>
         <form onSubmit={onSubmit} className="space-y-4">
@@ -316,26 +364,25 @@ function ServiceModal({
           </div>
           
           <div>
-            <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1">Ссылка на картинку (URL)</label>
-            <input className={ic} value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://images.unsplash.com/..." />
-            
-            {/* Пресеты изображений */}
-            <div className="mt-2.5">
-              <span className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Или выберите готовый пресет:</span>
-              <div className="flex flex-wrap gap-2">
-                {IMAGE_PRESETS.map((p) => (
-                  <button
-                    key={p.label}
-                    type="button"
-                    onClick={() => setImageUrl(p.url)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold transition-all ${imageUrl === p.url ? "bg-primary-container/20 border-primary text-primary shadow-sm" : "border-outline-variant hover:bg-surface-container bg-white text-on-surface"}`}
-                  >
-                    <img src={p.url} className="w-5 h-5 rounded-full object-cover border border-outline-variant/30" />
-                    {p.label}
-                  </button>
-                ))}
+            <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Изображение услуги</label>
+            {imageUrl ? (
+              <div className="relative w-28 h-28 rounded-2xl overflow-hidden border border-outline-variant/30 group">
+                <img src={imageUrl} alt="Услуга" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setImageUrl("")}
+                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity font-bold text-xs"
+                >
+                  Удалить
+                </button>
               </div>
-            </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-outline-variant/50 rounded-2xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-all">
+                <span className="material-symbols-outlined text-[32px] text-on-surface-variant/40 mb-1">add_photo_alternate</span>
+                <span className="text-xs font-bold text-on-surface-variant/70">Выбрать файл изображения</span>
+                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+              </label>
+            )}
           </div>
 
           <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
@@ -346,15 +393,15 @@ function ServiceModal({
           {err && <p className="text-error text-sm bg-error/5 p-3 rounded-xl font-semibold">{err}</p>}
           
           <div className="flex gap-3 pt-2">
-            <button type="button" className="flex-1 px-5 py-3 rounded-xl border font-bold hover:bg-surface-container transition-colors" onClick={onClose}>
+            <button type="button" className="flex-1 px-5 py-4 rounded-2xl border font-bold hover:bg-surface-container transition-colors text-sm active:scale-[0.98]" onClick={onClose}>
               Отмена
             </button>
             {mode === "edit" && (
-              <button type="button" className="px-5 py-3 rounded-xl border border-error text-error font-bold hover:bg-error/5 transition-colors" onClick={() => setConfirmDelete(true)} disabled={busy}>
+              <button type="button" className="px-5 py-4 rounded-2xl border border-error text-error font-bold hover:bg-error/5 transition-colors text-sm active:scale-[0.98]" onClick={() => setConfirmDelete(true)} disabled={busy}>
                 Удалить
               </button>
             )}
-            <button type="submit" disabled={busy} className="flex-1 px-6 py-3 rounded-xl primary-gradient text-white font-bold hover:opacity-95 disabled:opacity-60 transition-all shadow-md">
+            <button type="submit" disabled={busy} className="flex-1 px-6 py-4 rounded-2xl primary-gradient text-white font-bold hover:opacity-95 disabled:opacity-60 transition-all shadow-md text-sm active:scale-[0.98]">
               {busy ? "Сохранение..." : "Сохранить"}
             </button>
           </div>
