@@ -44,6 +44,7 @@ class UserOut(BaseModel):
     subscription_expires_at: datetime | None
     moderation_enabled: bool
     moderation_strictness: ModerationStrictness
+    settings_json: dict[str, Any] | None = None
 
     class Config:
         from_attributes = True
