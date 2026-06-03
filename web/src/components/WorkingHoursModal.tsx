@@ -73,13 +73,22 @@ export function WorkingHoursModal({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-t-[28px] sm:rounded-[28px] bg-surface-container-lowest shadow-2xl border border-outline-variant/30 p-5 sm:p-8 max-h-[90dvh] sm:max-h-[85dvh] overflow-y-auto">
+      {/* Background overlay to close */}
+      <div className="absolute inset-0 -z-10" onClick={onClose} />
+
+      <div className="w-full max-w-lg rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest shadow-2xl border-t sm:border border-outline-variant/30 p-4 sm:p-8 max-h-[92dvh] sm:max-h-[85dvh] overflow-y-auto animate-[slide-up_0.3s_cubic-bezier(0.16,1,0.3,1)] sm:animate-scale-in">
+        {/* Swipe grab handle for mobile */}
+        <div
+          className="w-12 h-1.5 bg-outline-variant/30 rounded-full mx-auto mb-4 block sm:hidden cursor-pointer active:bg-outline-variant/50 transition-colors"
+          onClick={onClose}
+        />
+
         <div className="flex justify-between items-start gap-4 mb-4">
           <div>
             <h3 className="text-xl font-black text-on-surface">Моё рабочее время</h3>
             <p className="text-sm text-on-surface-variant mt-1">Формат 24 ч (05:00–22:00)</p>
           </div>
-          <button type="button" className="text-on-surface-variant" onClick={onClose}>
+          <button type="button" className="text-on-surface-variant w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container" onClick={onClose}>
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
@@ -89,7 +98,7 @@ export function WorkingHoursModal({ onClose }: { onClose: () => void }) {
             <button
               key={p.label}
               type="button"
-              className="text-xs font-bold px-3 py-1.5 rounded-full border border-outline-variant/40 hover:border-primary hover:text-primary"
+              className="text-xs font-bold px-3 py-1.5 rounded-full border border-outline-variant/40 hover:border-primary hover:text-primary transition-all"
               onClick={() =>
                 setRows((prev) =>
                   prev.map((r) => (r.enabled ? { ...r, start_time: p.start, end_time: p.end } : r)),
@@ -101,13 +110,13 @@ export function WorkingHoursModal({ onClose }: { onClose: () => void }) {
           ))}
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-3">
+        <form onSubmit={onSubmit} className="space-y-2.5">
           {rows.map((row, idx) => (
             <div
               key={row.weekday}
-              className={`flex flex-wrap items-center gap-3 p-3 rounded-xl border ${row.enabled ? "border-primary/20 bg-primary-container/5" : "border-outline-variant/30 opacity-70"}`}
+              className={`grid grid-cols-[64px_1fr_12px_1fr] sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border ${row.enabled ? "border-primary/20 bg-primary-container/5" : "border-outline-variant/30 opacity-60"}`}
             >
-              <label className="flex items-center gap-2 min-w-[72px]">
+              <label className="flex items-center gap-2 w-auto sm:min-w-[72px] cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={row.enabled}
@@ -116,8 +125,9 @@ export function WorkingHoursModal({ onClose }: { onClose: () => void }) {
                     next[idx] = { ...row, enabled: e.target.checked };
                     setRows(next);
                   }}
+                  className="w-4 h-4 rounded text-primary focus:ring-primary"
                 />
-                <span className="font-bold text-sm">{DAY_NAMES[row.weekday]}</span>
+                <span className="font-bold text-sm text-on-surface">{DAY_NAMES[row.weekday]}</span>
               </label>
               <TimeSelect
                 value={row.start_time}
@@ -128,7 +138,7 @@ export function WorkingHoursModal({ onClose }: { onClose: () => void }) {
                   setRows(next);
                 }}
               />
-              <span className="text-on-surface-variant text-sm">—</span>
+              <span className="text-on-surface-variant text-sm text-center font-bold">—</span>
               <TimeSelect
                 value={row.end_time}
                 disabled={!row.enabled}
@@ -142,10 +152,10 @@ export function WorkingHoursModal({ onClose }: { onClose: () => void }) {
           ))}
           {err && <p className="text-error text-sm font-medium">{err}</p>}
           <div className="flex gap-3 pt-2">
-            <button type="button" className="px-5 py-3 rounded-xl border border-outline-variant font-bold" onClick={onClose}>
+            <button type="button" className="flex-1 px-5 py-3 rounded-xl border border-outline-variant font-bold hover:bg-surface-container transition-colors text-sm" onClick={onClose}>
               Отмена
             </button>
-            <button type="submit" disabled={busy} className="px-6 py-3 rounded-xl primary-gradient text-white font-bold disabled:opacity-60">
+            <button type="submit" disabled={busy} className="flex-1 px-6 py-3 rounded-xl primary-gradient text-white font-bold disabled:opacity-60 hover:opacity-95 transition-all text-sm">
               {busy ? "Сохранение…" : "Сохранить"}
             </button>
           </div>

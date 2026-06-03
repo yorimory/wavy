@@ -133,11 +133,12 @@ export function WelcomeWizardModal({ onCompleted }: WelcomeWizardModalProps) {
     "w-full rounded-2xl border border-outline-variant/60 bg-surface-container-low px-4 py-3.5 outline-none focus:ring-2 focus:ring-primary/30 text-on-surface transition-all placeholder:text-on-surface-variant/40";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
       <div
-        className="w-full max-w-xl rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest shadow-2xl border border-outline-variant/20 p-6 md:p-10 max-h-[90dvh] sm:max-h-[85dvh] overflow-y-auto"
-        style={{ animation: "scaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both" }}
+        className="w-full max-w-xl rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest shadow-2xl border-t sm:border border-outline-variant/20 p-5 sm:p-10 max-h-[92dvh] sm:max-h-[85dvh] overflow-y-auto animate-[slide-up_0.3s_cubic-bezier(0.16,1,0.3,1)] sm:animate-scale-in"
       >
+        {/* Swipe indicator for mobile onboarding sheet */}
+        <div className="w-12 h-1.5 bg-outline-variant/30 rounded-full mx-auto mb-4 block sm:hidden cursor-pointer" />
         {/* Шапка приветствия */}
         <div className="text-center mb-8">
           <div className="inline-flex w-12 h-12 rounded-2xl primary-gradient items-center justify-center text-white mb-3 shadow-glow-sm">

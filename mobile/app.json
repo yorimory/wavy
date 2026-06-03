@@ -6,7 +6,9 @@
     "orientation": "portrait",
     "scheme": "wavycrm",
     "userInterfaceStyle": "light",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "by.wavycrm.app"
@@ -14,10 +16,15 @@
     "android": {
       "package": "by.wavycrm.app"
     },
-    "plugins": ["expo-notifications"],
+    "plugins": [
+      "expo-notifications"
+    ],
     "extra": {
       "apiUrl": "http://10.0.2.2:8000",
-      "webUrl": "https://wavy-virid.vercel.app"
+      "webUrl": "https://wavy-virid.vercel.app",
+      "eas": {
+        "projectId": "44467b1e-d894-42cc-bfea-f90eb174e4f6"
+      }
     }
   }
 }

@@ -65,6 +65,55 @@ export function AppointmentModal({
   const [clientId, setClientId] = useState<string>(
     appt?.client_id ? String(appt.client_id) : "",
   );
+  const [clientSearch, setClientSearch] = useState("");
+  const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<ClientOut | null>(() => {
+    if (appt?.client_id && clients) {
+      return clients.find((c) => c.id === appt.client_id) || null;
+    }
+    return null;
+  });
+  const [isCreatingClient, setIsCreatingClient] = useState(false);
+
+  const filteredClients = useMemo(() => {
+    const q = clientSearch.trim().toLowerCase();
+    if (!q) return clients;
+    return clients.filter(
+      (c) =>
+        c.full_name.toLowerCase().includes(q) ||
+        (c.phone && c.phone.includes(q))
+    );
+  }, [clients, clientSearch]);
+
+  const handleSelectClient = (c: ClientOut | null) => {
+    setSelectedClient(c);
+    setClientId(c ? String(c.id) : "");
+    setClientSearch("");
+    setIsClientDropdownOpen(false);
+  };
+
+  const handleCreateClientQuickly = async () => {
+    if (!clientSearch.trim()) return;
+    setIsCreatingClient(true);
+    setErr(null);
+    try {
+      const newClient = await apiFetch<ClientOut>("/clients", {
+        method: "POST",
+        body: JSON.stringify({
+          full_name: clientSearch.trim(),
+        }),
+      });
+      setSelectedClient(newClient);
+      setClientId(String(newClient.id));
+      setClientSearch("");
+      setIsClientDropdownOpen(false);
+    } catch (ex) {
+      setErr(ex instanceof Error ? ex.message : "Не удалось создать клиента");
+    } finally {
+      setIsCreatingClient(false);
+    }
+  };
+
   const [serviceId, setServiceId] = useState<string>(
     appt?.service_id ? String(appt.service_id) : "",
   );
@@ -150,9 +199,18 @@ export function AppointmentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-t-[28px] sm:rounded-[28px] bg-surface-container-lowest shadow-2xl border border-outline-variant/20 p-5 sm:p-8 max-h-[90dvh] sm:max-h-[85dvh] overflow-y-auto">
+      {/* Background overlay to close */}
+      <div className="absolute inset-0 -z-10" onClick={onClose} />
+
+      <div className="w-full max-w-md rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest shadow-2xl border-t sm:border border-outline-variant/20 p-4 sm:p-8 max-h-[92dvh] sm:max-h-[85dvh] overflow-y-auto animate-[slide-up_0.3s_cubic-bezier(0.16,1,0.3,1)] sm:animate-scale-in">
+        {/* Swipe indicator for mobile */}
+        <div
+          className="w-12 h-1.5 bg-outline-variant/30 rounded-full mx-auto mb-4 block sm:hidden cursor-pointer active:bg-outline-variant/50 transition-colors"
+          onClick={onClose}
+        />
+
         {/* Заголовок */}
-        <div className="flex justify-between items-center gap-4 mb-6">
+        <div className="flex justify-between items-center gap-4 mb-5">
           <h3 className="text-xl font-black text-on-surface">
             {mode === "create" ? "Новая запись" : "Редактирование записи"}
           </h3>
@@ -165,8 +223,106 @@ export function AppointmentModal({
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-3.5">
+          {/* Клиент */}
+          <div className="relative">
+            <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1">
+              Клиент
+            </label>
+            {selectedClient ? (
+              <div className="flex items-center justify-between w-full rounded-xl border border-primary/30 bg-primary/5 px-4 py-2.5 text-on-surface">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-[20px]">person</span>
+                  <div>
+                    <div className="font-bold text-sm leading-snug">{selectedClient.full_name}</div>
+                    {selectedClient.phone && (
+                      <div className="text-[11px] text-on-surface-variant">{selectedClient.phone}</div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSelectClient(null)}
+                  className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-primary/10 text-primary transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">close</span>
+                </button>
+              </div>
+            ) : (
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/40 text-[20px]">
+                  search
+                </span>
+                <input
+                  type="text"
+                  className={`${ic} pl-10`}
+                  placeholder="Поиск или добавление клиента…"
+                  value={clientSearch}
+                  onChange={(e) => {
+                    setClientSearch(e.target.value);
+                    setIsClientDropdownOpen(true);
+                  }}
+                  onFocus={() => setIsClientDropdownOpen(true)}
+                />
+                {clientSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setClientSearch("")}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/40 hover:text-on-surface"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">close</span>
+                  </button>
+                )}
 
+                {isClientDropdownOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setIsClientDropdownOpen(false)}
+                    />
+                    <div className="absolute left-0 right-0 mt-1 max-h-48 overflow-y-auto bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-xl z-20 scroll-touch py-1">
+                      {filteredClients.length > 0 ? (
+                        filteredClients.map((c) => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            className="w-full text-left px-4 py-2 hover:bg-surface-container/60 transition-colors flex items-center justify-between"
+                            onClick={() => handleSelectClient(c)}
+                          >
+                            <div>
+                              <div className="font-semibold text-sm text-on-surface">{c.full_name}</div>
+                              {c.phone && (
+                                <div className="text-xs text-on-surface-variant">{c.phone}</div>
+                              )}
+                            </div>
+                            <span className="material-symbols-outlined text-on-surface-variant/30 text-[18px]">chevron_right</span>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="p-3 text-center text-xs text-on-surface-variant">
+                          Клиенты не найдены
+                        </div>
+                      )}
+
+                      {clientSearch.trim() && (
+                        <div className="border-t border-outline-variant/10 mt-1 pt-1 px-2 pb-1">
+                          <button
+                            type="button"
+                            disabled={isCreatingClient}
+                            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-primary/10 hover:bg-primary/15 text-primary text-xs font-bold transition-all disabled:opacity-50"
+                            onClick={handleCreateClientQuickly}
+                          >
+                            <span className="material-symbols-outlined text-[16px]">person_add</span>
+                            {isCreatingClient ? "Создание…" : `Добавить "${clientSearch}"`}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Услуга */}
           {activeServices.length > 0 && (
