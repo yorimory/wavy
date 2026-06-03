@@ -2,6 +2,7 @@
   "expo": {
     "name": "WAVY CRM",
     "slug": "wavy-crm",
+    "projectId": "44467b1e-d894-42cc-bfea-f90eb174e4f6",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "wavycrm",
@@ -9,12 +10,18 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "icon": "./assets/icon.png",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "by.wavycrm.app"
+      "bundleIdentifier": "by.wavycrm.app",
+      "icon": "./assets/icon.png"
     },
     "android": {
-      "package": "by.wavycrm.app"
+      "package": "by.wavycrm.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#3a2470"
+      }
     },
     "plugins": [
       "expo-notifications"

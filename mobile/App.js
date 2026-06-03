@@ -56,7 +56,10 @@ export default function App() {
       }
       
       try {
-        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+        const projectId = 
+          Constants.expoConfig?.extra?.eas?.projectId ??
+          Constants.expoConfig?.projectId ??
+          Constants.easConfig?.projectId;
         if (!projectId) {
           console.log('No EAS projectId found in app.json. Skipping push token registration.');
           return;
