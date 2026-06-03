@@ -194,4 +194,56 @@ def run_schema_migrations() -> None:
             except Exception as exc:
                 logger.warning("Could not modify image_url to MEDIUMTEXT (possibly SQLite): %s", exc)
 
+        # 1. Update users.role to include 'moderator'
+        if _column_exists(conn, "users", "role"):
+            try:
+                conn.execute(
+                    text(
+                        """
+                        ALTER TABLE users MODIFY COLUMN role 
+                        ENUM('private_person', 'client', 'moderator') NOT NULL DEFAULT 'private_person'
+                        """
+                    )
+                )
+                logger.info("Migration: updated users.role to include moderator")
+            except Exception as exc:
+                logger.warning("Could not modify users.role (possibly SQLite): %s", exc)
+
+        # 2. Add users.is_banned, users.warning_count, users.ban_reason
+        if not _column_exists(conn, "users", "is_banned"):
+            logger.info("Migration: add users.is_banned")
+            conn.execute(text("ALTER TABLE users ADD COLUMN is_banned TINYINT(1) NOT NULL DEFAULT 0 AFTER expo_push_token"))
+
+        if not _column_exists(conn, "users", "warning_count"):
+            logger.info("Migration: add users.warning_count")
+            conn.execute(text("ALTER TABLE users ADD COLUMN warning_count SMALLINT NOT NULL DEFAULT 0 AFTER is_banned"))
+
+        if not _column_exists(conn, "users", "ban_reason"):
+            logger.info("Migration: add users.ban_reason")
+            conn.execute(text("ALTER TABLE users ADD COLUMN ban_reason VARCHAR(512) NULL AFTER warning_count"))
+
+        # 3. Seed default system configurations
+        if _table_exists(conn, "system_configs"):
+            try:
+                # Check if warnings_limit exists
+                res = conn.execute(
+                    text("SELECT COUNT(*) FROM system_configs WHERE `key` = 'warnings_limit'")
+                ).scalar()
+                if not res:
+                    conn.execute(
+                        text("INSERT INTO system_configs (`key`, `value`) VALUES ('warnings_limit', '3')")
+                    )
+                    logger.info("Migration: seeded config warnings_limit = 3")
+
+                res2 = conn.execute(
+                    text("SELECT COUNT(*) FROM system_configs WHERE `key` = 'low_rating_threshold'")
+                ).scalar()
+                if not res2:
+                    conn.execute(
+                        text("INSERT INTO system_configs (`key`, `value`) VALUES ('low_rating_threshold', '2')")
+                    )
+                    logger.info("Migration: seeded config low_rating_threshold = 2")
+            except Exception as exc:
+                logger.warning("Could not seed system_configs: %s", exc)
+
     logger.info("Schema migrations complete")

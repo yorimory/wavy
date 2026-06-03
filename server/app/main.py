@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.migrations import run_schema_migrations
-from app.routers import appointments, auth, catalog, clients, integrations, intelligence, services, users
+from app.routers import appointments, auth, catalog, clients, integrations, intelligence, services, users, reviews, moderation, support, messages
 from app.services.notifications import reminder_scheduler_loop
 
 
@@ -42,6 +42,10 @@ app.include_router(services.router)
 app.include_router(catalog.router)
 app.include_router(intelligence.router)
 app.include_router(integrations.router)
+app.include_router(reviews.router)
+app.include_router(moderation.router)
+app.include_router(support.router)
+app.include_router(messages.router)
 
 
 @app.get("/health")

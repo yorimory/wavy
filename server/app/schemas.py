@@ -46,6 +46,9 @@ class UserOut(BaseModel):
     moderation_strictness: ModerationStrictness
     settings_json: dict[str, Any] | None = None
     expo_push_token: str | None = None
+    is_banned: bool = False
+    warning_count: int = 0
+    ban_reason: str | None = None
 
     class Config:
         from_attributes = True
@@ -59,6 +62,7 @@ class UserPatchIn(BaseModel):
     moderation_enabled: bool | None = None
     moderation_strictness: ModerationStrictness | None = None
     settings_json: dict[str, Any] | None = None
+    role: UserRole | None = None
 
 
 class PushTokenIn(BaseModel):
@@ -256,4 +260,85 @@ class ModerationCheckOut(BaseModel):
     verdict: ModeratedVerdict
     flags: list[str]
     sanitized_suggestion: str | None = None
+
+
+class ReviewCreateIn(BaseModel):
+    appointment_id: int
+    rating: int = Field(ge=1, le=5)
+    comment: str | None = None
+
+
+class ReviewOut(BaseModel):
+    id: int
+    appointment_id: int
+    client_id: int
+    master_id: int
+    rating: int
+    comment: str | None = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class SystemConfigOut(BaseModel):
+    key: str
+    value: str
+
+    class Config:
+        from_attributes = True
+
+
+class SystemConfigUpdateIn(BaseModel):
+    value: str
+
+
+class SupportTicketCreateIn(BaseModel):
+    subject: str
+    message: str
+
+
+class SupportTicketReplyIn(BaseModel):
+    reply: str
+
+
+class SupportTicketOut(BaseModel):
+    id: int
+    user_id: int
+    subject: str
+    message: str
+    reply: str | None = None
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class MessageCreateIn(BaseModel):
+    receiver_id: int
+    body: str
+
+
+class MessageOut(BaseModel):
+    id: int
+    sender_id: int
+    receiver_id: int
+    body: str
+    created_at: datetime
+    is_read: bool
+
+    class Config:
+        from_attributes = True
+
+
+class ContactOut(BaseModel):
+    id: int
+    full_name: str
+    email: EmailStr
+    role: UserRole
+    unread_count: int
+
+    class Config:
+        from_attributes = True
 

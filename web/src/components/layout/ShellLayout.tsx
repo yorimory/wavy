@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { isClient, isPrivatePerson, ROLE_LABELS } from "@/utils/roles";
+import { isClient, isPrivatePerson, isModerator, ROLE_LABELS } from "@/utils/roles";
+import { ReviewModal } from "@/components/ReviewModal";
 
 /* ── Desktop sidebar nav class ── */
 const NAV_CLS_BASE =
@@ -86,10 +87,17 @@ export function ShellLayout() {
   const location = useLocation();
   const privatePerson = isPrivatePerson(user);
   const client = isClient(user);
+  const moderator = isModerator(user);
   const calendarFullBleed = privatePerson && location.pathname === "/calendar";
 
   /* Mobile tabs */
-  const mobileTabs = privatePerson
+  const mobileTabs = moderator
+    ? [
+        { to: "/moderator", end: true, icon: "shield", label: "Панель" },
+        { to: "/messages", icon: "chat", label: "Чат" },
+        { to: "/settings", icon: "settings", label: "Настройки" },
+      ]
+    : privatePerson
     ? [
         { to: "/", end: true, icon: "dashboard", label: "Главная" },
         { to: "/services", icon: "spa", label: "Услуги" },
@@ -106,6 +114,7 @@ export function ShellLayout() {
 
   return (
     <div className="flex min-h-screen bg-background flex-col lg:flex-row">
+      {client && <ReviewModal />}
 
       {/* ─────────────── Mobile top bar (logo only) ─────────────── */}
       <header
@@ -114,7 +123,7 @@ export function ShellLayout() {
           background: "rgba(255,255,255,0.85)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
-          borderBottom: "1px solid rgba(203,196,210,0.2)",
+          borderBottom: "1px solid rgba(203,196,210,0.25)",
           boxShadow: "0 1px 12px rgba(79,55,138,0.06)",
         }}
       >
@@ -206,7 +215,20 @@ export function ShellLayout() {
               </NavLink>
             </>
           )}
+          {moderator && (
+            <NavLink to="/moderator" end className={navCls}>
+              {({ isActive }) => (<><NavIcon icon="shield" active={isActive} />Панель модератора</>)}
+            </NavLink>
+          )}
+          
           <div className="mt-2 mx-2 h-px bg-outline-variant/10" />
+          
+          <NavLink to="/messages" className={navCls}>
+            {({ isActive }) => (<><NavIcon icon="chat" active={isActive} />Сообщения</>)}
+          </NavLink>
+          <NavLink to="/support" className={navCls}>
+            {({ isActive }) => (<><NavIcon icon="help" active={isActive} />Поддержка</>)}
+          </NavLink>
           <NavLink to="/settings" className={navCls}>
             {({ isActive }) => (<><NavIcon icon="settings" active={isActive} />{client ? "Профиль" : "Настройки"}</>)}
           </NavLink>

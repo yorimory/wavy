@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { ShellLayout } from "@/components/layout/ShellLayout";
-import { homePathForRole, isClient, isPrivatePerson } from "@/utils/roles";
+import { homePathForRole, isClient, isPrivatePerson, isModerator } from "@/utils/roles";
 import { LoginPage } from "@/pages/LoginPage";
 import { RegisterPage } from "@/pages/RegisterPage";
 import { DashboardPage } from "@/pages/DashboardPage";
@@ -16,6 +16,9 @@ import { ServicesPage } from "@/pages/ServicesPage";
 import { RetentionPage } from "@/pages/RetentionPage";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { PricingPage } from "@/pages/PricingPage";
+import { ChatPage } from "@/pages/ChatPage";
+import { SupportPage } from "@/pages/SupportPage";
+import { ModeratorPage } from "@/pages/ModeratorPage";
 
 function FullscreenSpinner() {
   return (
@@ -56,11 +59,20 @@ function RequireClient({ children }: { children: ReactElement }) {
   return children;
 }
 
+function RequireModerator({ children }: { children: ReactElement }) {
+  const { user, loading } = useAuth();
+  if (loading) return <FullscreenSpinner />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (!isModerator(user)) return <Navigate to={homePathForRole(user.role)} replace />;
+  return children;
+}
+
 function HomeRedirect() {
   const { user, loading } = useAuth();
   if (loading) return <FullscreenSpinner />;
   if (!user) return <Navigate to="/login" replace />;
   if (isClient(user)) return <Navigate to="/home" replace />;
+  if (isModerator(user)) return <Navigate to="/moderator" replace />;
   return <DashboardPage />;
 }
 
@@ -164,6 +176,16 @@ export default function App() {
           }
         />
         <Route path="settings" element={<SettingsPage />} />
+        <Route
+          path="moderator"
+          element={
+            <RequireModerator>
+              <ModeratorPage />
+            </RequireModerator>
+          }
+        />
+        <Route path="messages" element={<ChatPage />} />
+        <Route path="support" element={<SupportPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

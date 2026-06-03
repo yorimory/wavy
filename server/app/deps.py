@@ -21,6 +21,11 @@ def get_current_user(
     user = db.query(User).filter(User.email == sub).first()
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Пользователь не найден")
+    if user.is_banned:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Ваш аккаунт заблокирован. Причина: {user.ban_reason or 'Не указана'}",
+        )
     return user
 
 
@@ -38,6 +43,15 @@ def require_client_role(user: User = Depends(get_current_user)) -> User:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Доступно только для клиента",
+        )
+    return user
+
+
+def require_moderator(user: User = Depends(get_current_user)) -> User:
+    if user.role != UserRole.moderator:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Доступно только для модератора",
         )
     return user
 

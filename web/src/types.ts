@@ -1,4 +1,4 @@
-export type UserRole = "private_person" | "client";
+export type UserRole = "private_person" | "client" | "moderator";
 export type SubscriptionTier = "free" | "premium";
 export type ModerationStrictness = "low" | "medium" | "high";
 export type AppointmentStatus = "draft" | "pending" | "confirmed" | "cancelled" | "completed";
@@ -21,6 +21,9 @@ export interface UserOut {
   subscription_expires_at: string | null;
   moderation_enabled: boolean;
   moderation_strictness: ModerationStrictness;
+  is_banned: boolean;
+  warning_count: number;
+  ban_reason: string | null;
 }
 
 export interface ClientOut {
@@ -118,4 +121,55 @@ export interface WorkingHourOut {
   weekday: number;
   start_time: string;
   end_time: string;
+}
+
+export interface ReviewOut {
+  id: number;
+  appointment_id: number;
+  client_id: number;
+  master_id: number;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+}
+
+export interface SupportTicketOut {
+  id: number;
+  user_id: number;
+  subject: string;
+  message: string;
+  reply: string | null;
+  status: string;
+  created_at: string;
+}
+
+export interface MessageOut {
+  id: number;
+  sender_id: number;
+  receiver_id: number;
+  body: string;
+  created_at: string;
+  is_read: boolean;
+}
+
+export interface ContactOut {
+  id: number;
+  full_name: string;
+  email: string;
+  role: UserRole;
+  unread_count: number;
+}
+
+export interface SystemActionLogOut {
+  id: number;
+  user_id: number;
+  action: string;
+  details: string;
+  created_at: string;
+  is_active: boolean;
+}
+
+export interface SystemConfigOut {
+  key: string;
+  value: string;
 }
