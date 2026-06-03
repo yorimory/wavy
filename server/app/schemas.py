@@ -45,6 +45,7 @@ class UserOut(BaseModel):
     moderation_enabled: bool
     moderation_strictness: ModerationStrictness
     settings_json: dict[str, Any] | None = None
+    expo_push_token: str | None = None
 
     class Config:
         from_attributes = True
