@@ -164,8 +164,8 @@ export function PrivatePersonCalendar() {
     return hour >= startH && hour < endH;
   }
 
-  function getCellAppt(day: Date, hour: number): AppointmentOut | undefined {
-    return visibleAppts.find((a) => apptOverlapsHour(a, day, hour));
+  function getCellAppts(day: Date, hour: number): AppointmentOut[] {
+    return visibleAppts.filter((a) => apptOverlapsHour(a, day, hour));
   }
 
   function paletteFor(appt: AppointmentOut, idx: number) {
@@ -351,93 +351,113 @@ export function PrivatePersonCalendar() {
                       const isToday = isSameDay(day, today);
                       const weekend = isWeekend(day);
                       const working = isWorkingCell(day, hour);
-                      const cellAppt = getCellAppt(day, hour);
-                      const apptIdx = cellAppt ? visibleAppts.indexOf(cellAppt) : -1;
-                      const pal = cellAppt ? paletteFor(cellAppt, apptIdx) : null;
-                      const name = cellAppt ? clientName(clients, cellAppt.client_id) : "";
+                      const cellAppts = getCellAppts(day, hour);
 
-                      let cellPadding = "p-2";
-                      let roundedClass = "rounded-lg";
-                      let isStart = true;
-                      
-                      if (cellAppt) {
-                        const s = parseNaive(cellAppt.starts_at);
-                        const e = parseNaive(cellAppt.ends_at);
+                      // Check if any appointment in this cell ends in this hour slot
+                      const hasEndingAppt = cellAppts.some((appt) => {
+                        const e = parseNaive(appt.ends_at);
                         const cellStart = new Date(day);
                         cellStart.setHours(hour, 0, 0, 0);
                         const cellEnd = new Date(day);
                         cellEnd.setHours(hour + 1, 0, 0, 0);
-                        
-                        isStart = s >= cellStart && s < cellEnd;
-                        const isEnd = e > cellStart && e <= cellEnd;
-                        
-                        if (isStart && isEnd) {
-                          cellPadding = "px-2 py-1";
-                          roundedClass = "rounded-lg";
-                        } else if (isStart) {
-                          cellPadding = "px-2 pt-1 pb-0";
-                          roundedClass = "rounded-t-lg border-b-0";
-                        } else if (isEnd) {
-                          cellPadding = "px-2 pt-0 pb-1";
-                          roundedClass = "rounded-b-lg border-t-0";
-                        } else {
-                          cellPadding = "px-2 py-0";
-                          roundedClass = "rounded-none border-y-0";
-                        }
-                      }
+                        return e > cellStart && e <= cellEnd;
+                      });
+
+                      const hasBottomBorder = cellAppts.length === 0 || hasEndingAppt;
 
                       return (
                         <div
                           key={`${day.toISOString()}-${hour}`}
-                          role="button"
-                          tabIndex={0}
                           className={[
-                            "h-14 border-b border-outline-variant/20 border-r last:border-r-0 transition-colors",
-                            cellAppt ? `bg-surface-variant/40 flex flex-col ${cellPadding}` : "group flex items-center justify-center cursor-pointer",
-                            !cellAppt && working && "hover:bg-primary-container/5",
-                            !cellAppt && !working && (weekend ? "bg-surface-container/50" : ""),
-                            !cellAppt && isToday && working && "bg-primary-container/5",
+                            "h-14 border-r last:border-r-0 transition-colors flex gap-1",
+                            hasBottomBorder ? "border-b border-outline-variant/20" : "",
+                            cellAppts.length > 0 ? "bg-surface-variant/40 p-1" : "group flex items-center justify-center cursor-pointer",
+                            cellAppts.length === 0 && working && "hover:bg-primary-container/5",
+                            cellAppts.length === 0 && !working && (weekend ? "bg-surface-container/50" : ""),
+                            cellAppts.length === 0 && isToday && working && "bg-primary-container/5",
                           ].join(" ")}
-                          onClick={() => {
-                            if (cellAppt) {
-                              setModal({ mode: "edit", appt: cellAppt });
-                              setSearchParams({ edit: String(cellAppt.id) });
-                            } else {
-                              const start = new Date(day);
-                              start.setHours(hour, 0, 0, 0);
-                              setModal({ mode: "create", start });
-                            }
-                          }}
-                          onKeyDown={(e) => {
+                          onClick={cellAppts.length === 0 ? () => {
+                            const start = new Date(day);
+                            start.setHours(hour, 0, 0, 0);
+                            setModal({ mode: "create", start });
+                          } : undefined}
+                          onKeyDown={cellAppts.length === 0 ? (e) => {
                             if (e.key === "Enter" || e.key === " ") {
                               e.preventDefault();
                               const start = new Date(day);
                               start.setHours(hour, 0, 0, 0);
-                              if (cellAppt) {
-                                setModal({ mode: "edit", appt: cellAppt });
-                              } else {
-                                setModal({ mode: "create", start });
-                              }
+                              setModal({ mode: "create", start });
                             }
-                          }}
+                          } : undefined}
+                          role={cellAppts.length === 0 ? "button" : undefined}
+                          tabIndex={cellAppts.length === 0 ? 0 : undefined}
                         >
-                          {cellAppt && pal ? (
-                            <div
-                              className={`h-full ${pal.bg} border-l-4 ${pal.border} ${roundedClass} p-2 flex flex-col justify-center ${pal.accent ? "shadow-lg" : ""}`}
-                            >
-                              {isStart ? (
-                                <>
-                                  <span className={`text-[10px] font-bold uppercase tracking-tight truncate ${pal.label}`}>
-                                    {cellAppt.title}
-                                  </span>
-                                  {name ? (
-                                    <span className={`text-xs font-bold truncate ${pal.accent ? "text-white" : "text-on-surface"}`}>
-                                      {name}
-                                    </span>
+                          {cellAppts.length > 0 ? (
+                            cellAppts.map((appt) => {
+                              const apptIdx = visibleAppts.indexOf(appt);
+                              const pal = paletteFor(appt, apptIdx);
+                              const name = clientName(clients, appt.client_id);
+
+                              const s = parseNaive(appt.starts_at);
+                              const e = parseNaive(appt.ends_at);
+                              const cellStart = new Date(day);
+                              cellStart.setHours(hour, 0, 0, 0);
+                              const cellEnd = new Date(day);
+                              cellEnd.setHours(hour + 1, 0, 0, 0);
+
+                              const isStart = s >= cellStart && s < cellEnd;
+                              const isEnd = e > cellStart && e <= cellEnd;
+
+                              let roundedClass = "rounded-lg";
+                              let cardPadding = "p-1.5";
+
+                              if (isStart && isEnd) {
+                                roundedClass = "rounded-lg";
+                              } else if (isStart) {
+                                roundedClass = "rounded-t-lg border-b-0";
+                                cardPadding = "pt-1.5 pb-0 px-1.5";
+                              } else if (isEnd) {
+                                roundedClass = "rounded-b-lg border-t-0";
+                                cardPadding = "pt-0 pb-1.5 px-1.5";
+                              } else {
+                                roundedClass = "rounded-none border-y-0";
+                                cardPadding = "py-0 px-1.5";
+                              }
+
+                              return (
+                                <div
+                                  key={appt.id}
+                                  role="button"
+                                  tabIndex={0}
+                                  className={`flex-1 min-w-0 h-full ${pal.bg} border-l-[3px] ${pal.border} ${roundedClass} ${cardPadding} flex flex-col justify-center cursor-pointer hover:opacity-95 transition-all ${pal.accent ? "shadow-md" : ""}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setModal({ mode: "edit", appt });
+                                    setSearchParams({ edit: String(appt.id) });
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                      e.stopPropagation();
+                                      e.preventDefault();
+                                      setModal({ mode: "edit", appt });
+                                    }
+                                  }}
+                                >
+                                  {isStart ? (
+                                    <div className="flex flex-col justify-center min-w-0 h-full overflow-hidden">
+                                      <span className={`text-[9px] font-bold uppercase tracking-tight truncate leading-none ${pal.label}`}>
+                                        {appt.title}
+                                      </span>
+                                      {name ? (
+                                        <span className={`text-[10px] font-extrabold truncate mt-0.5 leading-none ${pal.accent ? "text-white" : "text-on-surface"}`}>
+                                          {name}
+                                        </span>
+                                      ) : null}
+                                    </div>
                                   ) : null}
-                                </>
-                              ) : null}
-                            </div>
+                                </div>
+                              );
+                            })
                           ) : (
                             <span className="opacity-0 group-hover:opacity-100 material-symbols-outlined text-primary/40">
                               add_circle
