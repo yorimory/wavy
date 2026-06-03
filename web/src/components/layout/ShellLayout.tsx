@@ -109,7 +109,7 @@ export function ShellLayout() {
 
       {/* ─────────────── Mobile top bar (logo only) ─────────────── */}
       <header
-        className="lg:hidden sticky top-0 z-50 flex items-center justify-between px-4 py-3 shrink-0"
+        className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 shrink-0"
         style={{
           background: "rgba(255,255,255,0.85)",
           backdropFilter: "blur(16px)",
@@ -274,7 +274,7 @@ export function ShellLayout() {
 
       {/* ─────────────── Mobile bottom tab bar ─────────────── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex"
         style={{
           background: "rgba(255,255,255,0.92)",
           backdropFilter: "blur(20px) saturate(1.8)",

@@ -71,7 +71,7 @@ function BookingModal({ service, days, loading, booking, err, ok, onBook, onClos
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm"
       style={{ animation: "fadeIn 0.2s ease" }}
     >
       <div
