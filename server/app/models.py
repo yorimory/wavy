@@ -56,7 +56,16 @@ class BotConfirmationStatus(str, enum.Enum):
     expired = "expired"
 
 
+class ModeratedSource(str, enum.Enum):
+    review = "review"
+    note = "note"
 
+
+class ModeratedVerdict(str, enum.Enum):
+    clean = "clean"
+    spam = "spam"
+    profanity = "profanity"
+    mixed = "mixed"
 
 
 class User(Base):

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.deps import require_premium
-from app.models import ModeratedContent, ModeratedVerdict, User
+from app.models import ModeratedVerdict, User
 from app.schemas import ModerationCheckIn, ModerationCheckOut, RetentionItemOut
 from app.services.moderation import moderate_text
 from app.services.retention import compute_retention
@@ -40,14 +40,4 @@ def moderation_check(
         )
 
     res = moderate_text(data.text, user.moderation_strictness)
-    db.add(
-        ModeratedContent(
-            user_id=user.id,
-            source=data.source,
-            original_text=data.text,
-            verdict=res.verdict,
-            details_json={"flags": res.flags},
-        )
-    )
-    db.commit()
     return ModerationCheckOut(verdict=res.verdict, flags=res.flags, sanitized_suggestion=res.sanitized_suggestion)
