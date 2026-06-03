@@ -281,6 +281,18 @@ class ReviewOut(BaseModel):
         from_attributes = True
 
 
+class SystemActionLogOut(BaseModel):
+    id: int
+    user_id: int
+    action: str
+    details: str
+    created_at: datetime
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+
 class SystemConfigOut(BaseModel):
     key: str
     value: str
