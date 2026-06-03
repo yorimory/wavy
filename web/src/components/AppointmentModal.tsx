@@ -18,6 +18,66 @@ function dateToLocal(d: Date): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
+function ConfirmDeleteDialog({
+  title,
+  onConfirm,
+  onCancel,
+  loading,
+}: {
+  title: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  loading: boolean;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      style={{ animation: "fadeIn 0.15s ease" }}
+    >
+      <div
+        className="w-full max-w-sm rounded-3xl bg-white border border-outline-variant/20 shadow-modal p-6 space-y-5"
+        style={{ animation: "scaleIn 0.2s cubic-bezier(0.34,1.56,0.64,1) both" }}
+      >
+        <div className="flex items-start gap-4">
+          <div className="w-11 h-11 rounded-2xl bg-red-50 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-red-500 text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>delete</span>
+          </div>
+          <div>
+            <h3 className="font-black text-on-surface text-base">Удалить запись?</h3>
+            <p className="text-sm text-on-surface-variant mt-1">
+              Запись «<span className="font-semibold text-on-surface">{title}</span>» будет удалена навсегда.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 py-3 rounded-2xl border border-outline-variant/40 font-bold text-sm text-on-surface hover:bg-surface-container transition-all"
+          >
+            Отмена
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={loading}
+            className="flex-1 py-3 rounded-2xl bg-red-500 text-white font-bold text-sm hover:bg-red-600 transition-all disabled:opacity-60 active:scale-[0.97]"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined animate-spin text-[16px]">progress_activity</span>
+                Удаление…
+              </span>
+            ) : (
+              "Да, удалить"
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AppointmentModal({
   mode,
   appt,
@@ -122,6 +182,7 @@ export function AppointmentModal({
   const [notes, setNotes] = useState(appt?.notes ?? "");
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // --- Сенсорные жесты для закрытия свайпом вниз ---
   const [dragY, setDragY] = useState(0);
@@ -207,15 +268,16 @@ export function AppointmentModal({
     }
   }
 
-  async function onDelete() {
+  async function doDelete() {
     if (!appt) return;
-    if (!window.confirm("Удалить запись?")) return;
     setBusy(true);
+    setErr(null);
     try {
       await apiFetch(`/appointments/${appt.id}`, { method: "DELETE" });
       await onSaved();
     } catch (ex) {
       setErr(ex instanceof Error ? ex.message : "Ошибка");
+      setConfirmDelete(false);
     } finally {
       setBusy(false);
     }
@@ -456,7 +518,7 @@ export function AppointmentModal({
               <button
                 type="button"
                 className="px-4 py-4 rounded-2xl border border-error/50 text-error font-bold hover:bg-error/5 transition-colors text-sm active:scale-[0.98]"
-                onClick={onDelete}
+                onClick={() => setConfirmDelete(true)}
                 disabled={busy}
               >
                 Удалить
@@ -472,6 +534,14 @@ export function AppointmentModal({
           </div>
         </form>
       </div>
+      {confirmDelete && (
+        <ConfirmDeleteDialog
+          title={appt?.title ?? "Запись"}
+          onConfirm={doDelete}
+          onCancel={() => setConfirmDelete(false)}
+          loading={busy}
+        />
+      )}
     </div>
   );
 }

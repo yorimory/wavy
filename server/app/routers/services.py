@@ -53,17 +53,17 @@ def update_service(
         raise HTTPException(404, "Услуга не найдена")
     if data.title is not None:
         s.title = data.title.strip()
-    if data.description is not None:
+    if "description" in data.model_fields_set:
         s.description = data.description
     if data.duration_minutes is not None:
         s.duration_minutes = data.duration_minutes
-    if data.price is not None:
+    if "price" in data.model_fields_set:
         s.price = data.price
     if data.is_active is not None:
         s.is_active = data.is_active
-    if data.image_url is not None:
+    if "image_url" in data.model_fields_set:
         s.image_url = data.image_url.strip() if data.image_url else None
-    if data.category is not None:
+    if "category" in data.model_fields_set:
         s.category = data.category.strip() if data.category else None
     db.commit()
     db.refresh(s)

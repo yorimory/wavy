@@ -119,13 +119,13 @@ def update_client(
         raise HTTPException(status_code=404, detail="Клиент не найден")
     if data.full_name is not None:
         c.full_name = data.full_name
-    if data.phone is not None:
+    if "phone" in data.model_fields_set:
         c.phone = data.phone
-    if data.email is not None:
-        c.email = str(data.email).lower()
-    if data.notes is not None:
+    if "email" in data.model_fields_set:
+        c.email = str(data.email).lower() if data.email else None
+    if "notes" in data.model_fields_set:
         c.notes = data.notes
-    if data.last_visit_at is not None:
+    if "last_visit_at" in data.model_fields_set:
         c.last_visit_at = data.last_visit_at
     _replace_tags(db, c, data.tags)
     db.add(ClientHistory(client_id=c.id, event_type="updated", body="Данные карточки обновлены"))

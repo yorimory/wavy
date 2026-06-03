@@ -171,14 +171,14 @@ def update_appt(
     a = db.query(Appointment).filter(Appointment.id == appt_id, Appointment.user_id == user.id).first()
     if a is None:
         raise HTTPException(404, "Запись не найдена")
-    if data.client_id is not None:
+    if "client_id" in data.model_fields_set:
         if data.client_id:
             c = db.query(Client).filter(Client.id == data.client_id, Client.user_id == user.id).first()
             if c is None:
                 raise HTTPException(400, "Клиент не найден")
         a.client_id = data.client_id
         a.client_user_id = _resolve_client_user_id(db, data.client_id)
-    if data.service_id is not None:
+    if "service_id" in data.model_fields_set:
         if data.service_id:
             s = db.query(Service).filter(Service.id == data.service_id, Service.user_id == user.id).first()
             if s is None:
@@ -190,7 +190,7 @@ def update_appt(
         a.starts_at = _naive(data.starts_at)
     if data.ends_at is not None:
         a.ends_at = _naive(data.ends_at)
-    if data.notes is not None:
+    if "notes" in data.model_fields_set:
         a.notes = data.notes
     if data.bot_confirmation_status is not None:
         a.bot_confirmation_status = data.bot_confirmation_status
