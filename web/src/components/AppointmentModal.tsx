@@ -1,4 +1,4 @@
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useMemo, useState, useRef } from "react";
 import { apiFetch } from "@/api/client";
 import { toLocalInput } from "@/utils/calendarUtils";
 import type { AppointmentOut, ClientOut, ServiceOut } from "@/types";
