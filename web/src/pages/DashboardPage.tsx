@@ -246,9 +246,9 @@ export function DashboardPage() {
                   className="card flex items-center gap-4 p-4 pr-5 group hover:shadow-card-hover hover:-translate-y-[1px] transition-all duration-200"
                 >
                   {/* Time badge */}
-                  <div className="flex flex-col items-center justify-center bg-gradient-warm rounded-2xl w-[60px] h-[60px] shrink-0 border border-primary/10">
+                  <div className="flex flex-col items-center justify-center bg-gradient-warm rounded-2xl w-20 h-[60px] shrink-0 border border-primary/10 px-1">
                     <span className="text-sm font-black text-primary leading-none">{time}</span>
-                    <span className="text-[10px] text-on-surface-variant font-bold uppercase mt-1">{dayLabel}</span>
+                    <span className="text-[9px] text-on-surface-variant font-bold uppercase mt-1 whitespace-nowrap overflow-hidden text-ellipsis w-full text-center">{dayLabel}</span>
                   </div>
 
                   {/* Info */}

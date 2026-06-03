@@ -460,8 +460,10 @@ export function PrivatePersonCalendar() {
                       // Determine columns layout for the day and find active appointments for this hour
                       const dayKey = day.toDateString();
                       const layoutMap = dayLayoutMap.get(dayKey) || new Map<number, { colIdx: number; totalCols: number }>();
-                      const layoutInfo = cellAppts.length > 0 ? layoutMap.get(cellAppts[0].id) : null;
-                      const totalCols = layoutInfo ? layoutInfo.totalCols : 0;
+                      const totalCols = cellAppts.reduce((max, appt) => {
+                        const info = layoutMap.get(appt.id);
+                        return info ? Math.max(max, info.totalCols) : max;
+                      }, 0);
 
                       const cellCols = Array.from({ length: totalCols }, () => null as AppointmentOut | null);
                       for (const appt of cellAppts) {

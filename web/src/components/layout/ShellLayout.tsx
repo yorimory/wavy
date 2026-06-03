@@ -297,8 +297,8 @@ export function ShellLayout() {
       {/* ─────────────── Main content ─────────────── */}
       <main
         className={
-          calendarFullBleed
-            ? "flex-1 min-h-screen w-full p-0 overflow-hidden"
+          (calendarFullBleed || location.pathname === "/messages")
+            ? "flex-1 h-[calc(100dvh-112px)] lg:h-screen w-full p-0 lg:p-8 overflow-hidden"
             : `flex-1 min-h-screen w-full ${
                 privatePerson
                   ? "px-4 pt-4 pb-24 md:px-8 md:pt-8 md:pb-8 lg:p-10 max-w-6xl mx-auto"

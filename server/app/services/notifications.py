@@ -9,18 +9,18 @@ from app.models import User, UserRole, Appointment, AppointmentStatus
 
 logger = logging.getLogger(__name__)
 
-async def send_expo_push(token: str, title: str, body: str):
+async def send_expo_push(token: str, title: str, body: str, path: str = "/calendar"):
     url = "https://exp.host/--/api/v2/push/send"
     payload = {
         "to": token,
         "title": title,
         "body": body,
         "sound": "default",
-        "data": {"screen": "Calendar"}
+        "data": {"path": path}
     }
     async with httpx.AsyncClient() as client:
         try:
-            logger.info(f"Sending push notification to token: {token}")
+            logger.info(f"Sending push notification to token: {token} for path: {path}")
             r = await client.post(url, json=payload, timeout=8.0)
             r.raise_for_status()
             logger.info(f"Successfully sent push notification: {r.json()}")

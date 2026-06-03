@@ -78,11 +78,13 @@ export default function App() {
 
     // 2. Настраиваем слушатель нажатий на уведомления
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      // При нажатии на пуш-уведомление перенаправляем в Календарь
+      const data = response.notification.request.content.data;
+      const path = data?.path || '/calendar';
+      // При нажатии на пуш-уведомление перенаправляем на соответствующий путь
       if (webViewRef.current) {
         const jsCode = `
-          if (window.location.pathname !== '/calendar') {
-            window.location.href = '/calendar';
+          if (window.location.pathname !== '${path}') {
+            window.location.href = '${path}';
           }
           true;
         `;

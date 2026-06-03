@@ -166,12 +166,12 @@ export function ClientHomePage() {
                   className="flex items-center gap-4 p-4 rounded-2xl bg-surface-container-low border border-outline-variant/10 hover:border-primary/20 hover:bg-white transition-all"
                 >
                   {/* Date badge */}
-                  <div className="flex flex-col items-center justify-center w-14 h-14 rounded-2xl shrink-0"
+                  <div className="flex flex-col items-center justify-center w-[72px] h-14 rounded-2xl shrink-0 px-1"
                     style={{ background: "linear-gradient(135deg,#f3eeff,#ede7f6)" }}>
-                    <span className="text-sm font-black text-primary leading-none">
+                    <span className="text-xs font-black text-primary leading-none whitespace-nowrap overflow-hidden text-ellipsis w-full text-center">
                       {t.toLocaleDateString("ru-RU", { day: "numeric", month: "short" })}
                     </span>
-                    <span className="text-[10px] text-on-surface-variant font-bold mt-0.5">
+                    <span className="text-[10px] text-on-surface-variant font-bold mt-1 whitespace-nowrap">
                       {formatTime24(t)}
                     </span>
                   </div>

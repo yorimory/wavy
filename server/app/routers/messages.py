@@ -43,7 +43,7 @@ def send_message(
     if receiver.expo_push_token:
         push_title = f"Сообщение от {user.full_name or user.email}"
         push_body = msg.body[:120] + ("..." if len(msg.body) > 120 else "")
-        background_tasks.add_task(send_expo_push, receiver.expo_push_token, push_title, push_body)
+        background_tasks.add_task(send_expo_push, receiver.expo_push_token, push_title, push_body, "/messages")
 
     return msg
 

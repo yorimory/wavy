@@ -13,7 +13,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   "Косметология": "face_5",
   "Макияж и брови": "brush",
   "Обучение и консультации": "school",
-  "Другое": "miscellaneous_services",
+  "Другое": "category",
 };
 
 /* ─────────────────────────── BookingModal ─────────────────────────── */
@@ -125,7 +125,7 @@ function BookingModal({ service, days, loading, booking, err, ok, onBook, onClos
               {service.category && (
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-full">
                   <span className="material-symbols-outlined text-[13px]">
-                    {CATEGORY_ICONS[service.category] ?? "miscellaneous_services"}
+                    {CATEGORY_ICONS[service.category] ?? "category"}
                   </span>
                   {service.category}
                 </span>
@@ -604,7 +604,7 @@ export function ServiceSearchPage() {
                         {s.category && (
                           <span className="inline-flex items-center gap-1 text-[9px] font-bold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-md mt-1.5">
                             <span className="material-symbols-outlined text-[11px]">
-                              {CATEGORY_ICONS[s.category] ?? "miscellaneous_services"}
+                              {CATEGORY_ICONS[s.category] ?? "category"}
                             </span>
                             {s.category}
                           </span>

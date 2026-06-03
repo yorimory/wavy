@@ -19,6 +19,14 @@ export function ChatPage() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  // Блокируем прокрутку основной страницы при открытом чате
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   // Скролл вниз при обновлении сообщений
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -171,7 +179,7 @@ export function ChatPage() {
   };
 
   return (
-    <div className="h-[calc(100dvh-180px)] md:h-[calc(100vh-140px)] flex flex-col md:flex-row bg-surface-container-lowest rounded-[32px] border border-outline-variant/15 shadow-sm overflow-hidden animate-fade-up">
+    <div className="h-full w-full flex flex-col md:flex-row bg-surface-container-lowest lg:rounded-[32px] lg:border border-outline-variant/15 lg:shadow-sm overflow-hidden animate-fade-up">
       {/* Список контактов */}
       <div
         className={`w-full md:w-80 border-r border-outline-variant/15 flex flex-col ${

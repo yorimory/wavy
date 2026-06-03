@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session, joinedload
 
 from app.database import get_db
 from app.deps import get_current_user, require_private_person
 from app.models import Appointment, AppointmentStatus, Client, Service, User, UserRole
 from app.schemas import AppointmentCreateIn, AppointmentOut, AppointmentUpdateIn
+from app.services.notifications import send_expo_push
 
 router = APIRouter(prefix="/appointments", tags=["appointments"])
 
@@ -165,6 +166,7 @@ def create_appt(
 def update_appt(
     appt_id: int,
     data: AppointmentUpdateIn,
+    background_tasks: BackgroundTasks,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -182,6 +184,9 @@ def update_appt(
             raise HTTPException(403, "Клиенту разрешено только отменять запись")
     else:
         raise HTTPException(403, "Недостаточно прав")
+
+    old_status = a.status
+    old_starts_at = a.starts_at
 
     if "client_id" in data.model_fields_set:
         if data.client_id:
@@ -213,6 +218,43 @@ def update_appt(
             _touch_client_last_visit(db, a.client_id, end)
     db.commit()
     db.refresh(a)
+
+    # Trigger push notifications
+    try:
+        starts_local_str = a.starts_at.strftime("%d.%m.%Y в %H:%M")
+        service_title = a.title
+        if a.service_id:
+            s_obj = db.query(Service).filter(Service.id == a.service_id).first()
+            if s_obj:
+                service_title = s_obj.title
+
+        if user.role == UserRole.client:
+            if data.status == AppointmentStatus.cancelled and old_status != AppointmentStatus.cancelled:
+                provider_user = db.query(User).filter(User.id == a.user_id).first()
+                if provider_user and provider_user.expo_push_token:
+                    push_title = "Запись отменена клиентом"
+                    push_body = f"Клиент {user.full_name or user.email} отменил запись на '{service_title}' ({starts_local_str})."
+                    background_tasks.add_task(send_expo_push, provider_user.expo_push_token, push_title, push_body, "/calendar")
+        elif user.role == UserRole.private_person:
+            if a.client_user_id:
+                client_user = db.query(User).filter(User.id == a.client_user_id).first()
+                if client_user and client_user.expo_push_token:
+                    if data.status == AppointmentStatus.cancelled and old_status != AppointmentStatus.cancelled:
+                        push_title = "Сеанс отменен мастером"
+                        push_body = f"Мастер {user.full_name or user.email} отменил вашу запись на '{service_title}' ({starts_local_str})."
+                        background_tasks.add_task(send_expo_push, client_user.expo_push_token, push_title, push_body, "/my-bookings")
+                    elif data.status == AppointmentStatus.confirmed and old_status != AppointmentStatus.confirmed:
+                        push_title = "Запись подтверждена!"
+                        push_body = f"Ваша запись на '{service_title}' ({starts_local_str}) подтверждена мастером."
+                        background_tasks.add_task(send_expo_push, client_user.expo_push_token, push_title, push_body, "/my-bookings")
+                    elif data.starts_at is not None and _naive(data.starts_at) != old_starts_at:
+                        new_starts_local = _naive(data.starts_at).strftime("%d.%m.%Y в %H:%M")
+                        push_title = "Запись перенесена"
+                        push_body = f"Мастер изменил время вашей записи на '{service_title}'. Новое время: {new_starts_local}."
+                        background_tasks.add_task(send_expo_push, client_user.expo_push_token, push_title, push_body, "/my-bookings")
+    except Exception:
+        pass
+
     return _to_out(a, db)
 
 
@@ -220,12 +262,26 @@ def update_appt(
 @router.delete("/{appt_id}", status_code=204)
 def delete_appt(
     appt_id: int,
+    background_tasks: BackgroundTasks,
     user: User = Depends(require_private_person),
     db: Session = Depends(get_db),
 ):
     a = db.query(Appointment).filter(Appointment.id == appt_id, Appointment.user_id == user.id).first()
     if a is None:
         raise HTTPException(404, "Запись не найдена")
+        
+    # Notify client before deleting
+    if a.client_user_id:
+        try:
+            client_user = db.query(User).filter(User.id == a.client_user_id).first()
+            if client_user and client_user.expo_push_token:
+                starts_local_str = a.starts_at.strftime("%d.%m.%Y в %H:%M")
+                push_title = "Запись отменена мастером"
+                push_body = f"Мастер {user.full_name or user.email} удалил (отменил) вашу запись на '{a.title}' ({starts_local_str})."
+                background_tasks.add_task(send_expo_push, client_user.expo_push_token, push_title, push_body, "/my-bookings")
+        except Exception:
+            pass
+
     db.delete(a)
     db.commit()
     return None

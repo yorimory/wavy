@@ -231,7 +231,7 @@ def book_appointment(
     if provider.expo_push_token:
         push_title = "Новая запись на сеанс!"
         push_body = f"Клиент {client_user.full_name or client_user.email} записался на {service.title} ({starts_local_str})."
-        background_tasks.add_task(send_expo_push, provider.expo_push_token, push_title, push_body)
+        background_tasks.add_task(send_expo_push, provider.expo_push_token, push_title, push_body, "/calendar")
 
     return AppointmentOut(
         id=appt.id,
