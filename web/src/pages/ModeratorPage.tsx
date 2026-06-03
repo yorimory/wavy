@@ -276,7 +276,7 @@ export function ModeratorPage() {
                 <div className="h-10 skeleton rounded-xl" />
               </div>
             ) : (
-              <table className="w-full text-left border-collapse">
+              <table className="w-full min-w-[700px] text-left border-collapse">
                 <thead>
                   <tr className="bg-surface-container-low border-b border-outline-variant/15 text-xs font-bold text-on-surface-variant uppercase tracking-wider">
                     <th className="p-4">ФИО / Email</th>
@@ -366,7 +366,7 @@ export function ModeratorPage() {
             ) : logs.length === 0 ? (
               <p className="p-8 text-center text-sm text-on-surface-variant">Логи нарушений отсутствуют.</p>
             ) : (
-              <table className="w-full text-left border-collapse">
+              <table className="w-full min-w-[800px] text-left border-collapse">
                 <thead>
                   <tr className="bg-surface-container-low border-b border-outline-variant/15 text-xs font-bold text-on-surface-variant uppercase tracking-wider">
                     <th className="p-4">Дата / Время</th>
@@ -476,7 +476,7 @@ export function ModeratorPage() {
             ) : tickets.length === 0 ? (
               <p className="p-8 text-center text-sm text-on-surface-variant">Нет тикетов в поддержке.</p>
             ) : (
-              <table className="w-full text-left border-collapse">
+              <table className="w-full min-w-[900px] text-left border-collapse">
                 <thead>
                   <tr className="bg-surface-container-low border-b border-outline-variant/15 text-xs font-bold text-on-surface-variant uppercase tracking-wider">
                     <th className="p-4">ID / Дата</th>

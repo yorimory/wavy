@@ -1,5 +1,5 @@
 import { type FormEvent, useEffect, useState } from "react";
-import { apiFetch } from "@/api/client";
+import { apiFetch, getAvatarUrl } from "@/api/client";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { TimeSelect } from "@/components/ui/TimeSelect";
@@ -28,9 +28,8 @@ function SectionCard({ title, subtitle, children }: { title: string; subtitle?: 
 export function SettingsPage() {
   const { user, refreshUser } = useAuth();
   const toast = useToast();
-  const privatePerson = isPrivatePerson(user);
-
   const [me, setMe] = useState<UserOut | null>(null);
+  const privatePerson = isPrivatePerson(me || user);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -86,28 +85,34 @@ export function SettingsPage() {
   async function load() {
     setPageLoading(true);
     try {
-      const [u, wh] = await Promise.all([
-        apiFetch<UserOut>("/users/me"),
-        apiFetch<WorkingHourOut[]>("/users/me/working-hours"),
-      ]);
+      const u = await apiFetch<UserOut>("/users/me");
       setMe(u);
       setFullName(u.full_name ?? "");
       setPhone(u.phone ?? "");
       setAddress(u.address ?? "");
       setAvatarUrl(u.avatar_url ?? "");
       setNotificationTime(u.settings_json?.notification_time ?? "");
-      if (wh.length) {
-        const map = new Map(wh.map((r) => [r.weekday, r]));
-        setHours(
-          [0, 1, 2, 3, 4, 5, 6].map((d) => {
-            const row = map.get(d);
-            return {
-              weekday: d,
-              start: row ? row.start_time.slice(0, 5) : "",
-              end: row ? row.end_time.slice(0, 5) : "",
-            };
-          }),
-        );
+
+      const isPP = isPrivatePerson(u);
+      if (isPP) {
+        try {
+          const wh = await apiFetch<WorkingHourOut[]>("/users/me/working-hours");
+          if (wh && wh.length) {
+            const map = new Map(wh.map((r) => [r.weekday, r]));
+            setHours(
+              [0, 1, 2, 3, 4, 5, 6].map((d) => {
+                const row = map.get(d);
+                return {
+                  weekday: d,
+                  start: row ? row.start_time.slice(0, 5) : "",
+                  end: row ? row.end_time.slice(0, 5) : "",
+                };
+              }),
+            );
+          }
+        } catch (whError) {
+          console.error("Failed to load working hours", whError);
+        }
       }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Ошибка загрузки");
@@ -131,9 +136,9 @@ export function SettingsPage() {
         body: JSON.stringify({
           full_name: fullName.trim(),
           phone: phone.trim() || null,
-          address: address.trim() || null,
+          address: privatePerson ? (address.trim() || null) : null,
           avatar_url: avatarUrl.trim() || null,
-          settings_json: updatedSettings,
+          settings_json: privatePerson ? updatedSettings : me?.settings_json,
         }),
       });
       setMe(u);
@@ -198,12 +203,12 @@ export function SettingsPage() {
       <div className="flex items-center gap-4">
         {me?.avatar_url ? (
           <img
-            src={me.avatar_url}
+            src={getAvatarUrl(me.avatar_url)}
             alt="Аватар"
-            className="w-16 h-16 rounded-3xl object-cover shadow-glow-sm shrink-0 border border-outline-variant/15"
+            className="w-16 h-16 rounded-none object-cover shadow-glow-sm shrink-0 border border-outline-variant/15"
           />
         ) : (
-          <div className="w-16 h-16 rounded-3xl primary-gradient flex items-center justify-center text-white font-black text-xl shadow-glow-sm shrink-0">
+          <div className="w-16 h-16 rounded-none primary-gradient flex items-center justify-center text-white font-black text-xl shadow-glow-sm shrink-0">
             {initials}
           </div>
         )}
@@ -232,16 +237,71 @@ export function SettingsPage() {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="section-label">Ссылка на аватарку (URL)</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-[18px]">photo_camera</span>
+          <div className="space-y-2">
+            <label className="section-label">Аватар (изображение)</label>
+            <div className="flex items-center gap-4">
               <input
-                className={`${ic} pl-11`}
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-                placeholder="https://example.com/avatar.jpg"
+                type="file"
+                accept="image/*"
+                id="avatar-upload"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  
+                  const formData = new FormData();
+                  formData.append("file", file);
+                  
+                  setBusy(true);
+                  try {
+                    const u = await apiFetch<UserOut>("/users/me/avatar", {
+                      method: "POST",
+                      body: formData,
+                    });
+                    setMe(u);
+                    setAvatarUrl(u.avatar_url ?? "");
+                    await refreshUser();
+                    toast.success("Аватар успешно загружен");
+                  } catch (ex) {
+                    toast.error(ex instanceof Error ? ex.message : "Ошибка загрузки файла");
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
               />
+              <label
+                htmlFor="avatar-upload"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl border border-outline-variant hover:bg-surface-container text-sm font-semibold cursor-pointer transition-all active:scale-95 bg-white"
+              >
+                <span className="material-symbols-outlined text-[18px]">upload</span>
+                Выбрать файл
+              </label>
+              {avatarUrl && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setBusy(true);
+                    try {
+                      const u = await apiFetch<UserOut>("/users/me", {
+                        method: "PATCH",
+                        body: JSON.stringify({ avatar_url: null }),
+                      });
+                      setMe(u);
+                      setAvatarUrl("");
+                      await refreshUser();
+                      toast.success("Аватар удалён");
+                    } catch (ex) {
+                      toast.error(ex instanceof Error ? ex.message : "Ошибка удаления");
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl border border-error/30 text-error hover:bg-error/5 text-sm font-semibold transition-all active:scale-95 bg-white"
+                >
+                  <span className="material-symbols-outlined text-[18px]">delete</span>
+                  Удалить
+                </button>
+              )}
             </div>
           </div>
 
@@ -258,18 +318,20 @@ export function SettingsPage() {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="section-label">Адрес места работы</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-[18px]">location_on</span>
-              <input
-                className={`${ic} pl-11`}
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Например: ул. Ленина, 5, оф. 10"
-              />
+          {privatePerson && (
+            <div className="space-y-1.5">
+              <label className="section-label">Адрес места работы</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-[18px]">location_on</span>
+                <input
+                  className={`${ic} pl-11`}
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Например: ул. Ленина, 5, оф. 10"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           {privatePerson && (
             <div className="space-y-1.5">

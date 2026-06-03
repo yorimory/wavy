@@ -60,7 +60,7 @@ export function ClientHomePage() {
       .slice(0, 3);
   }, [appts]);
 
-  const firstName = user?.full_name?.split(" ")[0] ?? user?.email?.split("@")[0] ?? "";
+  const firstName = user?.full_name ?? user?.email?.split("@")[0] ?? "";
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Доброе утро" : hour < 18 ? "Добрый день" : "Добрый вечер";
 

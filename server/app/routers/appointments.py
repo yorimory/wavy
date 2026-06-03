@@ -160,27 +160,39 @@ def create_appt(
     return _to_out(a, db)
 
 
-# ── Редактирование записи провайдером ───────────────────────────────────────
+# ── Редактирование записи провайдером / клиентом ─────────────────────────────
 @router.patch("/{appt_id}", response_model=AppointmentOut)
 def update_appt(
     appt_id: int,
     data: AppointmentUpdateIn,
-    user: User = Depends(require_private_person),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    a = db.query(Appointment).filter(Appointment.id == appt_id, Appointment.user_id == user.id).first()
-    if a is None:
-        raise HTTPException(404, "Запись не найдена")
+    if user.role == UserRole.private_person:
+        a = db.query(Appointment).filter(Appointment.id == appt_id, Appointment.user_id == user.id).first()
+        if a is None:
+            raise HTTPException(404, "Запись не найдена")
+    elif user.role == UserRole.client:
+        a = db.query(Appointment).filter(Appointment.id == appt_id, Appointment.client_user_id == user.id).first()
+        if a is None:
+            raise HTTPException(404, "Запись не найдена")
+        # Clients can only cancel the appointment
+        fields_set = data.model_fields_set
+        if not fields_set.issubset({"status"}) or data.status != AppointmentStatus.cancelled:
+            raise HTTPException(403, "Клиенту разрешено только отменять запись")
+    else:
+        raise HTTPException(403, "Недостаточно прав")
+
     if "client_id" in data.model_fields_set:
         if data.client_id:
-            c = db.query(Client).filter(Client.id == data.client_id, Client.user_id == user.id).first()
+            c = db.query(Client).filter(Client.id == data.client_id, Client.user_id == a.user_id).first()
             if c is None:
                 raise HTTPException(400, "Клиент не найден")
         a.client_id = data.client_id
         a.client_user_id = _resolve_client_user_id(db, data.client_id)
     if "service_id" in data.model_fields_set:
         if data.service_id:
-            s = db.query(Service).filter(Service.id == data.service_id, Service.user_id == user.id).first()
+            s = db.query(Service).filter(Service.id == data.service_id, Service.user_id == a.user_id).first()
             if s is None:
                 raise HTTPException(400, "Услуга не найдена")
         a.service_id = data.service_id

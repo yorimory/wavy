@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.deps import get_current_user, require_client_role
-from app.models import Appointment, AppointmentStatus, Service, User, UserRole, Message
+from app.models import Appointment, AppointmentStatus, Service, User, UserRole, Message, Review
 from app.models import Client
 from app.schemas import AppointmentOut, CatalogServiceOut, ClientBookingIn, DaySlotsOut, ProviderOut, ServiceOut, SlotOut
 from app.services.slots import compute_slots_for_day, compute_slots_range
@@ -32,10 +32,25 @@ def list_providers(q: str | None = None, db: Session = Depends(get_db)):
         like = f"%{q.strip()}%"
         query = query.filter(User.full_name.like(like))
     rows = query.order_by(User.full_name.asc()).limit(100).all()
-    return [
-        ProviderOut(id=u.id, full_name=u.full_name or u.email, services_count=int(cnt or 0))
-        for u, cnt in rows
-    ]
+
+    ratings = db.query(
+        Review.master_id,
+        func.avg(Review.rating).label("avg_r"),
+        func.count(Review.id).label("cnt_r")
+    ).group_by(Review.master_id).all()
+    ratings_map = {r.master_id: (round(float(r.avg_r), 1) if r.avg_r else None, int(r.cnt_r or 0)) for r in ratings}
+
+    res = []
+    for u, cnt in rows:
+        r_avg, r_cnt = ratings_map.get(u.id, (None, 0))
+        res.append(ProviderOut(
+            id=u.id,
+            full_name=u.full_name or u.email,
+            services_count=int(cnt or 0),
+            rating_avg=r_avg,
+            reviews_count=r_cnt
+        ))
+    return res
 
 
 @router.get("/providers/{provider_id}/services", response_model=list[ServiceOut])
@@ -66,8 +81,18 @@ def search_services(q: str | None = None, db: Session = Depends(get_db)):
         like = f"%{q.strip()}%"
         query = query.filter((Service.title.like(like)) | (Service.description.like(like)) | (User.full_name.like(like)))
     rows = query.order_by(Service.title.asc()).limit(100).all()
-    return [
-        CatalogServiceOut(
+
+    ratings = db.query(
+        Review.master_id,
+        func.avg(Review.rating).label("avg_r"),
+        func.count(Review.id).label("cnt_r")
+    ).group_by(Review.master_id).all()
+    ratings_map = {r.master_id: (round(float(r.avg_r), 1) if r.avg_r else None, int(r.cnt_r or 0)) for r in ratings}
+
+    res = []
+    for s, u in rows:
+        r_avg, r_cnt = ratings_map.get(u.id, (None, 0))
+        res.append(CatalogServiceOut(
             id=s.id,
             title=s.title,
             description=s.description,
@@ -78,9 +103,10 @@ def search_services(q: str | None = None, db: Session = Depends(get_db)):
             provider_avatar_url=u.avatar_url,
             image_url=s.image_url,
             category=s.category,
-        )
-        for s, u in rows
-    ]
+            rating_avg=r_avg,
+            reviews_count=r_cnt
+        ))
+    return res
 
 
 @router.get("/providers/{provider_id}/slots", response_model=list[DaySlotsOut])

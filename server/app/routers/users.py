@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session
+import os
+import uuid
+import shutil
 
 from app.config import settings
 from app.database import get_db
@@ -31,6 +34,26 @@ def patch_me(data: UserPatchIn, user: User = Depends(get_current_user), db: Sess
         user.moderation_strictness = data.moderation_strictness
     if data.settings_json is not None:
         user.settings_json = data.settings_json
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.post("/me/avatar", response_model=UserOut)
+def upload_avatar(
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    os.makedirs("static/avatars", exist_ok=True)
+    ext = os.path.splitext(file.filename)[1] or ".png"
+    filename = f"{uuid.uuid4().hex}{ext}"
+    filepath = os.path.join("static/avatars", filename)
+    
+    with open(filepath, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    user.avatar_url = f"/static/avatars/{filename}"
     db.commit()
     db.refresh(user)
     return user

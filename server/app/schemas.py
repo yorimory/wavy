@@ -157,6 +157,8 @@ class ProviderOut(BaseModel):
     id: int
     full_name: str
     services_count: int = 0
+    rating_avg: float | None = None
+    reviews_count: int = 0
 
 
 class CatalogServiceOut(BaseModel):
@@ -170,6 +172,8 @@ class CatalogServiceOut(BaseModel):
     provider_avatar_url: str | None = None
     image_url: str | None = None
     category: str | None = None
+    rating_avg: float | None = None
+    reviews_count: int = 0
 
 
 class SlotOut(BaseModel):

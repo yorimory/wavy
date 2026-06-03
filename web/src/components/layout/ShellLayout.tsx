@@ -2,6 +2,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { isClient, isPrivatePerson, isModerator, ROLE_LABELS } from "@/utils/roles";
 import { ReviewModal } from "@/components/ReviewModal";
+import { getAvatarUrl } from "@/api/client";
 
 /* ── Desktop sidebar nav class ── */
 const NAV_CLS_BASE =
@@ -31,9 +32,9 @@ function Avatar({ name, email, avatarUrl }: { name?: string | null; email?: stri
     ? name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
     : (email?.[0] ?? "U").toUpperCase();
   return (
-    <div className="w-9 h-9 rounded-xl primary-gradient flex items-center justify-center text-white font-black text-sm shrink-0 shadow-glow-sm overflow-hidden border border-outline-variant/15">
+    <div className="w-9 h-9 rounded-none primary-gradient flex items-center justify-center text-white font-black text-sm shrink-0 shadow-glow-sm overflow-hidden border border-outline-variant/15">
       {avatarUrl ? (
-        <img src={avatarUrl} alt={name || "Avatar"} className="w-full h-full object-cover" />
+        <img src={getAvatarUrl(avatarUrl)} alt={name || "Avatar"} className="w-full h-full object-cover" />
       ) : (
         initials
       )}
@@ -275,7 +276,7 @@ export function ShellLayout() {
             <Avatar name={user?.full_name} email={user?.email} avatarUrl={user?.avatar_url} />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-on-surface truncate leading-tight">
-                {user?.full_name?.split(" ")[0] ?? "Пользователь"}
+                {user?.full_name ?? "Пользователь"}
               </p>
               <p className="text-[11px] text-on-surface-variant/70 truncate">{user?.email}</p>
             </div>

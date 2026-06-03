@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { apiFetch } from "@/api/client";
 import type { AppointmentOut, ReviewOut } from "@/types";
 
 export function ReviewModal() {
+  const location = useLocation();
   const [apptId, setApptId] = useState<number | null>(null);
   const [apptDetails, setApptDetails] = useState<AppointmentOut | null>(null);
   const [rating, setRating] = useState<number>(5);
@@ -13,24 +15,21 @@ export function ReviewModal() {
 
   useEffect(() => {
     let alive = true;
-    (async () => {
+
+    async function checkPending() {
       try {
-        // Проверяем, авторизован ли пользователь (есть ли токен)
         const token = localStorage.getItem("wavy_access_token");
         if (!token) return;
 
-        // Получаем список записей без отзывов
         const pendingIds = await apiFetch<number[]>("/reviews/pending");
         if (!pendingIds || pendingIds.length === 0 || !alive) return;
 
-        // Фильтруем те, от которых пользователь отказался (храним в localStorage)
         const skippedRaw = localStorage.getItem("wavy_skipped_reviews");
         const skippedIds: number[] = skippedRaw ? JSON.parse(skippedRaw) : [];
         const nextId = pendingIds.find((id) => !skippedIds.includes(id));
 
         if (nextId) {
           setApptId(nextId);
-          // Загружаем детали записи
           const clientAppts = await apiFetch<AppointmentOut[]>("/appointments/client");
           if (!alive) return;
           const found = clientAppts.find((a) => a.id === nextId);
@@ -41,12 +40,20 @@ export function ReviewModal() {
       } catch (e) {
         console.error("Failed to load pending reviews", e);
       }
-    })();
+    }
+
+    void checkPending();
+
+    // Poll every 20 seconds in case a booking is completed or time elapsed
+    const interval = setInterval(() => {
+      void checkPending();
+    }, 20000);
 
     return () => {
       alive = false;
+      clearInterval(interval);
     };
-  }, []);
+  }, [location.pathname]);
 
   if (!apptId || !apptDetails) return null;
 

@@ -129,7 +129,7 @@ export function DashboardPage() {
   );
 
   const statValues = [stats.totalClients, stats.todayAppts, stats.weekAppts];
-  const displayName = user?.full_name?.trim().split(" ")[0] || user?.email?.split("@")[0] || "мастер";
+  const displayName = user?.full_name || user?.email?.split("@")[0] || "мастер";
   const greetingHour = now.getHours();
   const greeting =
     greetingHour < 12 ? "Доброе утро" : greetingHour < 18 ? "Добрый день" : "Добрый evening" === "Добрый evening" ? "Добрый вечер" : "";

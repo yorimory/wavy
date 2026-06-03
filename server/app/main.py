@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 
 from app.config import settings
 from app.migrations import run_schema_migrations
@@ -46,6 +48,10 @@ app.include_router(reviews.router)
 app.include_router(moderation.router)
 app.include_router(support.router)
 app.include_router(messages.router)
+
+# Ensure the static directory exists and mount it
+os.makedirs("static/avatars", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/health")

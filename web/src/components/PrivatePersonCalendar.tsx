@@ -531,7 +531,7 @@ export function PrivatePersonCalendar() {
                             cellCols.map((appt, colIdx) => {
                               if (!appt) {
                                 return (
-                                  <div key={`spacer-${colIdx}`} className="flex-1 h-full" />
+                                  <div key={`spacer-${colIdx}`} className="flex-1 min-w-0 h-full" />
                                 );
                               }
 

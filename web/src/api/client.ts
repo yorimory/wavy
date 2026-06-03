@@ -53,3 +53,9 @@ export async function apiFetch<T>(
 }
 
 export { apiBase };
+
+export function getAvatarUrl(url?: string | null): string {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) return url;
+  return `${apiBase()}${url}`;
+}

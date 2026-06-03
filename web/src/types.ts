@@ -69,12 +69,16 @@ export interface CatalogServiceOut {
   provider_avatar_url?: string | null;
   image_url?: string | null;
   category?: string | null;
+  rating_avg?: number | null;
+  reviews_count?: number;
 }
 
 export interface ProviderOut {
   id: number;
   full_name: string;
   services_count: number;
+  rating_avg?: number | null;
+  reviews_count?: number;
 }
 
 export interface SlotOut {

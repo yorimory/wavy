@@ -9,12 +9,17 @@ from app.schemas import ReviewCreateIn, ReviewOut
 router = APIRouter(prefix="/reviews", tags=["reviews"])
 
 
+import datetime
+
+
 @router.get("/pending", response_model=list[int])
 def pending_reviews(user: User = Depends(require_client_role), db: Session = Depends(get_db)):
-    # Находим завершенные записи клиента
+    # Находим завершенные записи клиента (либо явно завершенные, либо подтвержденные и прошедшие по времени)
+    now = datetime.datetime.utcnow()
     appts = db.query(Appointment).filter(
         Appointment.client_user_id == user.id,
-        Appointment.status == AppointmentStatus.completed
+        (Appointment.status == AppointmentStatus.completed) |
+        ((Appointment.status == AppointmentStatus.confirmed) & (Appointment.ends_at < now))
     ).all()
 
     # Фильтруем те, на которые уже есть отзывы
@@ -30,10 +35,12 @@ def create_review(
     db: Session = Depends(get_db)
 ):
     # Проверяем существование завершенной записи
+    now = datetime.datetime.utcnow()
     appt = db.query(Appointment).filter(
         Appointment.id == data.appointment_id,
         Appointment.client_user_id == user.id,
-        Appointment.status == AppointmentStatus.completed
+        (Appointment.status == AppointmentStatus.completed) |
+        ((Appointment.status == AppointmentStatus.confirmed) & (Appointment.ends_at < now))
     ).first()
     if appt is None:
         raise HTTPException(400, "Запись не найдена или не завершена")

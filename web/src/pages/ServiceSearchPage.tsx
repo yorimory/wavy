@@ -590,6 +590,17 @@ export function ServiceSearchPage() {
                       <div>
                         <div className="font-bold text-base text-on-surface leading-tight">{s.title}</div>
                         <p className="text-xs text-primary font-semibold mt-0.5">{s.provider_name}</p>
+                        <div className="flex items-center gap-1 text-xs text-amber-500 font-semibold mt-0.5">
+                          {s.rating_avg ? (
+                            <>
+                              <span className="material-symbols-outlined text-[14px] fill-1">star</span>
+                              <span>{s.rating_avg}</span>
+                              <span className="text-on-surface-variant text-[11px] font-normal">({s.reviews_count} {s.reviews_count === 1 ? "отзыв" : [2, 3, 4].includes(s.reviews_count % 10) && ![12, 13, 14].includes(s.reviews_count % 100) ? "отзыва" : "отзывов"})</span>
+                            </>
+                          ) : (
+                            <span className="text-on-surface-variant/60 font-normal">Нет оценок</span>
+                          )}
+                        </div>
                         {s.category && (
                           <span className="inline-flex items-center gap-1 text-[9px] font-bold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-md mt-1.5">
                             <span className="material-symbols-outlined text-[11px]">
@@ -632,7 +643,7 @@ export function ServiceSearchPage() {
                   <option value="">— не выбран —</option>
                   {providers.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.full_name} ({p.services_count} услуг)
+                      {p.full_name} ({p.services_count} услуг{p.rating_avg ? `, ⭐ ${p.rating_avg}` : ""})
                     </option>
                   ))}
                 </select>
