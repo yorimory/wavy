@@ -171,7 +171,7 @@ export function ChatPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-140px)] flex flex-col md:flex-row bg-surface-container-lowest rounded-[32px] border border-outline-variant/15 shadow-sm overflow-hidden animate-fade-up">
+    <div className="h-[calc(100dvh-180px)] md:h-[calc(100vh-140px)] flex flex-col md:flex-row bg-surface-container-lowest rounded-[32px] border border-outline-variant/15 shadow-sm overflow-hidden animate-fade-up">
       {/* Список контактов */}
       <div
         className={`w-full md:w-80 border-r border-outline-variant/15 flex flex-col ${
