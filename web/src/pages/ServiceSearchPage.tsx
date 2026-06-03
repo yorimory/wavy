@@ -97,7 +97,20 @@ function BookingModal({ service, days, loading, booking, err, ok, onBook, onClos
 
           <div className="flex-1 min-w-0 pt-1">
             <h3 className="text-xl font-black text-on-surface leading-tight">{service.title}</h3>
-            <p className="text-sm text-primary font-bold mt-0.5">{service.provider_name}</p>
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+              <p className="text-sm text-primary font-bold">{service.provider_name}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.href = `/messages?userId=${service.provider_id}&name=${encodeURIComponent(service.provider_name)}&avatarUrl=${encodeURIComponent(service.provider_avatar_url || "")}`;
+                }}
+                className="inline-flex items-center gap-1 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/15 px-2.5 py-0.5 rounded-full transition-all"
+                title="Задать вопрос перед записью"
+              >
+                <span className="material-symbols-outlined text-[14px]">forum</span>
+                Написать
+              </button>
+            </div>
             <div className="flex flex-wrap gap-2 mt-2">
               <span className="inline-flex items-center gap-1 text-xs font-bold text-on-surface-variant bg-surface-container px-2.5 py-1 rounded-full">
                 <span className="material-symbols-outlined text-[13px]">schedule</span>

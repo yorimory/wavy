@@ -144,8 +144,9 @@ export function PrivatePersonCalendar() {
     });
   }, [appts, weekStart, view, displayDays]);
 
-  const dayColumnsMap = useMemo(() => {
-    const map = new Map<string, AppointmentOut[][]>();
+  const dayLayoutMap = useMemo(() => {
+    const map = new Map<string, Map<number, { colIdx: number; totalCols: number }>>();
+    
     for (const day of displayDays) {
       const dayKey = day.toDateString();
       const dayAppts = visibleAppts.filter(a => {
@@ -155,6 +156,7 @@ export function PrivatePersonCalendar() {
         const dayEnd = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59, 999);
         return s < dayEnd && e > dayStart;
       });
+      
       const sorted = [...dayAppts].sort((a, b) => {
         const sa = parseNaive(a.starts_at).getTime();
         const sb = parseNaive(b.starts_at).getTime();
@@ -163,28 +165,85 @@ export function PrivatePersonCalendar() {
         const eb = parseNaive(b.ends_at).getTime();
         return (eb - sb) - (ea - sa);
       });
-      const columns: AppointmentOut[][] = [];
+      
+      // Группируем во временные интервалы (кластеры пересечений)
+      const clusters: AppointmentOut[][] = [];
       for (const appt of sorted) {
         const s = parseNaive(appt.starts_at);
         const e = parseNaive(appt.ends_at);
-        let placed = false;
-        for (const col of columns) {
-          const overlaps = col.some(existing => {
+        
+        const overlappingClusterIndices: number[] = [];
+        for (let i = 0; i < clusters.length; i++) {
+          const overlaps = clusters[i].some(existing => {
             const exS = parseNaive(existing.starts_at);
             const exE = parseNaive(existing.ends_at);
             return s < exE && e > exS;
           });
-          if (!overlaps) {
-            col.push(appt);
-            placed = true;
-            break;
+          if (overlaps) {
+            overlappingClusterIndices.push(i);
           }
         }
-        if (!placed) {
-          columns.push([appt]);
+        
+        if (overlappingClusterIndices.length === 0) {
+          clusters.push([appt]);
+        } else if (overlappingClusterIndices.length === 1) {
+          clusters[overlappingClusterIndices[0]].push(appt);
+        } else {
+          const merged: AppointmentOut[] = [appt];
+          for (let i = overlappingClusterIndices.length - 1; i >= 0; i--) {
+            const idx = overlappingClusterIndices[i];
+            merged.push(...clusters[idx]);
+            clusters.splice(idx, 1);
+          }
+          clusters.push(merged);
         }
       }
-      map.set(dayKey, columns);
+      
+      const dayMap = new Map<number, { colIdx: number; totalCols: number }>();
+      
+      // Для каждого кластера строим локальную сетку колонок
+      for (const cluster of clusters) {
+        // Сортируем внутри кластера
+        const clusterSorted = [...cluster].sort((a, b) => {
+          const sa = parseNaive(a.starts_at).getTime();
+          const sb = parseNaive(b.starts_at).getTime();
+          if (sa !== sb) return sa - sb;
+          return parseNaive(b.ends_at).getTime() - parseNaive(a.ends_at).getTime();
+        });
+        
+        const columns: AppointmentOut[][] = [];
+        for (const appt of clusterSorted) {
+          const s = parseNaive(appt.starts_at);
+          const e = parseNaive(appt.ends_at);
+          let placed = false;
+          for (let i = 0; i < columns.length; i++) {
+            const col = columns[i];
+            const overlaps = col.some(existing => {
+              const exS = parseNaive(existing.starts_at);
+              const exE = parseNaive(existing.ends_at);
+              return s < exE && e > exS;
+            });
+            if (!overlaps) {
+              col.push(appt);
+              placed = true;
+              break;
+            }
+          }
+          if (!placed) {
+            columns.push([appt]);
+          }
+        }
+        
+        // Записываем информацию о колонках
+        const totalCols = columns.length;
+        for (let colIdx = 0; colIdx < columns.length; colIdx++) {
+          for (const appt of columns[colIdx]) {
+            dayMap.set(appt.id, { colIdx, totalCols });
+          }
+        }
+      }
+      
+      map.set(dayKey, dayMap);
     }
     return map;
   }, [visibleAppts, displayDays]);
@@ -400,12 +459,17 @@ export function PrivatePersonCalendar() {
 
                       // Determine columns layout for the day and find active appointments for this hour
                       const dayKey = day.toDateString();
-                      const dayCols = dayColumnsMap.get(dayKey) || [];
-                      const colAppts = dayCols.map(col => {
-                        return col.find(appt => apptOverlapsHour(appt, day, hour)) || null;
-                      });
-                      const lastActiveIdx = colAppts.map(a => a !== null).lastIndexOf(true);
-                      const activeCols = lastActiveIdx >= 0 ? colAppts.slice(0, lastActiveIdx + 1) : [];
+                      const layoutMap = dayLayoutMap.get(dayKey) || new Map<number, { colIdx: number; totalCols: number }>();
+                      const layoutInfo = cellAppts.length > 0 ? layoutMap.get(cellAppts[0].id) : null;
+                      const totalCols = layoutInfo ? layoutInfo.totalCols : 0;
+
+                      const cellCols = Array.from({ length: totalCols }, () => null as AppointmentOut | null);
+                      for (const appt of cellAppts) {
+                        const info = layoutMap.get(appt.id);
+                        if (info) {
+                          cellCols[info.colIdx] = appt;
+                        }
+                      }
 
                       // Check if any appointment in this cell ends in this hour slot
                       const hasEndingAppt = cellAppts.some((appt) => {
@@ -464,8 +528,7 @@ export function PrivatePersonCalendar() {
                           tabIndex={cellAppts.length === 0 ? 0 : undefined}
                         >
                           {cellAppts.length > 0 ? (
-                            dayCols.map((col, colIdx) => {
-                              const appt = col.find((a) => apptOverlapsHour(a, day, hour)) || null;
+                            cellCols.map((appt, colIdx) => {
                               if (!appt) {
                                 return (
                                   <div key={`spacer-${colIdx}`} className="flex-1 h-full" />

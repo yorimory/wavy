@@ -66,6 +66,7 @@ export interface CatalogServiceOut {
   price: number | null;
   provider_id: number;
   provider_name: string;
+  provider_avatar_url?: string | null;
   image_url?: string | null;
   category?: string | null;
 }
@@ -158,6 +159,7 @@ export interface ContactOut {
   email: string;
   role: UserRole;
   unread_count: number;
+  avatar_url?: string | null;
 }
 
 export interface SystemActionLogOut {

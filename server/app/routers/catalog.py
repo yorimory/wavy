@@ -1,15 +1,16 @@
 from datetime import date, datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.deps import get_current_user, require_client_role
-from app.models import Appointment, AppointmentStatus, Service, User, UserRole
+from app.models import Appointment, AppointmentStatus, Service, User, UserRole, Message
 from app.models import Client
 from app.schemas import AppointmentOut, CatalogServiceOut, ClientBookingIn, DaySlotsOut, ProviderOut, ServiceOut, SlotOut
 from app.services.slots import compute_slots_for_day, compute_slots_range
+from app.services.notifications import send_expo_push
 
 router = APIRouter(prefix="/catalog", tags=["catalog"])
 
@@ -74,6 +75,7 @@ def search_services(q: str | None = None, db: Session = Depends(get_db)):
             price=s.price,
             provider_id=u.id,
             provider_name=u.full_name or u.email,
+            provider_avatar_url=u.avatar_url,
             image_url=s.image_url,
             category=s.category,
         )
@@ -118,6 +120,7 @@ def provider_slots(
 @router.post("/book", response_model=AppointmentOut)
 def book_appointment(
     data: ClientBookingIn,
+    background_tasks: BackgroundTasks,
     client_user: User = Depends(require_client_role),
     db: Session = Depends(get_db),
 ):
@@ -183,15 +186,34 @@ def book_appointment(
         status=AppointmentStatus.confirmed,
     )
     db.add(appt)
+    db.flush()
+
+    # Автоматически создаем первое сообщение в чате для связи с мастером
+    starts_local_str = data.starts_at.strftime("%d.%m.%Y в %H:%M")
+    msg_text = f"Здравствуйте! Я записался к вам на услугу '{service.title}' на {starts_local_str}."
+    init_msg = Message(
+        sender_id=client_user.id,
+        receiver_id=provider.id,
+        body=msg_text,
+        is_read=False
+    )
+    db.add(init_msg)
     db.commit()
     db.refresh(appt)
+
+    # Отправляем push-уведомление мастеру
+    if provider.expo_push_token:
+        push_title = "Новая запись на сеанс!"
+        push_body = f"Клиент {client_user.full_name or client_user.email} записался на {service.title} ({starts_local_str})."
+        background_tasks.add_task(send_expo_push, provider.expo_push_token, push_title, push_body)
+
     return AppointmentOut(
         id=appt.id,
         client_id=appt.client_id,
         client_user_id=appt.client_user_id,
         service_id=appt.service_id,
         provider_id=provider.id,
-        provider_name=provider.full_name or provider.email,
+        provider_name=provider.full_name,
         service_title=service.title,
         title=appt.title,
         starts_at=appt.starts_at,

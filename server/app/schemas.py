@@ -167,6 +167,7 @@ class CatalogServiceOut(BaseModel):
     price: Decimal | None
     provider_id: int
     provider_name: str
+    provider_avatar_url: str | None = None
     image_url: str | None = None
     category: str | None = None
 
@@ -350,6 +351,7 @@ class ContactOut(BaseModel):
     email: EmailStr
     role: UserRole
     unread_count: int
+    avatar_url: str | None = None
 
     class Config:
         from_attributes = True

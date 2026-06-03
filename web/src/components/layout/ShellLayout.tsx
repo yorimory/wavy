@@ -25,14 +25,18 @@ function NavIcon({ icon, active }: { icon: string; active?: boolean }) {
   );
 }
 
-/* ── Avatar initials ── */
-function Avatar({ name, email }: { name?: string | null; email?: string | null }) {
+/* ── Avatar initials or image ── */
+function Avatar({ name, email, avatarUrl }: { name?: string | null; email?: string | null; avatarUrl?: string | null }) {
   const initials = name
     ? name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
     : (email?.[0] ?? "U").toUpperCase();
   return (
-    <div className="w-9 h-9 rounded-xl primary-gradient flex items-center justify-center text-white font-black text-sm shrink-0 shadow-glow-sm">
-      {initials}
+    <div className="w-9 h-9 rounded-xl primary-gradient flex items-center justify-center text-white font-black text-sm shrink-0 shadow-glow-sm overflow-hidden border border-outline-variant/15">
+      {avatarUrl ? (
+        <img src={avatarUrl} alt={name || "Avatar"} className="w-full h-full object-cover" />
+      ) : (
+        initials
+      )}
     </div>
   );
 }
@@ -155,7 +159,7 @@ export function ShellLayout() {
               <span className="material-symbols-outlined text-[20px]">forum</span>
             </button>
           )}
-          <Avatar name={user?.full_name} email={user?.email} />
+          <Avatar name={user?.full_name} email={user?.email} avatarUrl={user?.avatar_url} />
           <button
             type="button"
             className="w-9 h-9 flex items-center justify-center rounded-xl text-on-surface-variant/70 hover:text-error hover:bg-error/10 active:scale-95 transition-all"
@@ -268,7 +272,7 @@ export function ShellLayout() {
         {/* User info + logout */}
         <div className="mx-4 mb-5 pt-4 border-t border-outline-variant/15">
           <div className="flex items-center gap-3 px-2 py-2 rounded-2xl hover:bg-primary/5 transition-all group">
-            <Avatar name={user?.full_name} email={user?.email} />
+            <Avatar name={user?.full_name} email={user?.email} avatarUrl={user?.avatar_url} />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold text-on-surface truncate leading-tight">
                 {user?.full_name?.split(" ")[0] ?? "Пользователь"}

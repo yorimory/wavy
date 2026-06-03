@@ -7,6 +7,7 @@ export function ChatPage() {
   const [searchParams] = useSearchParams();
   const targetUserIdStr = searchParams.get("userId");
   const targetUserName = searchParams.get("name") || "Собеседник";
+  const targetUserAvatar = searchParams.get("avatarUrl") || null;
 
   const [contacts, setContacts] = useState<ContactOut[] | null>(null);
   const [activeContact, setActiveContact] = useState<ContactOut | null>(null);
@@ -51,8 +52,9 @@ export function ChatPage() {
             id: selectTargetId,
             full_name: targetUserName,
             email: "",
-            role: "client", // Заглушка, пока не придет первое сообщение
+            role: currentUser?.role === "client" ? "private_person" : "client",
             unread_count: 0,
+            avatar_url: targetUserAvatar,
           });
         }
       }
@@ -62,9 +64,10 @@ export function ChatPage() {
   };
 
   useEffect(() => {
+    if (!currentUser) return;
     const targetId = targetUserIdStr ? parseInt(targetUserIdStr, 10) : undefined;
     fetchContacts(targetId);
-  }, [targetUserIdStr]);
+  }, [targetUserIdStr, currentUser]);
 
   // Загрузка истории сообщений
   const fetchMessages = async (partnerId: number) => {
@@ -202,8 +205,12 @@ export function ChatPage() {
                       : "hover:bg-surface-container/50 text-on-surface-variant"
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-full primary-gradient text-white flex items-center justify-center font-bold text-sm shrink-0">
-                    {getInitials(c.full_name)}
+                  <div className="w-10 h-10 rounded-full primary-gradient text-white flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden border border-outline-variant/15">
+                    {c.avatar_url ? (
+                      <img src={c.avatar_url} alt={c.full_name} className="w-full h-full object-cover" />
+                    ) : (
+                      getInitials(c.full_name)
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
@@ -242,8 +249,12 @@ export function ChatPage() {
               >
                 <span className="material-symbols-outlined block">arrow_back</span>
               </button>
-              <div className="w-10 h-10 rounded-full primary-gradient text-white flex items-center justify-center font-bold text-sm">
-                {getInitials(activeContact.full_name)}
+              <div className="w-10 h-10 rounded-full primary-gradient text-white flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden border border-outline-variant/15">
+                {activeContact.avatar_url ? (
+                  <img src={activeContact.avatar_url} alt={activeContact.full_name} className="w-full h-full object-cover" />
+                ) : (
+                  getInitials(activeContact.full_name)
+                )}
               </div>
               <div>
                 <p className="text-sm font-bold text-on-surface">{activeContact.full_name}</p>

@@ -34,6 +34,7 @@ export function SettingsPage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [notificationTime, setNotificationTime] = useState("");
   const [hours, setHours] = useState<{ weekday: number; start: string; end: string }[]>(() =>
     [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({
@@ -93,6 +94,7 @@ export function SettingsPage() {
       setFullName(u.full_name ?? "");
       setPhone(u.phone ?? "");
       setAddress(u.address ?? "");
+      setAvatarUrl(u.avatar_url ?? "");
       setNotificationTime(u.settings_json?.notification_time ?? "");
       if (wh.length) {
         const map = new Map(wh.map((r) => [r.weekday, r]));
@@ -130,6 +132,7 @@ export function SettingsPage() {
           full_name: fullName.trim(),
           phone: phone.trim() || null,
           address: address.trim() || null,
+          avatar_url: avatarUrl.trim() || null,
           settings_json: updatedSettings,
         }),
       });
@@ -193,9 +196,17 @@ export function SettingsPage() {
     <div className="max-w-3xl space-y-6 animate-fade-up">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-3xl primary-gradient flex items-center justify-center text-white font-black text-xl shadow-glow-sm shrink-0">
-          {initials}
-        </div>
+        {me?.avatar_url ? (
+          <img
+            src={me.avatar_url}
+            alt="Аватар"
+            className="w-16 h-16 rounded-3xl object-cover shadow-glow-sm shrink-0 border border-outline-variant/15"
+          />
+        ) : (
+          <div className="w-16 h-16 rounded-3xl primary-gradient flex items-center justify-center text-white font-black text-xl shadow-glow-sm shrink-0">
+            {initials}
+          </div>
+        )}
         <div>
           <h2 className="text-3xl font-black text-on-surface tracking-tight">
             {privatePerson ? "Настройки" : "Профиль"}
@@ -218,6 +229,19 @@ export function SettingsPage() {
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-[18px]">badge</span>
               <input className={`${ic} pl-11`} value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Ваше имя" />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="section-label">Ссылка на аватарку (URL)</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-[18px]">photo_camera</span>
+              <input
+                className={`${ic} pl-11`}
+                value={avatarUrl}
+                onChange={(e) => setAvatarUrl(e.target.value)}
+                placeholder="https://example.com/avatar.jpg"
+              />
             </div>
           </div>
 

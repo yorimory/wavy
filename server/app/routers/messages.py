@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.deps import get_current_user
 from app.models import User, Message
 from app.schemas import MessageCreateIn, MessageOut, ContactOut
+from app.services.notifications import send_expo_push
 
 router = APIRouter(prefix="/messages", tags=["messages"])
 
@@ -12,6 +13,7 @@ router = APIRouter(prefix="/messages", tags=["messages"])
 @router.post("", response_model=MessageOut)
 def send_message(
     data: MessageCreateIn,
+    background_tasks: BackgroundTasks,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -36,6 +38,13 @@ def send_message(
     db.add(msg)
     db.commit()
     db.refresh(msg)
+
+    # Отправляем push-уведомление получателю
+    if receiver.expo_push_token:
+        push_title = f"Сообщение от {user.full_name or user.email}"
+        push_body = msg.body[:120] + ("..." if len(msg.body) > 120 else "")
+        background_tasks.add_task(send_expo_push, receiver.expo_push_token, push_title, push_body)
+
     return msg
 
 
@@ -106,7 +115,8 @@ def get_contacts(
             full_name=p.full_name,
             email=p.email,
             role=p.role,
-            unread_count=c["unread_count"]
+            unread_count=c["unread_count"],
+            avatar_url=p.avatar_url
         ))
 
     return result
