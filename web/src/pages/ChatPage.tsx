@@ -179,7 +179,7 @@ export function ChatPage() {
   };
 
   return (
-    <div className="h-full w-full flex flex-col md:flex-row bg-surface-container-lowest lg:rounded-[32px] lg:border border-outline-variant/15 lg:shadow-sm overflow-hidden animate-fade-up">
+    <div className="flex-1 h-full w-full flex flex-col md:flex-row bg-surface-container-lowest lg:rounded-[32px] lg:border border-outline-variant/15 lg:shadow-sm overflow-hidden animate-fade-up">
       {/* Список контактов */}
       <div
         className={`w-full md:w-80 border-r border-outline-variant/15 flex flex-col ${
@@ -273,7 +273,7 @@ export function ChatPage() {
             </div>
 
             {/* Сообщения */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 scroll-touch">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 scroll-touch bg-surface-container-low">
               {messages.map((m) => {
                 const isMe = m.sender_id === currentUser?.id;
                 return (

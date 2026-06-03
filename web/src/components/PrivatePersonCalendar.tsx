@@ -557,10 +557,10 @@ export function PrivatePersonCalendar() {
                               if (isStart && isEnd) {
                                 roundedClass = "rounded-lg";
                               } else if (isStart) {
-                                roundedClass = "rounded-t-lg border-b-0";
+                                roundedClass = "rounded-t-lg rounded-b-none border-b-0";
                                 cardPadding = "pt-1.5 pb-0 px-1.5";
                               } else if (isEnd) {
-                                roundedClass = "rounded-b-lg border-t-0";
+                                roundedClass = "rounded-b-lg rounded-t-none border-t-0";
                                 cardPadding = "pt-0 pb-1.5 px-1.5";
                               } else {
                                 roundedClass = "rounded-none border-y-0";
