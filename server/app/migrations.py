@@ -243,7 +243,27 @@ def run_schema_migrations() -> None:
                         text("INSERT INTO system_configs (`key`, `value`) VALUES ('low_rating_threshold', '2')")
                     )
                     logger.info("Migration: seeded config low_rating_threshold = 2")
+
+                # 4. Seed default moderator user
+                admin_email = "admin@wavy.ru"
+                res_admin = conn.execute(
+                    text("SELECT COUNT(*) FROM users WHERE email = :email"),
+                    {"email": admin_email}
+                ).scalar()
+                if not res_admin:
+                    from app.security import hash_password
+                    pwd_hash = hash_password("WavyAdminSecurePassword2026!")
+                    conn.execute(
+                        text(
+                            """
+                            INSERT INTO users (email, password_hash, full_name, role, subscription_tier, moderation_enabled, moderation_strictness)
+                            VALUES (:email, :hash, 'Администратор WAVY', 'moderator', 'premium', 0, 'low')
+                            """
+                        ),
+                        {"email": admin_email, "hash": pwd_hash}
+                    )
+                    logger.info("Migration: seeded default moderator user admin@wavy.ru")
             except Exception as exc:
-                logger.warning("Could not seed system_configs: %s", exc)
+                logger.warning("Could not seed default database entities: %s", exc)
 
     logger.info("Schema migrations complete")

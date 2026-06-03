@@ -145,6 +145,16 @@ export function ShellLayout() {
           <span className="text-[11px] text-on-surface-variant/60 font-semibold hidden xs:block">
             {user ? ROLE_LABELS[user.role] : ""}
           </span>
+          {user && (
+            <button
+              type="button"
+              className="w-9 h-9 flex items-center justify-center rounded-xl text-on-surface-variant/70 hover:bg-surface-container active:scale-95 transition-all mr-1"
+              onClick={() => navigate("/messages")}
+              title="Сообщения"
+            >
+              <span className="material-symbols-outlined text-[20px]">forum</span>
+            </button>
+          )}
           <Avatar name={user?.full_name} email={user?.email} />
           <button
             type="button"

@@ -463,8 +463,9 @@ export function PrivatePersonCalendar() {
                           role={cellAppts.length === 0 ? "button" : undefined}
                           tabIndex={cellAppts.length === 0 ? 0 : undefined}
                         >
-                          {activeCols.length > 0 ? (
-                            activeCols.map((appt, colIdx) => {
+                          {cellAppts.length > 0 ? (
+                            dayCols.map((col, colIdx) => {
+                              const appt = col.find((a) => apptOverlapsHour(a, day, hour)) || null;
                               if (!appt) {
                                 return (
                                   <div key={`spacer-${colIdx}`} className="flex-1 h-full" />
