@@ -57,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = JSON.parse(event.data);
         if (data.type === "expo_push_token" && data.token) {
           localStorage.setItem("expo_push_token", data.token);
+          // Try sending immediately if already logged in
           if (token && user) {
             apiFetch("/users/me/push-token", {
               method: "POST",
@@ -77,11 +78,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [token, user]);
 
-  // Auto upload push token from localStorage if user is authenticated
+  // Auto upload push token from localStorage as soon as the user finishes loading/refreshing
   useEffect(() => {
     const storedToken = localStorage.getItem("expo_push_token");
     if (token && user && storedToken) {
-      // Avoid infinite upload loop
       if (user.expo_push_token !== storedToken) {
         apiFetch<UserOut>("/users/me/push-token", {
           method: "POST",
@@ -89,11 +89,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
           .then((updatedUser) => {
             setUser(updatedUser);
+            console.log("Successfully uploaded push token to backend");
           })
           .catch((err) => console.error("Error uploading stored push token", err));
       }
     }
-  }, [token, user]);
+  }, [token, user, loading]);
 
   const login = useCallback(async (email: string, password: string) => {
     const out = await apiFetch<TokenOut>("/auth/login", {
