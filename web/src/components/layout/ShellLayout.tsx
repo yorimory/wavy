@@ -66,7 +66,7 @@ function MobileTab({
       to={to}
       end={end}
       className={({ isActive }) =>
-        `flex-1 flex flex-col items-center justify-center gap-0.5 py-2 transition-all ${
+        `flex-1 flex flex-col items-center justify-center gap-0.5 h-full transition-all ${
           isActive ? "text-primary" : "text-on-surface-variant/60"
         }`
       }
@@ -304,8 +304,8 @@ export function ShellLayout() {
       {/* ─────────────── Main content ─────────────── */}
       <main
         className={
-          (calendarFullBleed || location.pathname === "/messages")
-            ? "flex-1 h-[calc(100dvh-120px)] lg:h-[calc(100vh-120px)] w-full pt-0 px-0 pb-0 lg:p-8 overflow-hidden flex flex-col"
+          (calendarFullBleed || location.pathname.startsWith("/messages"))
+            ? "flex-1 h-[calc(100dvh-120px)] lg:h-screen w-full p-0 overflow-hidden flex flex-col bg-surface-container-low/30"
             : `flex-1 min-h-[calc(100dvh-120px)] lg:min-h-screen w-full ${
                 privatePerson
                   ? "px-4 pt-4 pb-24 md:px-8 md:pt-8 md:pb-8 lg:p-10 max-w-6xl mx-auto"
@@ -318,7 +318,7 @@ export function ShellLayout() {
 
       {/* ─────────────── Mobile bottom tab bar ─────────────── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center h-[56px] box-content"
         style={{
           background: "rgba(255,255,255,0.92)",
           backdropFilter: "blur(20px) saturate(1.8)",

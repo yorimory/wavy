@@ -90,7 +90,7 @@ export function ReviewModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/50  animate-fade-in">
       <div className="w-full max-w-md p-6 bg-surface-container-lowest border border-outline-variant/20 rounded-[32px] shadow-elevated animate-scale-in">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-black text-on-surface tracking-tight">Как всё прошло?</h3>

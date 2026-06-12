@@ -133,7 +133,7 @@ export function WelcomeWizardModal({ onCompleted }: WelcomeWizardModalProps) {
     "w-full rounded-2xl border border-outline-variant/60 bg-surface-container-low px-4 py-3.5 outline-none focus:ring-2 focus:ring-primary/30 text-on-surface transition-all placeholder:text-on-surface-variant/40";
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 ">
       <div
         className="w-full max-w-xl rounded-t-[32px] sm:rounded-[32px] bg-surface-container-lowest shadow-2xl border-t sm:border border-outline-variant/20 p-5 pb-safe sm:p-10 max-h-[92dvh] sm:max-h-[85dvh] overflow-y-auto animate-[slide-up_0.3s_cubic-bezier(0.16,1,0.3,1)] sm:animate-scale-in"
       >

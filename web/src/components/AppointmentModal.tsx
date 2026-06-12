@@ -31,7 +31,7 @@ function ConfirmDeleteDialog({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/50 "
       style={{ animation: "fadeIn 0.15s ease" }}
     >
       <div
@@ -286,7 +286,7 @@ export function AppointmentModal({
   const activeServices = services.filter((s) => s.is_active);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50 ">
       {/* Background overlay to close */}
       <div className="absolute inset-0 -z-10" onClick={onClose} />
 
