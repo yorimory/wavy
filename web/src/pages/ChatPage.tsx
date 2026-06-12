@@ -246,7 +246,7 @@ export function ChatPage() {
 
       {/* Окно переписки */}
       <div
-        className={`flex-1 min-h-0 flex flex-col bg-surface-container-low/30 h-full ${
+        className={`flex-1 min-h-0 flex flex-col bg-surface-container-low/30 h-[calc(100dvh-120px)] md:h-full ${
           activeContact ? "flex" : "hidden md:flex items-center justify-center"
         }`}
       >
@@ -277,7 +277,8 @@ export function ChatPage() {
             </div>
 
             {/* Сообщения */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 scroll-touch bg-surface-container-low touch-pan-y">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 scroll-touch bg-surface-container-low touch-pan-y flex flex-col">
+              <div className="flex-1" /> {/* Spacer to push messages to bottom if they don't fill the screen */}
               {messages.map((m) => {
                 const isMe = m.sender_id === currentUser?.id;
                 return (
