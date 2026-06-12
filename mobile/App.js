@@ -51,7 +51,7 @@ export default function App() {
         finalStatus = status;
       }
       if (finalStatus !== 'granted') {
-        console.log('Failed to get push token for push notification!');
+        alert('Уведомления заблокированы! Пожалуйста, включите доступ в настройках телефона.');
         return;
       }
       
@@ -61,7 +61,7 @@ export default function App() {
           Constants.expoConfig?.projectId ??
           Constants.easConfig?.projectId;
         if (!projectId) {
-          console.log('No EAS projectId found in app.json. Skipping push token registration.');
+          alert('ID проекта EAS не найден в app.json!');
           return;
         }
         const tokenData = await Notifications.getExpoPushTokenAsync({
@@ -70,7 +70,7 @@ export default function App() {
         setToken(tokenData.data);
         console.log('Expo Push Token received:', tokenData.data);
       } catch (error) {
-        console.log('Error getting Expo Push Token:', error.message);
+        alert('Ошибка Expo токена: ' + error.message);
       }
     }
 
