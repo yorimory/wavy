@@ -15,7 +15,8 @@ export function ClientDetailPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
   const [noteBody, setNoteBody] = useState("");
   const [busy, setBusy] = useState(false);
   const [isEditingInfo, setIsEditingInfo] = useState(false);
@@ -35,7 +36,7 @@ export function ClientDetailPage() {
       setPhone(c.phone ?? "");
       setEmail(c.email ?? "");
       setNotes(c.notes ?? "");
-      setTags(c.tags.join(", "));
+      setTags(c.tags);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Ошибка");
     }
@@ -51,10 +52,11 @@ export function ClientDetailPage() {
     setBusy(true);
     setErr(null);
     try {
-      const tagList = tags
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+      const tagList = [...tags];
+      const pendingTag = tagInput.trim();
+      if (pendingTag && !tagList.includes(pendingTag)) {
+        tagList.push(pendingTag);
+      }
       const updated = await apiFetch<ClientOut>(`/clients/${client.id}`, {
         method: "PATCH",
         body: JSON.stringify({
@@ -218,7 +220,8 @@ export function ClientDetailPage() {
                 setFullName(client.full_name);
                 setPhone(client.phone ?? "");
                 setEmail(client.email ?? "");
-                setTags(client.tags.join(", "));
+                setTags(client.tags);
+                setTagInput("");
                 setIsEditingInfo(false);
               }}
               className="text-on-surface-variant hover:text-on-surface transition-colors"
@@ -237,8 +240,43 @@ export function ClientDetailPage() {
             <Field label="Email">
               <input className={ic} type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </Field>
-            <Field label="Теги (через запятую)">
-              <input className={ic} value={tags} onChange={(e) => setTags(e.target.value)} />
+            <Field label="Теги">
+              <div className={`${ic} !p-2 flex flex-wrap gap-2 items-center min-h-[46px] focus-within:ring-2 focus-within:ring-primary/30 transition-all`}>
+                {tags.map((t) => (
+                  <span key={t} className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-secondary-container/60 text-on-secondary-container">
+                    {t}
+                    <button type="button" onClick={() => setTags(tags.filter(tag => tag !== t))} className="hover:text-error transition-colors flex items-center justify-center rounded-full">
+                      <span className="material-symbols-outlined text-[14px]">close</span>
+                    </button>
+                  </span>
+                ))}
+                <input
+                  className="flex-1 min-w-[80px] bg-transparent outline-none text-sm placeholder:text-on-surface-variant/40"
+                  placeholder={tags.length === 0 ? "Добавить тег..." : ""}
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === ",") {
+                      e.preventDefault();
+                      const newTag = tagInput.trim();
+                      if (newTag && !tags.includes(newTag)) {
+                        setTags([...tags, newTag]);
+                      }
+                      setTagInput("");
+                    } else if (e.key === "Backspace" && !tagInput && tags.length > 0) {
+                      e.preventDefault();
+                      setTags(tags.slice(0, -1));
+                    }
+                  }}
+                  onBlur={() => {
+                    const newTag = tagInput.trim();
+                    if (newTag && !tags.includes(newTag)) {
+                      setTags([...tags, newTag]);
+                    }
+                    setTagInput("");
+                  }}
+                />
+              </div>
             </Field>
           </div>
 
