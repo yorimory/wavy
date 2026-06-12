@@ -30,7 +30,7 @@ def list_providers(q: str | None = None, db: Session = Depends(get_db)):
     )
     if q:
         like = f"%{q.strip()}%"
-        query = query.filter(User.full_name.like(like))
+        query = query.filter(User.full_name.ilike(like))
     rows = query.order_by(User.full_name.asc()).limit(100).all()
 
     ratings = db.query(
@@ -79,7 +79,7 @@ def search_services(q: str | None = None, db: Session = Depends(get_db)):
     )
     if q:
         like = f"%{q.strip()}%"
-        query = query.filter((Service.title.like(like)) | (Service.description.like(like)) | (User.full_name.like(like)))
+        query = query.filter((Service.title.ilike(like)) | (Service.description.ilike(like)) | (User.full_name.ilike(like)))
     rows = query.order_by(Service.title.asc()).limit(100).all()
 
     ratings = db.query(

@@ -67,6 +67,58 @@ def push_token(data: PushTokenIn, user: User = Depends(get_current_user), db: Se
     return user
 
 
+@router.post("/me/test-push")
+async def test_push(user: User = Depends(get_current_user)):
+    if not user.expo_push_token:
+        raise HTTPException(status_code=400, detail="Токен пуш-уведомлений не найден. Пожалуйста, запустите в мобильном приложении.")
+    from app.services.notifications import send_expo_push
+    await send_expo_push(
+        token=user.expo_push_token,
+        title="Тест WAVY",
+        body="Тестовое пуш-уведомление успешно доставлено!",
+        path="/settings"
+    )
+    return {"status": "ok", "message": "Тестовое пуш-уведомление отправлено"}
+
+
+@router.post("/me/push-schedule")
+async def push_schedule(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user.expo_push_token:
+        raise HTTPException(status_code=400, detail="Токен пуш-уведомлений не найден. Пожалуйста, запустите в мобильном приложении.")
+    
+    from datetime import datetime, time as dtime
+    from app.models import Appointment, AppointmentStatus
+    from app.services.notifications import send_expo_push
+    
+    # Расчет сегодняшнего дня
+    today_start = datetime.combine(datetime.now().date(), dtime.min)
+    today_end = datetime.combine(datetime.now().date(), dtime.max)
+    
+    appts = db.query(Appointment).filter(
+        Appointment.user_id == user.id,
+        Appointment.starts_at >= today_start,
+        Appointment.starts_at <= today_end,
+        Appointment.status != AppointmentStatus.cancelled
+    ).order_by(Appointment.starts_at).all()
+    
+    if not appts:
+        body = "Сегодня у вас нет запланированных записей."
+    else:
+        appts_text = []
+        for a in appts:
+            t_lbl = a.starts_at.strftime("%H:%M")
+            appts_text.append(f"{t_lbl} ({a.title})")
+        body = f"Сегодня у вас {len(appts)} зап.: {', '.join(appts_text)}"
+        
+    await send_expo_push(
+        token=user.expo_push_token,
+        title="WAVY: Расписание на сегодня",
+        body=body,
+        path="/calendar"
+    )
+    return {"status": "ok", "message": "Расписание отправлено в пуш-уведомлении!"}
+
+
 @router.get("/me/working-hours", response_model=list[WorkingHourOut])
 def get_wh(user: User = Depends(require_private_person), db: Session = Depends(get_db)):
     rows = db.query(WorkingHours).filter(WorkingHours.user_id == user.id).order_by(WorkingHours.weekday).all()

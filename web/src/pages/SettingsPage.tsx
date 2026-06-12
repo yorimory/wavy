@@ -359,6 +359,50 @@ export function SettingsPage() {
             </div>
           )}
 
+          <div className="flex flex-wrap gap-3 pt-4 border-t border-outline-variant/15">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                try {
+                  const res = await apiFetch<{ status: string; message: string }>("/users/me/test-push", { method: "POST" });
+                  toast.success(res.message || "Тестовое пуш-уведомление отправлено!");
+                } catch (ex) {
+                  toast.error(ex instanceof Error ? ex.message : "Не удалось отправить пуш-уведомление");
+                } finally {
+                  setBusy(false);
+                }
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-xs font-bold transition-all border border-amber-500/20"
+            >
+              <span className="material-symbols-outlined text-[16px]">notifications_active</span>
+              Тестировать Пуш
+            </button>
+
+            {privatePerson && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={async () => {
+                  setBusy(true);
+                  try {
+                    const res = await apiFetch<{ status: string; message: string }>("/users/me/push-schedule", { method: "POST" });
+                    toast.success(res.message || "Расписание отправлено в пуш-уведомлении!");
+                  } catch (ex) {
+                    toast.error(ex instanceof Error ? ex.message : "Не удалось отправить пуш-уведомление с расписанием");
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all border border-primary/20"
+              >
+                <span className="material-symbols-outlined text-[16px]">calendar_today</span>
+                Расписание на сегодня
+              </button>
+            )}
+          </div>
+
           <button type="submit" disabled={busy} className="btn-primary">
             {busy ? (
               <span className="flex items-center gap-2"><span className="material-symbols-outlined animate-spin text-[16px]">progress_activity</span>Сохранение…</span>

@@ -75,9 +75,10 @@ def compute_slots_for_day(
 
     slots: list[tuple[datetime, datetime]] = []
     cursor = day_start
+    now = datetime.now()
     while cursor + duration <= day_end:
         slot_end = cursor + duration
-        if not any(_overlaps(cursor, slot_end, a.starts_at, a.ends_at) for a in busy):
+        if cursor >= now and not any(_overlaps(cursor, slot_end, a.starts_at, a.ends_at) for a in busy):
             slots.append((cursor, slot_end))
         cursor += step
     return slots

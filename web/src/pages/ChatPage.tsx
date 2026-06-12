@@ -19,13 +19,17 @@ export function ChatPage() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Блокируем прокрутку основной страницы при открытом чате
+  // Блокируем прокрутку основной страницы при открытом чате на мобилках
   useEffect(() => {
-    document.body.style.overflow = "hidden";
+    if (activeContact && window.innerWidth < 768) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
     return () => {
       document.body.style.overflow = "";
     };
-  }, []);
+  }, [activeContact]);
 
   // Скролл вниз при обновлении сообщений
   const scrollToBottom = () => {
@@ -273,7 +277,7 @@ export function ChatPage() {
             </div>
 
             {/* Сообщения */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 scroll-touch bg-surface-container-low">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 scroll-touch bg-surface-container-low touch-pan-y">
               {messages.map((m) => {
                 const isMe = m.sender_id === currentUser?.id;
                 return (
@@ -282,7 +286,7 @@ export function ChatPage() {
                     className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                   >
                     <div
-                      className={`max-w-[70%] p-3.5 rounded-[20px] shadow-sm text-sm whitespace-pre-wrap relative group ${
+                      className={`max-w-[80%] p-3.5 rounded-[20px] shadow-sm text-sm whitespace-pre-wrap relative group ${
                         isMe
                           ? "bg-primary text-white rounded-tr-none"
                           : "bg-surface-container-lowest text-on-surface border border-outline-variant/10 rounded-tl-none"
