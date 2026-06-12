@@ -54,19 +54,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const handleMessage = (event: any) => {
       try {
-        const data = JSON.parse(event.data);
-        if (data.type === "expo_push_token" && data.token) {
+        let rawData = event.data;
+        // WebView on Android sometimes sends double stringified JSON or object
+        if (typeof rawData === "string") {
+          try {
+            const parsed = JSON.parse(rawData);
+            if (parsed) rawData = parsed;
+          } catch {
+            // keep rawData as string
+          }
+        }
+        
+        const data = typeof rawData === "object" ? rawData : JSON.parse(rawData);
+        if (data && data.type === "expo_push_token" && data.token) {
+          console.log("Web received push token from native app:", data.token);
           localStorage.setItem("expo_push_token", data.token);
           // Try sending immediately if already logged in
           if (token && user) {
             apiFetch("/users/me/push-token", {
               method: "POST",
               body: JSON.stringify({ expo_push_token: data.token }),
-            }).catch((err) => console.error("Error sending push token", err));
+            })
+              .then(() => console.log("Immediately registered push token on backend"))
+              .catch((err) => console.error("Error sending push token to backend", err));
           }
         }
       } catch (e) {
-        // Not a JSON message
+        // Not a valid target message
       }
     };
     window.addEventListener("message", handleMessage);
