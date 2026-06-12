@@ -39,6 +39,10 @@ function apptOverlapsHour(appt: AppointmentOut, day: Date, hour: number): boolea
   return s < hourEnd && e > hourStart;
 }
 
+function apptsShareHour(a: AppointmentOut, b: AppointmentOut, day: Date, hoursList: number[]): boolean {
+  return hoursList.some((h) => apptOverlapsHour(a, day, h) && apptOverlapsHour(b, day, h));
+}
+
 export function PrivatePersonCalendar() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -169,15 +173,10 @@ export function PrivatePersonCalendar() {
       // Группируем во временные интервалы (кластеры пересечений)
       const clusters: AppointmentOut[][] = [];
       for (const appt of sorted) {
-        const s = parseNaive(appt.starts_at);
-        const e = parseNaive(appt.ends_at);
-        
         const overlappingClusterIndices: number[] = [];
         for (let i = 0; i < clusters.length; i++) {
           const overlaps = clusters[i].some(existing => {
-            const exS = parseNaive(existing.starts_at);
-            const exE = parseNaive(existing.ends_at);
-            return s < exE && e > exS;
+            return apptsShareHour(appt, existing, day, hours);
           });
           if (overlaps) {
             overlappingClusterIndices.push(i);
@@ -213,15 +212,11 @@ export function PrivatePersonCalendar() {
         
         const columns: AppointmentOut[][] = [];
         for (const appt of clusterSorted) {
-          const s = parseNaive(appt.starts_at);
-          const e = parseNaive(appt.ends_at);
           let placed = false;
           for (let i = 0; i < columns.length; i++) {
             const col = columns[i];
             const overlaps = col.some(existing => {
-              const exS = parseNaive(existing.starts_at);
-              const exE = parseNaive(existing.ends_at);
-              return s < exE && e > exS;
+              return apptsShareHour(appt, existing, day, hours);
             });
             if (!overlaps) {
               col.push(appt);
@@ -246,7 +241,7 @@ export function PrivatePersonCalendar() {
       map.set(dayKey, dayMap);
     }
     return map;
-  }, [visibleAppts, displayDays]);
+  }, [visibleAppts, displayDays, hours]);
 
   function closeModal() {
     setModal(null);
