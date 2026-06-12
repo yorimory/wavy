@@ -448,6 +448,7 @@ export function PrivatePersonCalendar() {
                   className="calendar-grid"
                   style={colCount !== 7 ? { gridTemplateColumns: `80px repeat(${colCount}, minmax(0, 1fr))` } : undefined}
                 >
+                  {/* Background Grid Cells */}
                   {hours.flatMap((hour) => [
                     <div
                       key={`time-${hour}`}
@@ -459,180 +460,126 @@ export function PrivatePersonCalendar() {
                       const isToday = isSameDay(day, today);
                       const weekend = isWeekend(day);
                       const working = isWorkingCell(day, hour);
-                      const cellAppts = getCellAppts(day, hour);
-
-                      // Determine columns layout for the day and find active appointments for this hour
-                      const dayKey = day.toDateString();
-                      const layoutMap = dayLayoutMap.get(dayKey) || new Map<number, { colIdx: number; totalCols: number }>();
-                      const totalCols = cellAppts.reduce((max, appt) => {
-                        const info = layoutMap.get(appt.id);
-                        return info ? Math.max(max, info.totalCols) : max;
-                      }, 0);
-
-                      const cellCols = Array.from({ length: totalCols }, () => [] as AppointmentOut[]);
-                      for (const appt of cellAppts) {
-                        const info = layoutMap.get(appt.id);
-                        if (info) {
-                          cellCols[info.colIdx].push(appt);
-                        }
-                      }
-
-                      // Check if any appointment in this cell ends in this hour slot
-                      const hasEndingAppt = cellAppts.some((appt) => {
-                        const e = parseNaive(appt.ends_at);
-                        const cellStart = new Date(day);
-                        cellStart.setHours(hour, 0, 0, 0);
-                        const cellEnd = new Date(day);
-                        cellEnd.setHours(hour + 1, 0, 0, 0);
-                        return e > cellStart && e <= cellEnd;
-                      });
-
-                      const hasContinuationFromPrev = cellAppts.some((appt) => {
-                        const s = parseNaive(appt.starts_at);
-                        const prevHourEnd = new Date(day);
-                        prevHourEnd.setHours(hour, 0, 0, 0);
-                        return s < prevHourEnd;
-                      });
-
-                      const hasContinuationToNext = cellAppts.some((appt) => {
-                        const e = parseNaive(appt.ends_at);
-                        const nextHourStart = new Date(day);
-                        nextHourStart.setHours(hour + 1, 0, 0, 0);
-                        return e > nextHourStart;
-                      });
-
-                      const hasBottomBorder = cellAppts.length === 0 || hasEndingAppt;
-                      const paddingClass = cellAppts.length > 0
-                        ? `px-1 ${hasContinuationFromPrev ? "pt-0" : "pt-1"} ${hasContinuationToNext ? "pb-0" : "pb-1"}`
-                        : "group flex items-center justify-center cursor-pointer";
 
                       return (
                         <div
                           key={`${day.toISOString()}-${hour}`}
                           className={[
-                            "h-14 border-r last:border-r-0 transition-colors flex gap-1",
-                            hasBottomBorder ? "border-b border-outline-variant/20" : "",
-                            paddingClass,
-                            cellAppts.length === 0 && working && "hover:bg-primary-container/5",
-                            cellAppts.length === 0 && !working && (weekend ? "bg-surface-container/50" : ""),
-                            cellAppts.length === 0 && isToday && working && "bg-primary-container/5",
+                            "h-14 border-r last:border-r-0 transition-colors border-b border-outline-variant/20",
+                            working ? "hover:bg-primary-container/5" : (weekend ? "bg-surface-container/50" : ""),
+                            isToday && working ? "bg-primary-container/5" : "",
                           ].join(" ")}
-                          onClick={cellAppts.length === 0 ? () => {
+                          onClick={() => {
                             const start = new Date(day);
                             start.setHours(hour, 0, 0, 0);
                             setModal({ mode: "create", start });
-                          } : undefined}
-                          onKeyDown={cellAppts.length === 0 ? (e) => {
+                          }}
+                          onKeyDown={(e) => {
                             if (e.key === "Enter" || e.key === " ") {
                               e.preventDefault();
                               const start = new Date(day);
                               start.setHours(hour, 0, 0, 0);
                               setModal({ mode: "create", start });
                             }
-                          } : undefined}
-                          role={cellAppts.length === 0 ? "button" : undefined}
-                          tabIndex={cellAppts.length === 0 ? 0 : undefined}
-                        >
-                          {cellAppts.length > 0 ? (
-                            cellCols.map((colAppts, colIdx) => {
-                              if (colAppts.length === 0) {
-                                return (
-                                  <div key={`spacer-${colIdx}`} className="flex-1 min-w-0 h-full" />
-                                );
-                              }
-
-                              return (
-                                <div key={`col-${colIdx}`} className="flex-1 min-w-0 h-full relative">
-                                  {colAppts.map((appt) => {
-                                    const apptIdx = visibleAppts.indexOf(appt);
-                                    const pal = paletteFor(appt, apptIdx);
-                                    const name = clientName(clients, appt.client_id);
-
-                                    const s = parseNaive(appt.starts_at);
-                                    const e = parseNaive(appt.ends_at);
-                                    const cellStart = new Date(day);
-                                    cellStart.setHours(hour, 0, 0, 0);
-                                    const cellEnd = new Date(day);
-                                    cellEnd.setHours(hour + 1, 0, 0, 0);
-
-                                    const isStart = s >= cellStart && s < cellEnd;
-                                    const isEnd = e > cellStart && e <= cellEnd;
-
-                                    let roundedClass = "rounded-lg";
-                                    let cardPadding = "p-1.5";
-
-                                    if (isStart && isEnd) {
-                                      roundedClass = "rounded-lg";
-                                    } else if (isStart) {
-                                      roundedClass = "rounded-t-lg rounded-b-none border-b-0";
-                                      cardPadding = "pt-1.5 pb-0 px-1.5";
-                                    } else if (isEnd) {
-                                      roundedClass = "rounded-b-lg rounded-t-none border-t-0";
-                                      cardPadding = "pt-0 pb-1.5 px-1.5";
-                                    } else {
-                                      roundedClass = "rounded-none border-y-0";
-                                      cardPadding = "py-0 px-1.5";
-                                    }
-
-                                    const startMs = Math.max(s.getTime(), cellStart.getTime());
-                                    const endMs = Math.min(e.getTime(), cellEnd.getTime());
-                                    
-                                    const topPercent = ((startMs - cellStart.getTime()) / (60 * 60 * 1000)) * 100;
-                                    const heightPercent = ((endMs - startMs) / (60 * 60 * 1000)) * 100;
-
-                                    return (
-                                      <div
-                                        key={appt.id}
-                                        role="button"
-                                        tabIndex={0}
-                                        style={{
-                                          position: "absolute",
-                                          top: `${topPercent}%`,
-                                          height: `${heightPercent}%`,
-                                          left: 0,
-                                          right: 0,
-                                        }}
-                                        className={`min-w-0 ${pal.bg} border-l-[3px] ${pal.border} ${roundedClass} ${cardPadding} flex flex-col justify-center cursor-pointer hover:opacity-95 transition-all ${pal.accent ? "shadow-md" : ""}`}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setModal({ mode: "edit", appt });
-                                          setSearchParams({ edit: String(appt.id) });
-                                        }}
-                                        onKeyDown={(e) => {
-                                          if (e.key === "Enter" || e.key === " ") {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            setModal({ mode: "edit", appt });
-                                          }
-                                        }}
-                                      >
-                                        {isStart ? (
-                                          <div className="flex flex-col justify-center min-w-0 h-full overflow-hidden">
-                                            <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-tight truncate leading-none ${pal.label}`}>
-                                              {appt.title}
-                                            </span>
-                                            {name ? (
-                                              <span className={`text-[11px] sm:text-xs font-extrabold truncate mt-0.5 leading-none ${pal.accent ? "text-white" : "text-on-surface"}`}>
-                                                {name}
-                                              </span>
-                                            ) : null}
-                                          </div>
-                                        ) : null}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              );
-                            })
-                          ) : (
-                            <span className="opacity-0 group-hover:opacity-100 material-symbols-outlined text-primary/40">
-                              add_circle
-                            </span>
-                          )}
-                        </div>
+                          }}
+                          role="button"
+                          tabIndex={0}
+                        />
                       );
                     }),
                   ])}
+
+                  {/* Event Overlays (one per day) */}
+                  {displayDays.map((day, dIdx) => {
+                    const dayKey = day.toDateString();
+                    const layoutMap = dayLayoutMap.get(dayKey) || new Map<number, { colIdx: number; totalCols: number }>();
+                    
+                    const dayStartMs = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hours[0], 0, 0).getTime();
+                    const dayDurationMs = hours.length * 60 * 60 * 1000;
+                    const dayEndMs = dayStartMs + dayDurationMs;
+
+                    const dayAppts = visibleAppts.filter((a) => {
+                      const s = parseNaive(a.starts_at).getTime();
+                      const e = parseNaive(a.ends_at).getTime();
+                      return s < dayEndMs && e > dayStartMs;
+                    });
+
+                    return (
+                      <div
+                        key={`overlay-${day.toISOString()}`}
+                        style={{
+                          gridColumn: dIdx + 2,
+                          gridRow: `1 / span ${hours.length}`,
+                          pointerEvents: "none",
+                        }}
+                        className="relative w-full h-full"
+                      >
+                        <div className="absolute inset-0">
+                          {dayAppts.map((appt) => {
+                            const info = layoutMap.get(appt.id);
+                            const colIdx = info ? info.colIdx : 0;
+                            const totalCols = info ? info.totalCols : 1;
+
+                            const s = parseNaive(appt.starts_at).getTime();
+                            const e = parseNaive(appt.ends_at).getTime();
+
+                            const startMs = Math.max(s, dayStartMs);
+                            const endMs = Math.min(e, dayEndMs);
+
+                            const topPercent = ((startMs - dayStartMs) / dayDurationMs) * 100;
+                            const heightPercent = ((endMs - startMs) / dayDurationMs) * 100;
+
+                            const leftPercent = (colIdx / totalCols) * 100;
+                            const widthPercent = (1 / totalCols) * 100;
+
+                            const apptIdx = visibleAppts.indexOf(appt);
+                            const pal = paletteFor(appt, apptIdx);
+                            const name = clientName(clients, appt.client_id);
+
+                            return (
+                              <div
+                                key={appt.id}
+                                role="button"
+                                tabIndex={0}
+                                style={{
+                                  position: "absolute",
+                                  top: `calc(${topPercent}% + 2px)`,
+                                  height: `calc(${heightPercent}% - 4px)`,
+                                  left: `calc(${leftPercent}% + 2px)`,
+                                  width: `calc(${widthPercent}% - 4px)`,
+                                  pointerEvents: "auto",
+                                }}
+                                className={`min-w-0 ${pal.bg} border-l-[3px] ${pal.border} rounded-lg p-1.5 flex flex-col cursor-pointer hover:opacity-95 transition-all shadow-sm z-10 ${pal.accent ? "shadow-md" : ""}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setModal({ mode: "edit", appt });
+                                  setSearchParams({ edit: String(appt.id) });
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    setModal({ mode: "edit", appt });
+                                  }
+                                }}
+                              >
+                                <div className="flex flex-col min-w-0 h-full overflow-hidden">
+                                  <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-tight truncate leading-snug ${pal.label}`}>
+                                    {appt.title}
+                                  </span>
+                                  {name && (
+                                    <span className={`text-[11px] sm:text-xs font-extrabold truncate mt-0.5 leading-snug ${pal.accent ? "text-white" : "text-on-surface"}`}>
+                                      {name}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
