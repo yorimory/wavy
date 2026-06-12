@@ -183,14 +183,14 @@ export function ChatPage() {
   };
 
   return (
-    <div className="flex-1 min-h-0 h-full w-full flex flex-col md:flex-row bg-surface-container-lowest lg:rounded-[32px] lg:border border-outline-variant/15 lg:shadow-sm overflow-hidden animate-fade-up">
+    <div className="flex-1 min-h-0 h-full w-full flex bg-surface-container-lowest lg:rounded-[32px] lg:border border-outline-variant/15 lg:shadow-sm overflow-hidden animate-fade-up">
       {/* Список контактов */}
       <div
-        className={`w-full md:w-80 border-r border-outline-variant/15 flex flex-col ${
+        className={`w-full md:w-80 border-r border-outline-variant/15 flex flex-col h-full ${
           activeContact ? "hidden md:flex" : "flex"
         }`}
       >
-        <div className="p-4 border-b border-outline-variant/15">
+        <div className="p-4 border-b border-outline-variant/15 flex-shrink-0">
           <h2 className="text-xl font-black text-on-surface tracking-tight">Сообщения</h2>
         </div>
 
@@ -246,7 +246,7 @@ export function ChatPage() {
 
       {/* Окно переписки */}
       <div
-        className={`flex-1 min-h-0 flex flex-col bg-surface-container-low/30 ${
+        className={`flex-1 min-h-0 flex flex-col bg-surface-container-low/30 h-full ${
           activeContact ? "flex" : "hidden md:flex items-center justify-center"
         }`}
       >

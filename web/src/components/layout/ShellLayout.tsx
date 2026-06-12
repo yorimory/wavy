@@ -300,8 +300,8 @@ export function ShellLayout() {
       <main
         className={
           (calendarFullBleed || location.pathname === "/messages")
-            ? "flex-1 h-screen w-full pt-0 px-0 pb-0 lg:p-8 overflow-hidden flex flex-col"
-            : `flex-1 min-h-screen w-full ${
+            ? "flex-1 h-[100dvh] lg:h-screen w-full pt-0 px-0 pb-0 lg:p-8 overflow-hidden flex flex-col"
+            : `flex-1 min-h-[calc(100dvh-56px)] lg:min-h-screen w-full ${
                 privatePerson
                   ? "px-4 pt-4 pb-24 md:px-8 md:pt-8 md:pb-8 lg:p-10 max-w-6xl mx-auto"
                   : "px-4 pt-4 pb-24 md:px-8 md:pt-8 md:pb-8 lg:p-10 max-w-4xl mx-auto"
