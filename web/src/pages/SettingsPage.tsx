@@ -357,6 +357,32 @@ export function SettingsPage() {
               onClick={async () => {
                 setBusy(true);
                 try {
+                  const fakeToken = "ExponentPushToken[wavy_test_fake_token_1234]";
+                  await apiFetch("/users/me/push-token", {
+                    method: "POST",
+                    body: JSON.stringify({ expo_push_token: fakeToken }),
+                  });
+                  localStorage.setItem("expo_push_token", fakeToken);
+                  await refreshUser();
+                  toast.success("Тестовый токен успешно привязан!");
+                } catch (ex) {
+                  toast.error(ex instanceof Error ? ex.message : "Не удалось привязать тестовый токен");
+                } finally {
+                  setBusy(false);
+                }
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold transition-all border border-emerald-500/20"
+            >
+              <span className="material-symbols-outlined text-[16px]">build</span>
+              Привязать токен (Dev)
+            </button>
+
+            <button
+              type="button"
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                try {
                   const res = await apiFetch<{ status: string; message: string }>("/users/me/test-push", { method: "POST" });
                   toast.success(res.message || "Тестовое пуш-уведомление отправлено!");
                 } catch (ex) {
