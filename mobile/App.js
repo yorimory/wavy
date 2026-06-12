@@ -155,6 +155,7 @@ export default function App() {
           ref={webViewRef}
           source={{ uri: targetUrl }}
           onLoadEnd={sendTokenToWebView}
+          onNavigationStateChange={sendTokenToWebView}
           onError={handleWebViewError}
           onHttpError={handleWebViewHttpError}
           javaScriptEnabled={true}
