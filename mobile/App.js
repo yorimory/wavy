@@ -108,6 +108,12 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    if (token) {
+      sendTokenToWebView();
+    }
+  }, [token]);
+
   const targetUrl = getWebUrl();
 
   const handleWebViewError = (syntheticEvent) => {
