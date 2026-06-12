@@ -80,8 +80,8 @@ export function PrivatePersonCalendar() {
         hasWorkingDays = true;
       }
       if (hasWorkingDays && whMin < whMax) {
-        minStart = Math.max(0, whMin - 1);
-        maxEnd = Math.min(24, whMax + 1);
+        minStart = whMin;
+        maxEnd = whMax;
       }
     }
     
@@ -445,15 +445,18 @@ export function PrivatePersonCalendar() {
               {/* Body Scrollable Grid */}
               <div className="flex-1 overflow-y-auto min-h-0">
                 <div
-                  className="calendar-grid"
-                  style={colCount !== 7 ? { gridTemplateColumns: `80px repeat(${colCount}, minmax(0, 1fr))` } : undefined}
+                  className="calendar-grid min-h-full"
+                  style={{
+                    ...(colCount !== 7 ? { gridTemplateColumns: `80px repeat(${colCount}, minmax(0, 1fr))` } : {}),
+                    gridAutoRows: 'minmax(3rem, 1fr)'
+                  }}
                 >
                   {/* Background Grid Cells */}
                   {hours.flatMap((hour, hIdx) => [
                     <div
                       key={`time-${hour}`}
                       style={{ gridRow: hIdx + 1, gridColumn: 1 }}
-                      className="h-14 flex items-start justify-center pt-2 text-[11px] font-bold text-on-surface-variant/50 border-r border-outline-variant/30 sticky left-0 z-10 bg-surface-container-lowest"
+                      className="h-full flex items-start justify-center pt-2 text-[11px] font-bold text-on-surface-variant/50 border-r border-outline-variant/30 sticky left-0 z-10 bg-surface-container-lowest"
                     >
                       {formatHourLabel(hour)}
                     </div>,
@@ -467,7 +470,7 @@ export function PrivatePersonCalendar() {
                           key={`${day.toISOString()}-${hour}`}
                           style={{ gridRow: hIdx + 1, gridColumn: dIdx + 2 }}
                           className={[
-                            "h-14 border-r last:border-r-0 transition-colors border-b border-outline-variant/20",
+                            "h-full border-r last:border-r-0 transition-colors border-b border-outline-variant/20",
                             working ? "hover:bg-primary-container/5" : (weekend ? "bg-surface-container/50" : ""),
                             isToday && working ? "bg-primary-container/5" : "",
                           ].join(" ")}
