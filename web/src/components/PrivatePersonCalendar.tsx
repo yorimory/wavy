@@ -148,7 +148,100 @@ export function PrivatePersonCalendar() {
     });
   }, [appts, weekStart, view, displayDays]);
 
-  // dayLayoutMap deleted - layout computed locally in cells to prevent "ladder" gaps
+  const dayLayoutMap = useMemo(() => {
+    const map = new Map<string, Map<number, { colIdx: number; totalCols: number }>>();
+    
+    for (const day of displayDays) {
+      const dayKey = day.toDateString();
+      const dayAppts = visibleAppts.filter(a => {
+        const s = parseNaive(a.starts_at);
+        const e = parseNaive(a.ends_at);
+        const dayStart = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, 0, 0);
+        const dayEnd = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59, 999);
+        return s < dayEnd && e > dayStart;
+      });
+      
+      const sorted = [...dayAppts].sort((a, b) => {
+        const sa = parseNaive(a.starts_at).getTime();
+        const sb = parseNaive(b.starts_at).getTime();
+        if (sa !== sb) return sa - sb;
+        const ea = parseNaive(a.ends_at).getTime();
+        const eb = parseNaive(b.ends_at).getTime();
+        return (eb - sb) - (ea - sa);
+      });
+      
+      // Группируем во временные интервалы (кластеры пересечений)
+      const clusters: AppointmentOut[][] = [];
+      for (const appt of sorted) {
+        const overlappingClusterIndices: number[] = [];
+        for (let i = 0; i < clusters.length; i++) {
+          const overlaps = clusters[i].some(existing => {
+            return apptsShareHour(appt, existing, day, hours);
+          });
+          if (overlaps) {
+            overlappingClusterIndices.push(i);
+          }
+        }
+        
+        if (overlappingClusterIndices.length === 0) {
+          clusters.push([appt]);
+        } else if (overlappingClusterIndices.length === 1) {
+          clusters[overlappingClusterIndices[0]].push(appt);
+        } else {
+          const merged: AppointmentOut[] = [appt];
+          for (let i = overlappingClusterIndices.length - 1; i >= 0; i--) {
+            const idx = overlappingClusterIndices[i];
+            merged.push(...clusters[idx]);
+            clusters.splice(idx, 1);
+          }
+          clusters.push(merged);
+        }
+      }
+      
+      const dayMap = new Map<number, { colIdx: number; totalCols: number }>();
+      
+      // Для каждого кластера строим локальную сетку колонок
+      for (const cluster of clusters) {
+        // Сортируем внутри кластера
+        const clusterSorted = [...cluster].sort((a, b) => {
+          const sa = parseNaive(a.starts_at).getTime();
+          const sb = parseNaive(b.starts_at).getTime();
+          if (sa !== sb) return sa - sb;
+          return parseNaive(b.ends_at).getTime() - parseNaive(a.ends_at).getTime();
+        });
+        
+        const columns: AppointmentOut[][] = [];
+        for (const appt of clusterSorted) {
+          let placed = false;
+          for (let i = 0; i < columns.length; i++) {
+            const col = columns[i];
+            const overlaps = col.some(existing => {
+              return apptsShareHour(appt, existing, day, hours);
+            });
+            if (!overlaps) {
+              col.push(appt);
+              placed = true;
+              break;
+            }
+          }
+          if (!placed) {
+            columns.push([appt]);
+          }
+        }
+        
+        // Записываем информацию о колонках
+        const totalCols = columns.length;
+        for (let colIdx = 0; colIdx < columns.length; colIdx++) {
+          for (const appt of columns[colIdx]) {
+            dayMap.set(appt.id, { colIdx, totalCols });
+          }
+        }
+      }
+      
+      map.set(dayKey, dayMap);
+    }
+    return map;
+  }, [visibleAppts, displayDays, hours]);
 
   function closeModal() {
     setModal(null);
@@ -359,37 +452,19 @@ export function PrivatePersonCalendar() {
                       const working = isWorkingCell(day, hour);
                       const cellAppts = getCellAppts(day, hour);
 
-                      // Sort cellAppts by start time
-                      const sortedCellAppts = [...cellAppts].sort((a, b) => {
-                        const sa = parseNaive(a.starts_at).getTime();
-                        const sb = parseNaive(b.starts_at).getTime();
-                        if (sa !== sb) return sa - sb;
-                        const ea = parseNaive(a.ends_at).getTime();
-                        const eb = parseNaive(b.ends_at).getTime();
-                        return (eb - sb) - (ea - sa);
-                      });
+                      // Determine columns layout for the day and find active appointments for this hour
+                      const dayKey = day.toDateString();
+                      const layoutMap = dayLayoutMap.get(dayKey) || new Map<number, { colIdx: number; totalCols: number }>();
+                      const totalCols = cellAppts.reduce((max, appt) => {
+                        const info = layoutMap.get(appt.id);
+                        return info ? Math.max(max, info.totalCols) : max;
+                      }, 0);
 
-                      // Distribute into local columns for this cell (dynamic layout to prevent "ladder" gaps)
-                      const cellCols: AppointmentOut[][] = [];
-                      for (const appt of sortedCellAppts) {
-                        const s = parseNaive(appt.starts_at);
-                        const e = parseNaive(appt.ends_at);
-                        let placed = false;
-                        for (let i = 0; i < cellCols.length; i++) {
-                          const col = cellCols[i];
-                          const overlaps = col.some(existing => {
-                            const exS = parseNaive(existing.starts_at);
-                            const exE = parseNaive(existing.ends_at);
-                            return s < exE && e > exS;
-                          });
-                          if (!overlaps) {
-                            col.push(appt);
-                            placed = true;
-                            break;
-                          }
-                        }
-                        if (!placed) {
-                          cellCols.push([appt]);
+                      const cellCols = Array.from({ length: totalCols }, () => null as AppointmentOut | null);
+                      for (const appt of cellAppts) {
+                        const info = layoutMap.get(appt.id);
+                        if (info) {
+                          cellCols[info.colIdx] = appt;
                         }
                       }
 
@@ -450,87 +525,74 @@ export function PrivatePersonCalendar() {
                           tabIndex={cellAppts.length === 0 ? 0 : undefined}
                         >
                           {cellAppts.length > 0 ? (
-                            cellCols.map((colAppts, colIdx) => {
+                            cellCols.map((appt, colIdx) => {
+                              if (!appt) {
+                                return (
+                                  <div key={`spacer-${colIdx}`} className="flex-1 min-w-0 h-full" />
+                                );
+                              }
+
+                              const apptIdx = visibleAppts.indexOf(appt);
+                              const pal = paletteFor(appt, apptIdx);
+                              const name = clientName(clients, appt.client_id);
+
+                              const s = parseNaive(appt.starts_at);
+                              const e = parseNaive(appt.ends_at);
+                              const cellStart = new Date(day);
+                              cellStart.setHours(hour, 0, 0, 0);
+                              const cellEnd = new Date(day);
+                              cellEnd.setHours(hour + 1, 0, 0, 0);
+
+                              const isStart = s >= cellStart && s < cellEnd;
+                              const isEnd = e > cellStart && e <= cellEnd;
+
+                              let roundedClass = "rounded-lg";
+                              let cardPadding = "p-1.5";
+
+                              if (isStart && isEnd) {
+                                roundedClass = "rounded-lg";
+                              } else if (isStart) {
+                                roundedClass = "rounded-t-lg rounded-b-none border-b-0";
+                                cardPadding = "pt-1.5 pb-0 px-1.5";
+                              } else if (isEnd) {
+                                roundedClass = "rounded-b-lg rounded-t-none border-t-0";
+                                cardPadding = "pt-0 pb-1.5 px-1.5";
+                              } else {
+                                roundedClass = "rounded-none border-y-0";
+                                cardPadding = "py-0 px-1.5";
+                              }
+
                               return (
-                                <div key={`col-${colIdx}`} className="flex-1 min-w-0 h-full relative">
-                                  {colAppts.map((appt) => {
-                                    const apptIdx = visibleAppts.indexOf(appt);
-                                    const pal = paletteFor(appt, apptIdx);
-                                    const name = clientName(clients, appt.client_id);
-
-                                    const s = parseNaive(appt.starts_at);
-                                    const e = parseNaive(appt.ends_at);
-                                    const cellStart = new Date(day);
-                                    cellStart.setHours(hour, 0, 0, 0);
-                                    const cellEnd = new Date(day);
-                                    cellEnd.setHours(hour + 1, 0, 0, 0);
-
-                                    const isStart = s >= cellStart && s < cellEnd;
-                                    const isEnd = e > cellStart && e <= cellEnd;
-
-                                    let roundedClass = "rounded-lg";
-                                    let cardPadding = "p-1.5";
-
-                                    if (isStart && isEnd) {
-                                      roundedClass = "rounded-lg";
-                                    } else if (isStart) {
-                                      roundedClass = "rounded-t-lg rounded-b-none border-b-0";
-                                      cardPadding = "pt-1.5 pb-0 px-1.5";
-                                    } else if (isEnd) {
-                                      roundedClass = "rounded-b-lg rounded-t-none border-t-0";
-                                      cardPadding = "pt-0 pb-1.5 px-1.5";
-                                    } else {
-                                      roundedClass = "rounded-none border-y-0";
-                                      cardPadding = "py-0 px-1.5";
+                                <div
+                                  key={appt.id}
+                                  role="button"
+                                  tabIndex={0}
+                                  className={`flex-1 min-w-0 h-full ${pal.bg} border-l-[3px] ${pal.border} ${roundedClass} ${cardPadding} flex flex-col justify-center cursor-pointer hover:opacity-95 transition-all ${pal.accent ? "shadow-md" : ""}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setModal({ mode: "edit", appt });
+                                    setSearchParams({ edit: String(appt.id) });
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                      e.stopPropagation();
+                                      e.preventDefault();
+                                      setModal({ mode: "edit", appt });
                                     }
-
-                                    const startMs = Math.max(s.getTime(), cellStart.getTime());
-                                    const endMs = Math.min(e.getTime(), cellEnd.getTime());
-                                    
-                                    const topPercent = ((startMs - cellStart.getTime()) / (60 * 60 * 1000)) * 100;
-                                    const heightPercent = ((endMs - startMs) / (60 * 60 * 1000)) * 100;
-
-                                    return (
-                                      <div
-                                        key={appt.id}
-                                        role="button"
-                                        tabIndex={0}
-                                        style={{
-                                          position: "absolute",
-                                          top: `${topPercent}%`,
-                                          height: `${heightPercent}%`,
-                                          left: 0,
-                                          right: 0,
-                                        }}
-                                        className={`min-w-0 ${pal.bg} border-l-[3px] ${pal.border} ${roundedClass} ${cardPadding} flex flex-col justify-center cursor-pointer hover:opacity-95 transition-all ${pal.accent ? "shadow-md" : ""}`}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setModal({ mode: "edit", appt });
-                                          setSearchParams({ edit: String(appt.id) });
-                                        }}
-                                        onKeyDown={(e) => {
-                                          if (e.key === "Enter" || e.key === " ") {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            setModal({ mode: "edit", appt });
-                                          }
-                                        }}
-                                      >
-                                        {isStart ? (
-                                          <div className="flex flex-col justify-center min-w-0 h-full overflow-hidden">
-                                            <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-tight truncate leading-none ${pal.label}`}>
-                                              {appt.title}
-                                            </span>
-                                            {name ? (
-                                              <span className={`text-[11px] sm:text-xs font-extrabold truncate mt-0.5 leading-none ${pal.accent ? "text-white" : "text-on-surface"}`}>
-                                                {name}
-                                              </span>
-                                            ) : null}
-                                          </div>
-                                        ) : null}
-                                      </div>
-                                    );
-                                  })}
+                                  }}
+                                >
+                                  {isStart ? (
+                                    <div className="flex flex-col justify-center min-w-0 h-full overflow-hidden">
+                                      <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-tight truncate leading-none ${pal.label}`}>
+                                        {appt.title}
+                                      </span>
+                                      {name ? (
+                                        <span className={`text-[11px] sm:text-xs font-extrabold truncate mt-0.5 leading-none ${pal.accent ? "text-white" : "text-on-surface"}`}>
+                                          {name}
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                  ) : null}
                                 </div>
                               );
                             })
