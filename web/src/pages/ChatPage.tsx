@@ -241,7 +241,7 @@ export function ChatPage() {
 
       {/* Окно переписки */}
       <div
-        className={`flex-1 min-h-0 flex flex-col bg-surface-container-low/30 h-[calc(100dvh-120px)] md:h-full ${
+        className={`flex-1 min-h-0 flex flex-col bg-surface-container-low/30 h-full ${
           activeContact ? "flex" : "hidden md:flex items-center justify-center"
         }`}
       >
