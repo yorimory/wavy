@@ -123,9 +123,7 @@ export function ShellLayout() {
 
       {/* ─────────────── Mobile top bar (logo only) ─────────────── */}
       <header
-        className={`lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 shrink-0 ${
-          location.pathname === "/messages" ? "hidden" : ""
-        }`}
+        className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 shrink-0"
         style={{
           background: "rgba(255,255,255,0.85)",
           backdropFilter: "blur(16px)",
@@ -300,8 +298,8 @@ export function ShellLayout() {
       <main
         className={
           (calendarFullBleed || location.pathname === "/messages")
-            ? "flex-1 h-[100dvh] lg:h-screen w-full pt-0 px-0 pb-0 lg:p-8 overflow-hidden flex flex-col"
-            : `flex-1 min-h-[calc(100dvh-56px)] lg:min-h-screen w-full ${
+            ? "flex-1 h-[calc(100vh-120px)] lg:h-screen w-full pt-0 px-0 pb-0 lg:p-8 overflow-hidden flex flex-col"
+            : `flex-1 min-h-[calc(100vh-120px)] lg:min-h-screen w-full ${
                 privatePerson
                   ? "px-4 pt-4 pb-24 md:px-8 md:pt-8 md:pb-8 lg:p-10 max-w-6xl mx-auto"
                   : "px-4 pt-4 pb-24 md:px-8 md:pt-8 md:pb-8 lg:p-10 max-w-4xl mx-auto"
@@ -313,9 +311,7 @@ export function ShellLayout() {
 
       {/* ─────────────── Mobile bottom tab bar ─────────────── */}
       <nav
-        className={`lg:hidden fixed bottom-0 left-0 right-0 z-40 flex ${
-          location.pathname === "/messages" ? "hidden" : ""
-        }`}
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex"
         style={{
           background: "rgba(255,255,255,0.92)",
           backdropFilter: "blur(20px) saturate(1.8)",
