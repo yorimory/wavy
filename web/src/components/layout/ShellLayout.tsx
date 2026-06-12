@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { isClient, isPrivatePerson, isModerator, ROLE_LABELS } from "@/utils/roles";
@@ -28,13 +29,19 @@ function NavIcon({ icon, active }: { icon: string; active?: boolean }) {
 
 /* ── Avatar initials or image ── */
 function Avatar({ name, email, avatarUrl }: { name?: string | null; email?: string | null; avatarUrl?: string | null }) {
+  const [imgError, setImgError] = useState(false);
   const initials = name
     ? name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
     : (email?.[0] ?? "U").toUpperCase();
   return (
     <div className="w-9 h-9 rounded-none primary-gradient flex items-center justify-center text-white font-black text-sm shrink-0 shadow-glow-sm overflow-hidden border border-outline-variant/15">
-      {avatarUrl ? (
-        <img src={getAvatarUrl(avatarUrl)} alt={name || "Avatar"} className="w-full h-full object-cover" />
+      {avatarUrl && !imgError ? (
+        <img
+          src={getAvatarUrl(avatarUrl)}
+          alt={name || "Avatar"}
+          className="w-full h-full object-cover"
+          onError={() => setImgError(true)}
+        />
       ) : (
         initials
       )}
