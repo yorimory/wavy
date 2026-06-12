@@ -156,6 +156,9 @@ export default function App() {
           source={{ uri: targetUrl }}
           onLoadEnd={sendTokenToWebView}
           onNavigationStateChange={sendTokenToWebView}
+          onMessage={(event) => {
+            console.log("Message received from WebView:", event.nativeEvent.data);
+          }}
           onError={handleWebViewError}
           onHttpError={handleWebViewHttpError}
           javaScriptEnabled={true}
