@@ -51,7 +51,7 @@ export default function App() {
         finalStatus = status;
       }
       if (finalStatus !== 'granted') {
-        alert('Уведомления заблокированы! Пожалуйста, включите доступ в настройках телефона.');
+        console.warn('Уведомления заблокированы! Пожалуйста, включите доступ в настройках телефона.');
         return;
       }
       
@@ -61,7 +61,7 @@ export default function App() {
           Constants.expoConfig?.projectId ??
           Constants.easConfig?.projectId;
         if (!projectId) {
-          alert('ID проекта EAS не найден в app.json!');
+          console.warn('ID проекта EAS не найден в app.json!');
           return;
         }
         const tokenData = await Notifications.getExpoPushTokenAsync({
@@ -70,7 +70,7 @@ export default function App() {
         setToken(tokenData.data);
         console.log('Expo Push Token received:', tokenData.data);
       } catch (error) {
-        alert('Ошибка Expo токена: ' + error.message);
+        console.warn('Ошибка Expo токена: ' + error.message);
       }
     }
 
