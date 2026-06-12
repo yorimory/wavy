@@ -102,17 +102,18 @@ async def push_schedule(user: User = Depends(get_current_user), db: Session = De
     ).order_by(Appointment.starts_at).all()
     
     if not appts:
-        body = "Сегодня у вас нет запланированных записей."
+        body = "📅 Расписание на сегодня\n\nУ вас нет запланированных записей. Отличный повод для отдыха! ✨"
     else:
         appts_text = []
         for a in appts:
             t_lbl = a.starts_at.strftime("%H:%M")
-            appts_text.append(f"{t_lbl} ({a.title})")
-        body = f"Сегодня у вас {len(appts)} зап.: {', '.join(appts_text)}"
+            appts_text.append(f"🕒 {t_lbl} — {a.title}")
+        
+        body = f"📅 У вас запланировано записей: {len(appts)}\n\n" + "\n".join(appts_text) + "\n\nWAVY желает вам хорошего дня! ✨"
         
     await send_expo_push(
         token=user.expo_push_token,
-        title="WAVY: Расписание на сегодня",
+        title="WAVY: Ваше расписание",
         body=body,
         path="/calendar"
     )
