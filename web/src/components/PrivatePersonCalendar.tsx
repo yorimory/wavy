@@ -449,14 +449,15 @@ export function PrivatePersonCalendar() {
                   style={colCount !== 7 ? { gridTemplateColumns: `80px repeat(${colCount}, minmax(0, 1fr))` } : undefined}
                 >
                   {/* Background Grid Cells */}
-                  {hours.flatMap((hour) => [
+                  {hours.flatMap((hour, hIdx) => [
                     <div
                       key={`time-${hour}`}
+                      style={{ gridRow: hIdx + 1, gridColumn: 1 }}
                       className="h-14 flex items-start justify-center pt-2 text-[11px] font-bold text-on-surface-variant/50 border-r border-outline-variant/30 sticky left-0 z-10 bg-surface-container-lowest"
                     >
                       {formatHourLabel(hour)}
                     </div>,
-                    ...displayDays.map((day) => {
+                    ...displayDays.map((day, dIdx) => {
                       const isToday = isSameDay(day, today);
                       const weekend = isWeekend(day);
                       const working = isWorkingCell(day, hour);
@@ -464,6 +465,7 @@ export function PrivatePersonCalendar() {
                       return (
                         <div
                           key={`${day.toISOString()}-${hour}`}
+                          style={{ gridRow: hIdx + 1, gridColumn: dIdx + 2 }}
                           className={[
                             "h-14 border-r last:border-r-0 transition-colors border-b border-outline-variant/20",
                             working ? "hover:bg-primary-container/5" : (weekend ? "bg-surface-container/50" : ""),
