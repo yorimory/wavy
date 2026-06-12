@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { apiFetch, getAvatarUrl } from "@/api/client";
+import { Avatar } from "@/components/ui/Avatar";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import { TimeSelect } from "@/components/ui/TimeSelect";
@@ -201,17 +202,7 @@ export function SettingsPage() {
     <div className="max-w-3xl space-y-6 animate-fade-up">
       {/* Header */}
       <div className="flex items-center gap-4">
-        {me?.avatar_url ? (
-          <img
-            src={getAvatarUrl(me.avatar_url)}
-            alt="Аватар"
-            className="w-16 h-16 rounded-none object-cover shadow-glow-sm shrink-0 border border-outline-variant/15"
-          />
-        ) : (
-          <div className="w-16 h-16 rounded-none primary-gradient flex items-center justify-center text-white font-black text-xl shadow-glow-sm shrink-0">
-            {initials}
-          </div>
-        )}
+        <Avatar name={me?.full_name} avatarUrl={me?.avatar_url} sizeClass="w-16 h-16" />
         <div>
           <h2 className="text-3xl font-black text-on-surface tracking-tight">
             {privatePerson ? "Настройки" : "Профиль"}
