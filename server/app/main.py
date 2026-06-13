@@ -57,3 +57,12 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/api/seed")
+def run_seed():
+    import sys, os
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from seed_mock_data import seed_data
+    seed_data()
+    return {"status": "success", "message": "База данных успешно заполнена!"}
