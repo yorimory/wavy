@@ -98,20 +98,29 @@ def seed_data():
         for c_user in master_clients:
             lc = db.query(Client).filter(Client.user_id == master.id, Client.email == c_user.email).first()
             if not lc:
+                prefix = random.choice(["29", "33", "44", "25"])
                 lc = Client(
                     user_id=master.id,
                     full_name=c_user.full_name,
                     email=c_user.email,
-                    phone=f"+7999{random.randint(1000000, 9999999)}"
+                    phone=f"+375{prefix}{random.randint(1000000, 9999999)}"
                 )
                 db.add(lc)
                 db.commit()
                 db.refresh(lc)
             
-            num_appts = random.randint(2, 4)
+            if master.email == "maria@wavy.com":
+                num_appts = random.randint(2, 3) # ~25 записей
+            else:
+                num_appts = random.randint(1, 3)
+                
             for _ in range(num_appts):
-                days_offset = random.randint(-20, 15)
-                hour = random.randint(9, 18)
+                if master.email == "maria@wavy.com":
+                    days_offset = random.randint(0, 7)
+                    hour = random.randint(8, 20)
+                else:
+                    days_offset = random.randint(-20, 15)
+                    hour = random.randint(9, 18)
                 
                 starts_at = now + timedelta(days=days_offset)
                 starts_at = starts_at.replace(hour=hour)
