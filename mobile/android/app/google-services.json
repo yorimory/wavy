@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "295724277979",
+    "project_id": "wavy-9d9e6",
+    "storage_bucket": "wavy-9d9e6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:295724277979:android:5d4f4867e912ebd29e6cfe",
+        "android_client_info": {
+          "package_name": "by.wavycrm.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUO20ucLJOLxHQIh-p_vIMLSWNrxQTACg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
