@@ -61,7 +61,12 @@ def health():
 
 @app.get("/api/seed")
 def run_seed():
-    from app.seed_mock_data import seed_data
-    seed_data()
-    return {"status": "success", "message": "База данных успешно заполнена!"}
+    try:
+        from app.seed_mock_data import seed_data
+        seed_data()
+        return {"status": "success", "message": "База данных успешно заполнена!"}
+    except Exception as e:
+        import traceback
+        return {"status": "error", "error": str(e), "trace": traceback.format_exc()}
+
 
