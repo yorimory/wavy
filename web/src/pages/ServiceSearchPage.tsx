@@ -209,17 +209,21 @@ function BookingModal({ service, days, loading, booking, err, ok, onBook, onClos
                     <div className="grid grid-cols-4 sm:grid-cols-5 gap-2.5">
                       {slotsForDate.map((slot) => {
                         const isChosen = selectedSlot === slot.starts_at;
+                        const isPassed = new Date(slot.starts_at) < new Date();
                         return (
                           <button
                             key={slot.starts_at}
                             type="button"
-                            disabled={booking}
+                            disabled={booking || isPassed}
                             onClick={() => setSelectedSlot(isChosen ? null : slot.starts_at)}
                             className={`py-2.5 rounded-2xl border font-bold text-sm text-center transition-all disabled:opacity-40 ${
                               isChosen
                                 ? "bg-primary border-primary text-white shadow-md shadow-primary/25 scale-[1.04]"
+                                : isPassed
+                                ? "bg-surface-container/30 border-transparent text-on-surface-variant/40 cursor-not-allowed"
                                 : "bg-white border-outline-variant/30 text-on-surface hover:border-primary/50 hover:bg-primary/4 hover:shadow-sm active:scale-95"
                             }`}
+                            title={isPassed ? "Это время уже прошло" : ""}
                           >
                             {formatTime24(new Date(slot.starts_at))}
                           </button>
@@ -732,17 +736,25 @@ export function ServiceSearchPage() {
                             })}
                           </p>
                           <div className="grid grid-cols-3 gap-2.5 max-h-[35vh] overflow-y-auto">
-                            {providerDays[activeDateIndex]!.slots.map((slot) => (
-                              <button
-                                key={slot.starts_at}
-                                type="button"
-                                disabled={booking}
-                                onClick={() => void bookSpecialistSlot(slot.starts_at)}
-                                className="py-2.5 rounded-xl border border-outline-variant/30 bg-white hover:border-primary hover:bg-primary/5 font-bold text-sm text-center transition-all disabled:opacity-40 hover:shadow-sm active:scale-95"
-                              >
-                                {formatTime24(new Date(slot.starts_at))}
-                              </button>
-                            ))}
+                            {providerDays[activeDateIndex]!.slots.map((slot) => {
+                              const isPassed = new Date(slot.starts_at) < new Date();
+                              return (
+                                <button
+                                  key={slot.starts_at}
+                                  type="button"
+                                  disabled={booking || isPassed}
+                                  onClick={() => void bookSpecialistSlot(slot.starts_at)}
+                                  className={`py-2.5 rounded-xl border font-bold text-sm text-center transition-all disabled:opacity-40 hover:shadow-sm active:scale-95 ${
+                                    isPassed 
+                                      ? "bg-surface-container/30 border-transparent text-on-surface-variant/40 cursor-not-allowed" 
+                                      : "border-outline-variant/30 bg-white hover:border-primary hover:bg-primary/5"
+                                  }`}
+                                  title={isPassed ? "Это время уже прошло" : ""}
+                                >
+                                  {formatTime24(new Date(slot.starts_at))}
+                                </button>
+                              );
+                            })}
                           </div>
                         </div>
                       ) : (
