@@ -101,6 +101,7 @@ export function ShellLayout() {
   const client = isClient(user);
   const moderator = isModerator(user);
   const calendarFullBleed = privatePerson && location.pathname === "/calendar";
+  const isMessages = location.pathname.startsWith("/messages");
 
   /* Mobile tabs */
   const mobileTabs = moderator
@@ -130,7 +131,7 @@ export function ShellLayout() {
 
       {/* ─────────────── Mobile top bar (logo only) ─────────────── */}
       <header
-        className="lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 shrink-0"
+        className={`${isMessages ? "hidden" : ""} lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 shrink-0`}
         style={{
           background: "rgba(255,255,255,0.85)",
           backdropFilter: "blur(16px)",
@@ -304,8 +305,10 @@ export function ShellLayout() {
       {/* ─────────────── Main content ─────────────── */}
       <main
         className={
-          (calendarFullBleed || location.pathname.startsWith("/messages"))
-            ? "flex-1 h-[calc(100dvh-112px)] lg:h-screen w-full p-0 overflow-hidden flex flex-col lg:pb-0"
+          (calendarFullBleed || isMessages)
+            ? isMessages
+              ? "flex-1 h-[calc(100dvh-56px)] lg:h-screen w-full p-0 overflow-hidden flex flex-col lg:pb-0"
+              : "flex-1 h-[calc(100dvh-112px)] lg:h-screen w-full p-0 overflow-hidden flex flex-col lg:pb-0"
             : `flex-1 min-h-[calc(100dvh-120px)] lg:min-h-screen w-full ${
                 moderator
                   ? "px-4 pt-4 pb-24 md:px-8 md:pt-8 md:pb-8 lg:p-10"

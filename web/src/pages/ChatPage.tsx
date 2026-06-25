@@ -184,19 +184,18 @@ export function ChatPage() {
   };
 
   return (
-    <div className="flex-1 min-h-0 w-full flex bg-surface-container-lowest border-t lg:border-t-0 border-outline-variant/15 overflow-hidden animate-fade-up">
+    <div style={{ display: 'flex', width: '100%', overflow: 'hidden', flex: '1 1 0%', minHeight: 0 }} className="bg-surface-container-lowest border-t lg:border-t-0 border-outline-variant/15 animate-fade-up">
 
       {/* Список контактов */}
       <div
-        className={`w-full md:w-80 border-r border-outline-variant/15 flex flex-col ${
-          activeContact ? "hidden md:flex" : "flex"
-        }`}
+        style={{ display: activeContact ? 'none' : 'flex', flexDirection: 'column', minWidth: 0 }}
+        className={`w-full md:w-80 border-r border-outline-variant/15 md:flex`}
       >
-        <div className="p-4 border-b border-outline-variant/15 shrink-0">
+        <div className="p-4 border-b border-outline-variant/15 shrink-0 flex items-center gap-3">
           <h2 className="text-xl font-black text-on-surface tracking-tight">Сообщения</h2>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-1 scroll-touch">
+        <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-1">
           {contacts === null ? (
             <div className="p-4 space-y-2">
               <div className="h-12 skeleton rounded-2xl" />
@@ -240,87 +239,80 @@ export function ChatPage() {
         </div>
       </div>
 
-      {/* Окно переписки — grid гарантирует фиксацию шапки и футера */}
-      <div
-        className={`flex-1 min-h-0 bg-surface-container-low/30 ${
-          activeContact
-            ? "grid grid-rows-[auto_1fr_auto] overflow-hidden"
-            : "hidden md:flex items-center justify-center"
-        }`}
-      >
-        {activeContact ? (
-          <>
-            {/* Шапка — row auto */}
-            <div className="p-4 border-b border-outline-variant/15 bg-surface-container-lowest flex items-center gap-3 shadow-[0_4px_20px_rgba(0,0,0,0.02)] z-10">
-              <button
-                onClick={() => setActiveContact(null)}
-                className="p-2 -ml-2 rounded-full text-on-surface-variant hover:bg-surface-container md:hidden transition-all"
-                title="Назад к контактам"
-              >
-                <span className="material-symbols-outlined block">arrow_back</span>
-              </button>
-              <Avatar name={activeContact.full_name} avatarUrl={activeContact.avatar_url} sizeClass="w-10 h-10" />
-              <div>
-                <p className="text-sm font-bold text-on-surface">{activeContact.full_name}</p>
-                <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
-                  {activeContact.role === "private_person" ? "Мастер" : "Клиент"}
-                </p>
-              </div>
+      {/* Окно переписки — inline style grid для 100% надёжности */}
+      {activeContact ? (
+        <div
+          style={{
+            flex: '1 1 0%',
+            minWidth: 0,
+            display: 'grid',
+            gridTemplateRows: 'auto 1fr auto',
+            overflow: 'hidden',
+            height: '100%',
+          }}
+          className="bg-surface-container-low/30"
+        >
+          {/* Шапка — auto */}
+          <div className="p-4 border-b border-outline-variant/15 bg-surface-container-lowest flex items-center gap-3 shadow-[0_2px_8px_rgba(0,0,0,0.06)] z-10">
+            <button
+              onClick={() => setActiveContact(null)}
+              className="p-2 -ml-2 rounded-full text-on-surface-variant hover:bg-surface-container md:hidden transition-all active:scale-90"
+              title="Назад к контактам"
+            >
+              <span className="material-symbols-outlined block">arrow_back</span>
+            </button>
+            <Avatar name={activeContact.full_name} avatarUrl={activeContact.avatar_url} sizeClass="w-10 h-10" />
+            <div>
+              <p className="text-sm font-bold text-on-surface">{activeContact.full_name}</p>
+              <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+                {activeContact.role === "private_person" ? "Мастер" : "Клиент"}
+              </p>
             </div>
+          </div>
 
-            {/* Сообщения — row 1fr, прокручивается внутри */}
-            <div className="overflow-y-auto overscroll-contain p-4 space-y-3 bg-surface-container-low/70">
-              {messages.length === 0 && (
-                <div className="h-full flex items-center justify-center">
-                  <p className="text-sm text-on-surface-variant">Начните переписку!</p>
-                </div>
-              )}
-              {messages.map((m) => {
-                const isMe = m.sender_id === currentUser?.id;
-                return (
-                  <div
-                    key={m.id}
-                    className={`flex ${isMe ? "justify-end" : "justify-start"}`}
-                  >
-                    <div
-                      className={`max-w-[80%] p-3.5 rounded-[20px] shadow-sm text-sm whitespace-pre-wrap ${
-                        isMe
-                          ? "bg-primary text-white rounded-tr-none"
-                          : "bg-surface-container-lowest text-on-surface border border-outline-variant/10 rounded-tl-none"
-                      }`}
-                    >
-                      <p className="pb-2">{m.body}</p>
-                      <div
-                        className={`text-[9px] text-right font-semibold select-none ${
-                          isMe ? "text-white/70" : "text-on-surface-variant/60"
-                        }`}
-                      >
-                        {formatTime(m.created_at)}
-                        {isMe && (
-                          <span className="ml-1 text-[10px] font-bold inline-block">
-                            {m.is_read ? "✓✓" : "✓"}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Ошибка — переносится в row auto формы */}
-            {error && (
-              <div className="px-4 py-1.5 text-xs text-error font-bold bg-error/10 border-t border-error/20">
-                {error}
+          {/* Сообщения — 1fr, прокручивается */}
+          <div
+            style={{ overflowY: 'auto', overscrollBehavior: 'contain' }}
+            className="p-4 space-y-3 bg-surface-container-low/70"
+          >
+            {messages.length === 0 && (
+              <div className="h-full flex items-center justify-center">
+                <p className="text-sm text-on-surface-variant">Начните переписку!</p>
               </div>
             )}
+            {messages.map((m) => {
+              const isMe = m.sender_id === currentUser?.id;
+              return (
+                <div key={m.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                  <div
+                    className={`max-w-[80%] p-3.5 rounded-[20px] shadow-sm text-sm whitespace-pre-wrap ${
+                      isMe
+                        ? "bg-primary text-white rounded-tr-none"
+                        : "bg-surface-container-lowest text-on-surface border border-outline-variant/10 rounded-tl-none"
+                    }`}
+                  >
+                    <p className="pb-2">{m.body}</p>
+                    <div className={`text-[9px] text-right font-semibold select-none ${isMe ? "text-white/70" : "text-on-surface-variant/60"}`}>
+                      {formatTime(m.created_at)}
+                      {isMe && (
+                        <span className="ml-1 text-[10px] font-bold inline-block">
+                          {m.is_read ? "✓✓" : "✓"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </div>
 
-            {/* Поле ввода — row auto */}
-            <form
-              onSubmit={handleSendMessage}
-              className="p-3 border-t border-outline-variant/15 bg-surface-container-lowest flex items-center gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] z-10"
-            >
+          {/* Поле ввода — auto */}
+          <div className="bg-surface-container-lowest border-t border-outline-variant/15 shadow-[0_-2px_8px_rgba(0,0,0,0.04)] z-10">
+            {error && (
+              <div className="px-4 pt-2 text-xs text-error font-bold">{error}</div>
+            )}
+            <form onSubmit={handleSendMessage} className="p-3 flex items-center gap-2">
               <input
                 type="text"
                 value={newMessage}
@@ -339,19 +331,17 @@ export function ChatPage() {
                 <span className="material-symbols-outlined block text-lg font-bold">send</span>
               </button>
             </form>
-          </>
-        ) : (
-          <div className="text-center p-6 max-w-sm">
-            <span className="material-symbols-outlined text-5xl text-outline-variant block mb-3">
-              chat_bubble
-            </span>
-            <h3 className="text-lg font-black text-on-surface mb-1">Выберите диалог</h3>
-            <p className="text-sm text-on-surface-variant">
-              Выберите контакт из списка слева, чтобы начать переписку.
-            </p>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="hidden md:flex flex-1 items-center justify-center bg-surface-container-low/30">
+          <div className="text-center p-6 max-w-sm">
+            <span className="material-symbols-outlined text-5xl text-outline-variant block mb-3">chat_bubble</span>
+            <h3 className="text-lg font-black text-on-surface mb-1">Выберите диалог</h3>
+            <p className="text-sm text-on-surface-variant">Выберите контакт из списка слева.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
