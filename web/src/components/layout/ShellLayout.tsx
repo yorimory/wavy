@@ -131,7 +131,7 @@ export function ShellLayout() {
 
       {/* ─────────────── Mobile top bar (logo only) ─────────────── */}
       <header
-        className={`${isMessages ? "hidden" : ""} lg:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 shrink-0`}
+        className={`lg:hidden sticky top-0 z-40 items-center justify-between px-4 py-3 shrink-0 ${isMessages ? "hidden" : "flex"}`}
         style={{
           background: "rgba(255,255,255,0.85)",
           backdropFilter: "blur(16px)",
@@ -305,10 +305,10 @@ export function ShellLayout() {
       {/* ─────────────── Main content ─────────────── */}
       <main
         className={
-          (calendarFullBleed || isMessages)
-            ? isMessages
-              ? "flex-1 h-[calc(100dvh-56px)] lg:h-screen w-full p-0 overflow-hidden flex flex-col lg:pb-0"
-              : "flex-1 h-[calc(100dvh-112px)] lg:h-screen w-full p-0 overflow-hidden flex flex-col lg:pb-0"
+          (calendarFullBleed)
+            ? "flex-1 h-[calc(100dvh-112px)] lg:h-screen w-full p-0 overflow-hidden flex flex-col lg:pb-0"
+            : isMessages
+            ? "flex-1 h-[calc(100dvh-56px)] lg:h-screen w-full p-0 overflow-hidden flex flex-col lg:pb-0"
             : `flex-1 min-h-[calc(100dvh-120px)] lg:min-h-screen w-full ${
                 moderator
                   ? "px-4 pt-4 pb-24 md:px-8 md:pt-8 md:pb-8 lg:p-10"
