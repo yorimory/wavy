@@ -4,6 +4,8 @@ import { apiFetch } from "@/api/client";
 import { Avatar } from "@/components/ui/Avatar";
 import type { ContactOut, MessageOut, UserOut } from "@/types";
 
+// ─── Chat panel JSX inline (НЕ отдельный компонент чтобы не терять фокус) ───
+
 export function ChatPage() {
   const [searchParams] = useSearchParams();
   const targetUserIdStr = searchParams.get("userId");
@@ -19,8 +21,8 @@ export function ChatPage() {
   const [error, setError] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // Получаем текущего юзера
   useEffect(() => {
     (async () => {
       try {
@@ -32,12 +34,10 @@ export function ChatPage() {
     })();
   }, []);
 
-  // Первичная загрузка списка контактов
   const fetchContacts = async (selectTargetId?: number) => {
     try {
       const data = await apiFetch<ContactOut[]>("/messages/contacts");
       setContacts(data);
-
       if (selectTargetId) {
         const found = data.find((c) => c.id === selectTargetId);
         if (found) {
@@ -64,7 +64,6 @@ export function ChatPage() {
     fetchContacts(targetId);
   }, [targetUserIdStr, currentUser]);
 
-  // Загрузка истории сообщений
   const fetchMessages = async (partnerId: number) => {
     try {
       const data = await apiFetch<MessageOut[]>(`/messages/chat/${partnerId}`);
@@ -82,7 +81,6 @@ export function ChatPage() {
     }
   }, [activeContact]);
 
-  // Polling каждые 5 секунд
   useEffect(() => {
     const timer = setInterval(() => {
       (async () => {
@@ -96,16 +94,11 @@ export function ChatPage() {
           console.error("Background contacts fetch failed", e);
         }
       })();
-
-      if (activeContact) {
-        fetchMessages(activeContact.id);
-      }
+      if (activeContact) fetchMessages(activeContact.id);
     }, 5000);
-
     return () => clearInterval(timer);
   }, [activeContact]);
 
-  // Скролл вниз при новых сообщениях
   useEffect(() => {
     if (messages.length > 0) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -115,21 +108,15 @@ export function ChatPage() {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !activeContact || isSending) return;
-
     setIsSending(true);
     setError(null);
     const bodyText = newMessage.trim();
     setNewMessage("");
-
     try {
       const sent = await apiFetch<MessageOut>("/messages", {
         method: "POST",
-        body: JSON.stringify({
-          receiver_id: activeContact.id,
-          body: bodyText,
-        }),
+        body: JSON.stringify({ receiver_id: activeContact.id, body: bodyText }),
       });
-
       setMessages((prev) => [...prev, sent]);
       fetchContacts(activeContact.id);
     } catch (err) {
@@ -148,92 +135,90 @@ export function ChatPage() {
     }
   };
 
-  // ─── Внутренний компонент: панель переписки ───────────────────────────────
-  // Используется как в мобильном fixed-overlay, так и в десктопном layout
-  const ChatPanel = () => (
-    <>
-      {/* Шапка */}
-      <div
-        style={{ flexShrink: 0 }}
-        className="px-4 py-3 border-b border-outline-variant/15 bg-white flex items-center gap-3 shadow-sm z-10"
+  // ─── JSX шапки + сообщений + инпута — инлайн, не компонент ───────────────
+  const chatHeaderJSX = activeContact && (
+    <div
+      style={{ flexShrink: 0 }}
+      className="px-4 py-3 border-b border-outline-variant/15 bg-white flex items-center gap-3 shadow-sm z-10"
+    >
+      <button
+        onClick={() => setActiveContact(null)}
+        className="p-2 -ml-1 rounded-full text-on-surface-variant hover:bg-surface-container md:hidden transition-all active:scale-90"
+        title="Назад"
       >
-        <button
-          onClick={() => setActiveContact(null)}
-          className="p-2 -ml-1 rounded-full text-on-surface-variant hover:bg-surface-container md:hidden transition-all active:scale-90"
-          title="Назад"
-        >
-          <span className="material-symbols-outlined block text-[22px]">arrow_back</span>
-        </button>
-        <Avatar name={activeContact!.full_name} avatarUrl={activeContact!.avatar_url} sizeClass="w-10 h-10" />
-        <div className="min-w-0">
-          <p className="text-sm font-bold text-on-surface truncate">{activeContact!.full_name}</p>
-          <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
-            {activeContact!.role === "private_person" ? "Мастер" : "Клиент"}
-          </p>
-        </div>
+        <span className="material-symbols-outlined block text-[22px]">arrow_back</span>
+      </button>
+      <Avatar name={activeContact.full_name} avatarUrl={activeContact.avatar_url} sizeClass="w-10 h-10" />
+      <div className="min-w-0">
+        <p className="text-sm font-bold text-on-surface truncate">{activeContact.full_name}</p>
+        <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+          {activeContact.role === "private_person" ? "Мастер" : "Клиент"}
+        </p>
       </div>
+    </div>
+  );
 
-      {/* Сообщения */}
-      <div
-        style={{ flex: "1 1 0%", overflowY: "auto", overscrollBehavior: "contain" }}
-        className="p-4 space-y-3 bg-surface-container-low/70"
-      >
-        {messages.length === 0 && (
-          <div className="h-full flex items-center justify-center">
-            <p className="text-sm text-on-surface-variant">Начните переписку!</p>
-          </div>
-        )}
-        {messages.map((m) => {
-          const isMe = m.sender_id === currentUser?.id;
-          return (
-            <div key={m.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-[80%] p-3.5 rounded-[20px] shadow-sm text-sm whitespace-pre-wrap ${
-                  isMe
-                    ? "bg-primary text-white rounded-tr-none"
-                    : "bg-white text-on-surface border border-outline-variant/10 rounded-tl-none"
-                }`}
-              >
-                <p className="pb-2">{m.body}</p>
-                <div className={`text-[9px] text-right font-semibold select-none ${isMe ? "text-white/70" : "text-on-surface-variant/60"}`}>
-                  {formatTime(m.created_at)}
-                  {isMe && (
-                    <span className="ml-1 text-[10px] font-bold inline-block">
-                      {m.is_read ? "✓✓" : "✓"}
-                    </span>
-                  )}
-                </div>
+  const chatMessagesJSX = (
+    <div
+      style={{ flex: "1 1 0%", overflowY: "auto", overscrollBehavior: "contain" }}
+      className="p-4 space-y-3 bg-surface-container-low/70"
+    >
+      {messages.length === 0 && (
+        <div className="h-full flex items-center justify-center">
+          <p className="text-sm text-on-surface-variant">Начните переписку!</p>
+        </div>
+      )}
+      {messages.map((m) => {
+        const isMe = m.sender_id === currentUser?.id;
+        return (
+          <div key={m.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+            <div
+              className={`max-w-[80%] p-3.5 rounded-[20px] shadow-sm text-sm whitespace-pre-wrap ${
+                isMe
+                  ? "bg-primary text-white rounded-tr-none"
+                  : "bg-white text-on-surface border border-outline-variant/10 rounded-tl-none"
+              }`}
+            >
+              <p className="pb-2">{m.body}</p>
+              <div className={`text-[9px] text-right font-semibold select-none ${isMe ? "text-white/70" : "text-on-surface-variant/60"}`}>
+                {formatTime(m.created_at)}
+                {isMe && (
+                  <span className="ml-1 text-[10px] font-bold inline-block">
+                    {m.is_read ? "✓✓" : "✓"}
+                  </span>
+                )}
               </div>
             </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </div>
+          </div>
+        );
+      })}
+      <div ref={messagesEndRef} />
+    </div>
+  );
 
-      {/* Поле ввода */}
-      <div style={{ flexShrink: 0 }} className="bg-white border-t border-outline-variant/15 shadow-[0_-2px_8px_rgba(0,0,0,0.04)] z-10">
-        {error && <div className="px-4 pt-2 text-xs text-error font-bold">{error}</div>}
-        <form onSubmit={handleSendMessage} className="p-3 flex items-center gap-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Напишите сообщение..."
-            className="input-field py-2.5 rounded-full flex-1"
-            disabled={isSending}
-            required
-          />
-          <button
-            type="submit"
-            disabled={isSending || !newMessage.trim()}
-            className="w-10 h-10 rounded-full primary-gradient text-white flex items-center justify-center shrink-0 disabled:opacity-50 transition-all hover:scale-105 active:scale-95"
-            title="Отправить"
-          >
-            <span className="material-symbols-outlined block text-lg font-bold">send</span>
-          </button>
-        </form>
-      </div>
-    </>
+  const chatInputJSX = (
+    <div style={{ flexShrink: 0 }} className="bg-white border-t border-outline-variant/15 shadow-[0_-2px_8px_rgba(0,0,0,0.04)] z-10">
+      {error && <div className="px-4 pt-2 text-xs text-error font-bold">{error}</div>}
+      <form onSubmit={handleSendMessage} className="p-3 flex items-center gap-2">
+        <input
+          ref={inputRef}
+          type="text"
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          placeholder="Напишите сообщение..."
+          className="input-field py-2.5 rounded-full flex-1"
+          disabled={isSending}
+        />
+        <button
+          type="submit"
+          disabled={isSending || !newMessage.trim()}
+          className="w-10 h-10 rounded-full primary-gradient text-white flex items-center justify-center shrink-0 disabled:opacity-50 transition-all hover:scale-105 active:scale-95"
+          title="Отправить"
+        >
+          <span className="material-symbols-outlined block text-lg font-bold">send</span>
+        </button>
+      </form>
+    </div>
   );
 
   return (
@@ -247,21 +232,22 @@ export function ChatPage() {
             top: 0,
             left: 0,
             right: 0,
-            bottom: "56px", // высота нижнего таб-бара
+            bottom: "56px",
             display: "flex",
             flexDirection: "column",
             zIndex: 200,
             backgroundColor: "white",
           }}
         >
-          <ChatPanel />
+          {chatHeaderJSX}
+          {chatMessagesJSX}
+          {chatInputJSX}
         </div>
       )}
 
-      {/* ── ОСНОВНОЙ layout (список контактов + десктопный чат) ── */}
-      <div
-        className="flex-1 min-h-0 w-full flex overflow-hidden bg-surface-container-lowest border-t lg:border-t-0 border-outline-variant/15 animate-fade-up"
-      >
+      {/* ── Основной layout (список контактов + десктопный чат) ── */}
+      <div className="flex-1 min-h-0 w-full flex overflow-hidden bg-surface-container-lowest border-t lg:border-t-0 border-outline-variant/15 animate-fade-up">
+
         {/* Список контактов */}
         <div
           className={`w-full md:w-80 border-r border-outline-variant/15 flex flex-col ${
@@ -271,7 +257,6 @@ export function ChatPage() {
           <div className="p-4 border-b border-outline-variant/15 shrink-0">
             <h2 className="text-xl font-black text-on-surface tracking-tight">Сообщения</h2>
           </div>
-
           <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-1">
             {contacts === null ? (
               <div className="p-4 space-y-2">
@@ -318,10 +303,10 @@ export function ChatPage() {
 
         {/* Десктопная панель чата */}
         {activeContact ? (
-          <div
-            className="hidden md:flex flex-col flex-1 min-h-0 bg-surface-container-low/30 overflow-hidden"
-          >
-            <ChatPanel />
+          <div className="hidden md:flex flex-col flex-1 min-h-0 overflow-hidden bg-surface-container-low/30">
+            {chatHeaderJSX}
+            {chatMessagesJSX}
+            {chatInputJSX}
           </div>
         ) : (
           <div className="hidden md:flex flex-1 items-center justify-center bg-surface-container-low/30">
