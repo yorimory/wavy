@@ -306,7 +306,7 @@ export function ModeratorPage() {
                   u.email?.toLowerCase().includes(userSearch.toLowerCase())
                 );
                 return (
-                  <table className="w-full text-left border-collapse">
+                  <table className="w-full min-w-[900px] text-left border-collapse">
                     <thead>
                       <tr className="bg-surface-container-low border-b border-outline-variant/15 text-xs font-bold text-on-surface-variant uppercase tracking-wider">
                         <th className="p-4">ID</th>

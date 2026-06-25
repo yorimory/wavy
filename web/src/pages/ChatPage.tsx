@@ -184,18 +184,19 @@ export function ChatPage() {
   };
 
   return (
-    <div className="flex-1 min-h-0 h-full w-full flex bg-surface-container-lowest border-t lg:border-t-0 border-outline-variant/15 overflow-hidden animate-fade-up">
+    <div className="flex-1 min-h-0 w-full flex bg-surface-container-lowest border-t lg:border-t-0 border-outline-variant/15 overflow-hidden animate-fade-up">
+
       {/* Список контактов */}
       <div
-        className={`w-full md:w-80 border-r border-outline-variant/15 flex flex-col h-full ${
+        className={`w-full md:w-80 border-r border-outline-variant/15 flex flex-col ${
           activeContact ? "hidden md:flex" : "flex"
         }`}
       >
-        <div className="p-4 border-b border-outline-variant/15 flex-shrink-0">
+        <div className="p-4 border-b border-outline-variant/15 shrink-0">
           <h2 className="text-xl font-black text-on-surface tracking-tight">Сообщения</h2>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-2 space-y-1 scroll-touch">
+        <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-1 scroll-touch">
           {contacts === null ? (
             <div className="p-4 space-y-2">
               <div className="h-12 skeleton rounded-2xl" />
@@ -241,14 +242,14 @@ export function ChatPage() {
 
       {/* Окно переписки */}
       <div
-        className={`flex-1 min-h-0 bg-surface-container-low/30 h-full relative ${
-          activeContact ? "flex flex-col" : "hidden md:flex items-center justify-center"
+        className={`flex-1 min-h-0 flex flex-col bg-surface-container-low/30 ${
+          activeContact ? "" : "hidden md:flex items-center justify-center"
         }`}
       >
         {activeContact ? (
           <>
-            {/* Шапка чата — sticky на мобиле */}
-            <div className="sticky top-0 z-20 p-4 border-b border-outline-variant/15 bg-surface-container-lowest flex items-center gap-3 shrink-0 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+            {/* Шапка — shrink-0 закрепляет ее на месте */}
+            <div className="shrink-0 p-4 border-b border-outline-variant/15 bg-surface-container-lowest flex items-center gap-3 shadow-[0_4px_20px_rgba(0,0,0,0.02)] z-10">
               <button
                 onClick={() => setActiveContact(null)}
                 className="p-2 -ml-2 rounded-full text-on-surface-variant hover:bg-surface-container md:hidden transition-all"
@@ -265,9 +266,13 @@ export function ChatPage() {
               </div>
             </div>
 
-            {/* Область сообщений — прокручивается сама */}
-            <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-3 scroll-touch bg-surface-container-low/70">
-              <div className="flex-1" />
+            {/* Сообщения — flex-1 min-h-0 чтобы прокручивались внутри */}
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3 bg-surface-container-low/70">
+              {messages.length === 0 && (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-sm text-on-surface-variant">Начните переписку!</p>
+                </div>
+              )}
               {messages.map((m) => {
                 const isMe = m.sender_id === currentUser?.id;
                 return (
@@ -276,7 +281,7 @@ export function ChatPage() {
                     className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                   >
                     <div
-                      className={`max-w-[80%] p-3.5 rounded-[20px] shadow-sm text-sm whitespace-pre-wrap relative group ${
+                      className={`max-w-[80%] p-3.5 rounded-[20px] shadow-sm text-sm whitespace-pre-wrap ${
                         isMe
                           ? "bg-primary text-white rounded-tr-none"
                           : "bg-surface-container-lowest text-on-surface border border-outline-variant/10 rounded-tl-none"
@@ -302,17 +307,17 @@ export function ChatPage() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Ошибка отправки */}
+            {/* Ошибка */}
             {error && (
-              <div className="px-4 py-1.5 text-xs text-error font-bold bg-error/10 border-y border-error/20 shrink-0">
+              <div className="shrink-0 px-4 py-1.5 text-xs text-error font-bold bg-error/10 border-y border-error/20">
                 {error}
               </div>
             )}
 
-            {/* Поле ввода — закреплено снизу, над нижним меню */}
+            {/* Поле ввода — shrink-0 закрепляет его снизу */}
             <form
               onSubmit={handleSendMessage}
-              className="p-3 border-t border-outline-variant/15 bg-surface-container-lowest flex items-center gap-2 shrink-0 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]"
+              className="shrink-0 p-3 border-t border-outline-variant/15 bg-surface-container-lowest flex items-center gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] z-10"
             >
               <input
                 type="text"
