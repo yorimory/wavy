@@ -528,7 +528,7 @@ export function ServiceSearchPage() {
               </div>
 
               {/* Фильтр по категориям */}
-              <div className="flex gap-2 overflow-x-auto pb-1 -mx-6 px-6 md:-mx-10 md:px-10 scrollbar-none">
+              <div className="flex gap-2 overflow-x-auto md:flex-wrap pb-1 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-none md:overflow-visible">
                 <button
                   type="button"
                   onClick={() => setSelectedCategory(null)}
