@@ -241,14 +241,14 @@ export function ChatPage() {
 
       {/* Окно переписки */}
       <div
-        className={`flex-1 min-h-0 flex flex-col bg-surface-container-low/30 h-full ${
-          activeContact ? "flex" : "hidden md:flex items-center justify-center"
+        className={`flex-1 min-h-0 bg-surface-container-low/30 h-full relative ${
+          activeContact ? "flex flex-col" : "hidden md:flex items-center justify-center"
         }`}
       >
         {activeContact ? (
           <>
-            {/* Шапка чата */}
-            <div className="p-4 border-b border-outline-variant/15 bg-surface-container-lowest flex items-center gap-3 shrink-0 relative z-10 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+            {/* Шапка чата — sticky на мобиле */}
+            <div className="sticky top-0 z-20 p-4 border-b border-outline-variant/15 bg-surface-container-lowest flex items-center gap-3 shrink-0 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
               <button
                 onClick={() => setActiveContact(null)}
                 className="p-2 -ml-2 rounded-full text-on-surface-variant hover:bg-surface-container md:hidden transition-all"
@@ -265,9 +265,9 @@ export function ChatPage() {
               </div>
             </div>
 
-            {/* Сообщения */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 scroll-touch bg-surface-container-low/70 touch-pan-y flex flex-col">
-              <div className="flex-1" /> {/* Spacer to push messages to bottom if they don't fill the screen */}
+            {/* Область сообщений — прокручивается сама */}
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-3 scroll-touch bg-surface-container-low/70">
+              <div className="flex-1" />
               {messages.map((m) => {
                 const isMe = m.sender_id === currentUser?.id;
                 return (
@@ -309,10 +309,10 @@ export function ChatPage() {
               </div>
             )}
 
-            {/* Поле ввода */}
+            {/* Поле ввода — закреплено снизу, над нижним меню */}
             <form
               onSubmit={handleSendMessage}
-              className="p-3 border-t border-outline-variant/15 bg-surface-container-lowest flex items-center gap-2 shrink-0 relative z-10 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]"
+              className="p-3 border-t border-outline-variant/15 bg-surface-container-lowest flex items-center gap-2 shrink-0 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.02)]"
             >
               <input
                 type="text"

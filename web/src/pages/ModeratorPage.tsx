@@ -4,8 +4,10 @@ import type { UserOut, SystemActionLogOut, SystemConfigOut, SupportTicketOut } f
 
 type Tab = "users" | "logs" | "config" | "tickets";
 
+
 export function ModeratorPage() {
   const [activeTab, setActiveTab] = useState<Tab>("users");
+  const [userSearch, setUserSearch] = useState("");
   
   // Данные вкладок
   const [users, setUsers] = useState<UserOut[] | null>(null);
@@ -269,89 +271,127 @@ export function ModeratorPage() {
       <div className="bg-white border border-outline-variant/15 rounded-3xl shadow-sm overflow-hidden">
         {/* Вкладка: Пользователи */}
         {activeTab === "users" && (
-          <div className="overflow-x-auto scroll-touch">
-            {users === null ? (
-              <div className="p-8 space-y-4">
-                <div className="h-10 skeleton rounded-xl" />
-                <div className="h-10 skeleton rounded-xl" />
+          <div>
+            {/* Строка поиска */}
+            <div className="p-4 border-b border-outline-variant/10">
+              <div className="relative max-w-sm">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-[18px]">search</span>
+                <input
+                  type="text"
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder="Поиск по имени или email..."
+                  className="input-field pl-10 py-2 text-sm"
+                />
+                {userSearch && (
+                  <button
+                    onClick={() => setUserSearch("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant/50 text-[18px] hover:text-on-surface transition-colors"
+                  >
+                    close
+                  </button>
+                )}
               </div>
-            ) : (
-              <table className="w-full min-w-[700px] text-left border-collapse">
-                <thead>
-                  <tr className="bg-surface-container-low border-b border-outline-variant/15 text-xs font-bold text-on-surface-variant uppercase tracking-wider">
-                    <th className="p-4">ФИО / Email</th>
-                    <th className="p-4">Роль</th>
-                    <th className="p-4 text-center">Предупреждения</th>
-                    <th className="p-4">Статус</th>
-                    <th className="p-4 text-right">Действия</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant/10 text-sm">
-                  {users.map((u) => (
-                    <tr key={u.id} className="hover:bg-surface-container-lowest/50">
-                      <td className="p-4">
-                        <div className="font-bold text-on-surface">{u.full_name}</div>
-                        <div className="text-xs text-on-surface-variant">{u.email}</div>
-                      </td>
-                      <td className="p-4">
-                        <span className={`badge ${
-                          u.role === "moderator" 
-                            ? "bg-purple-100 text-purple-700" 
-                            : u.role === "client" 
-                            ? "bg-blue-100 text-blue-700" 
-                            : "bg-emerald-100 text-emerald-700"
-                        }`}>
-                          {u.role === "moderator" ? "Модератор" : u.role === "client" ? "Клиент" : "Мастер"}
-                        </span>
-                      </td>
-                      <td className="p-4 text-center font-bold">
-                        {u.warning_count}
-                      </td>
-                      <td className="p-4">
-                        {u.is_banned ? (
-                          <span className="badge bg-red-100 text-red-700 font-bold" title={u.ban_reason || ""}>
-                            Забанен
-                          </span>
-                        ) : (
-                          <span className="badge bg-emerald-100 text-emerald-700 font-bold">
-                            Активен
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-4 text-right space-x-1 whitespace-nowrap">
-                        <button
-                          onClick={() => handleRoleChange(u.id, u.role)}
-                          className="px-3 py-1.5 rounded-xl border border-outline-variant hover:bg-surface-container text-xs font-bold transition-all"
-                        >
-                          {u.role === "moderator" ? "Снять адм." : "Дать адм."}
-                        </button>
-                        <button
-                          onClick={() => handleWarnUser(u.id)}
-                          className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all"
-                        >
-                          Предупреждение
-                        </button>
-                        {u.is_banned ? (
-                          <button
-                            onClick={() => handleUnbanUser(u.id)}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all"
-                          >
-                            Разбан
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleBanUser(u.id)}
-                            className="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all"
-                          >
-                            Бан
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+            </div>
+            <div className="overflow-x-auto scroll-touch">
+              {users === null ? (
+                <div className="p-8 space-y-4">
+                  <div className="h-10 skeleton rounded-xl" />
+                  <div className="h-10 skeleton rounded-xl" />
+                </div>
+              ) : (() => {
+                const filtered = users.filter((u) =>
+                  !userSearch.trim() ||
+                  u.full_name?.toLowerCase().includes(userSearch.toLowerCase()) ||
+                  u.email?.toLowerCase().includes(userSearch.toLowerCase())
+                );
+                return (
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-surface-container-low border-b border-outline-variant/15 text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+                        <th className="p-4">ID</th>
+                        <th className="p-4">ФИО / Email</th>
+                        <th className="p-4">Роль</th>
+                        <th className="p-4 text-center">Предупреждения</th>
+                        <th className="p-4">Статус</th>
+                        <th className="p-4 text-right">Действия</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-outline-variant/10 text-sm">
+                      {filtered.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="p-8 text-center text-sm text-on-surface-variant">
+                            Пользователи не найдены
+                          </td>
+                        </tr>
+                      ) : filtered.map((u) => (
+                        <tr key={u.id} className="hover:bg-surface-container-lowest/50">
+                          <td className="p-4 text-xs text-on-surface-variant font-mono">#{u.id}</td>
+                          <td className="p-4">
+                            <div className="font-bold text-on-surface">{u.full_name}</div>
+                            <div className="text-xs text-on-surface-variant">{u.email}</div>
+                          </td>
+                          <td className="p-4">
+                            <span className={`badge ${
+                              u.role === "moderator" 
+                                ? "bg-purple-100 text-purple-700" 
+                                : u.role === "client" 
+                                ? "bg-blue-100 text-blue-700" 
+                                : "bg-emerald-100 text-emerald-700"
+                            }`}>
+                              {u.role === "moderator" ? "Модератор" : u.role === "client" ? "Клиент" : "Мастер"}
+                            </span>
+                          </td>
+                          <td className="p-4 text-center font-bold">
+                            {u.warning_count}
+                          </td>
+                          <td className="p-4">
+                            {u.is_banned ? (
+                              <span className="badge bg-red-100 text-red-700 font-bold" title={u.ban_reason || ""}>
+                                Забанен
+                              </span>
+                            ) : (
+                              <span className="badge bg-emerald-100 text-emerald-700 font-bold">
+                                Активен
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-4 text-right space-x-1 whitespace-nowrap">
+                            <button
+                              onClick={() => handleRoleChange(u.id, u.role)}
+                              className="px-3 py-1.5 rounded-xl border border-outline-variant hover:bg-surface-container text-xs font-bold transition-all"
+                            >
+                              {u.role === "moderator" ? "Снять адм." : "Дать адм."}
+                            </button>
+                            <button
+                              onClick={() => handleWarnUser(u.id)}
+                              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all"
+                            >
+                              Предупреждение
+                            </button>
+                            {u.is_banned ? (
+                              <button
+                                onClick={() => handleUnbanUser(u.id)}
+                                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all"
+                              >
+                                Разбан
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleBanUser(u.id)}
+                                className="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all"
+                              >
+                                Бан
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                );
+              })()}
+            </div>
           </div>
         )}
 
