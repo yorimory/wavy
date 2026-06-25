@@ -240,16 +240,18 @@ export function ChatPage() {
         </div>
       </div>
 
-      {/* Окно переписки */}
+      {/* Окно переписки — grid гарантирует фиксацию шапки и футера */}
       <div
-        className={`flex-1 min-h-0 flex flex-col bg-surface-container-low/30 ${
-          activeContact ? "" : "hidden md:flex items-center justify-center"
+        className={`flex-1 min-h-0 bg-surface-container-low/30 ${
+          activeContact
+            ? "grid grid-rows-[auto_1fr_auto] overflow-hidden"
+            : "hidden md:flex items-center justify-center"
         }`}
       >
         {activeContact ? (
           <>
-            {/* Шапка — shrink-0 закрепляет ее на месте */}
-            <div className="shrink-0 p-4 border-b border-outline-variant/15 bg-surface-container-lowest flex items-center gap-3 shadow-[0_4px_20px_rgba(0,0,0,0.02)] z-10">
+            {/* Шапка — row auto */}
+            <div className="p-4 border-b border-outline-variant/15 bg-surface-container-lowest flex items-center gap-3 shadow-[0_4px_20px_rgba(0,0,0,0.02)] z-10">
               <button
                 onClick={() => setActiveContact(null)}
                 className="p-2 -ml-2 rounded-full text-on-surface-variant hover:bg-surface-container md:hidden transition-all"
@@ -266,8 +268,8 @@ export function ChatPage() {
               </div>
             </div>
 
-            {/* Сообщения — flex-1 min-h-0 чтобы прокручивались внутри */}
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3 bg-surface-container-low/70">
+            {/* Сообщения — row 1fr, прокручивается внутри */}
+            <div className="overflow-y-auto overscroll-contain p-4 space-y-3 bg-surface-container-low/70">
               {messages.length === 0 && (
                 <div className="h-full flex items-center justify-center">
                   <p className="text-sm text-on-surface-variant">Начните переписку!</p>
@@ -307,17 +309,17 @@ export function ChatPage() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Ошибка */}
+            {/* Ошибка — переносится в row auto формы */}
             {error && (
-              <div className="shrink-0 px-4 py-1.5 text-xs text-error font-bold bg-error/10 border-y border-error/20">
+              <div className="px-4 py-1.5 text-xs text-error font-bold bg-error/10 border-t border-error/20">
                 {error}
               </div>
             )}
 
-            {/* Поле ввода — shrink-0 закрепляет его снизу */}
+            {/* Поле ввода — row auto */}
             <form
               onSubmit={handleSendMessage}
-              className="shrink-0 p-3 border-t border-outline-variant/15 bg-surface-container-lowest flex items-center gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] z-10"
+              className="p-3 border-t border-outline-variant/15 bg-surface-container-lowest flex items-center gap-2 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] z-10"
             >
               <input
                 type="text"
